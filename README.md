@@ -165,20 +165,22 @@ app/src/main/java/com/btk/spm/
 
 ## Delivery at a glance
 
-Each bar has **one block per issue**, so every merged pull request adds a 🟩 to its milestone. The
-bars are written by `scripts/milestone_progress.py` (Issue 7) from GitHub's own issue states, so they
-cannot drift from the work; each milestone doc links its issues and draws its order of work.
+Each bar has **one block per issue**, so every merged pull request that closes an issue adds a 🟩 to
+its milestone; a follow-up that closes nothing adds none. Until Issue 7 ships
+`scripts/milestone_progress.py`, which writes the bars from GitHub's own issue states, the pull request
+that closes an issue turns its block green by hand. Each milestone doc lists its issues and its order
+of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **14%** (1/7 issues) |
-| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **3%** (1/38 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩⬜⬜⬜⬜⬜⬜ **14%** (1/7 issues) |
+| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **3%** (1/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -236,7 +238,7 @@ open the Recipes tab.
 
 - Branch `Issue/<N>/<short-slug>`, commits `Issue <N>: <imperative summary>`, one issue per pull request, no assistant trailer.
 - The PR description is `docs/GITHUB/PR/M<n>/PR_<N>_DESCRIPTION.md`, with real evidence and a screenshot for any UI change, ending `Closes #<N>`. It is kept local and git-ignored, never committed; its text is synced to GitHub as the PR body.
-- Every PR regenerates its milestone's bars: `python scripts/milestone_progress.py --assume-closed <N>`.
+- Every PR that closes an issue turns one block of its milestone's bar green, as the bar will read once it merges: by hand until Issue 7, then `python scripts/milestone_progress.py --assume-closed <N>`.
 - The history is marked: at least ten real, incremental commits spread over the weeks; merge, never squash.
 
 The whole workflow and the code rules: `docs/GITHUB/README.md` and
