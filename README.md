@@ -157,7 +157,7 @@ app/src/main/java/com/btk/spm/
 
 | Document | What's in it |
 |----------|--------------|
-| **[Non-negotiables](docs/guideline.md)** | The nine rules a marker tests or that keep the code honest, each enforced by a test or a guard |
+| **[Non-negotiables](docs/guideline.md)** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
 | **[Milestones & issues](docs/GITHUB/README.md)** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
 | **[How to read an issue](docs/GITHUB/ISSUES/README.md)** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
 | **[IDE rules and prompts](docs/IDE/README.md)** | The rules every person and assistant follows; one prompt per issue |
