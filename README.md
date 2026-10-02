@@ -20,7 +20,7 @@
   <a href="#getting-started"><strong>Getting started</strong></a> ·
   <a href="#the-strict-matching-rule">The strict-matching rule</a> ·
   <a href="#database-room-over-sqlite-and-why">Database choice</a> ·
-  Milestones &amp; issues ·
+  <a href="https://github.com/Billykat7/spm/milestones">Milestones</a> &amp; <a href="https://github.com/Billykat7/spm/issues">issues</a> ·
   <a href="docs/guideline.md">Non-negotiables</a> ·
   <a href="docs/REPORT/README.md">Report</a> ·
   <a href="docs/DEMO/README.md">Video</a>
@@ -157,7 +157,7 @@ app/src/main/java/com/btk/spm/
 | Document | What's in it |
 |----------|--------------|
 | **[Non-negotiables](docs/guideline.md)** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
-| **Milestones & issues** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
+| **[Milestones](https://github.com/Billykat7/spm/milestones) & [issues](https://github.com/Billykat7/spm/issues)** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
 | **How to read an issue** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
 | **Labels** · **PR template** · **Releases** | The label set, what a pull request must show, one tag per milestone |
 | **[Report](docs/REPORT/README.md)** · **[Video](docs/DEMO/README.md)** | Where the screenshots, diagrams, challenges, script and checklists live |
@@ -171,13 +171,13 @@ cannot drift from the work; each milestone doc links its issues and draws its or
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | Foundation & Local CI | #1–#7 | 1 | `v0.1.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/7 issues) |
-| 2 | Local Database (Room) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 3 | Pantry Management | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 4 | Strict-Matching Engine ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 5 | Suggested Recipes & Detail | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 6 | Settings, Alerts & UX | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 7 | Evidence, Report & Submission | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/7 issues) |
+| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
 | ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/38 issues) |
 
 ```mermaid
