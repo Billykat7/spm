@@ -34,5 +34,13 @@ local.properties
 hs_err_pid*
 replay_pid*
 
-# Submission secrets (student number), see docs/IDE/RULES/student-number-never-committed.mdc
+# Submission secrets (student number)
 .submission.env
+
+# PR description files are written locally and synced as the PR body, never committed
+docs/GITHUB/PR/M*/PR_*_DESCRIPTION.md
+
+# SPM IDE
+docs/IDE
+docs/GITHUB
+docs/guideline.md

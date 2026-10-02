@@ -22,7 +22,6 @@
   <a href="#database-room-over-sqlite-and-why">Database choice</a> ·
   <a href="docs/GITHUB/README.md">Milestones &amp; issues</a> ·
   <a href="docs/guideline.md">Non-negotiables</a> ·
-  <a href="docs/IDE/README.md">IDE rules &amp; prompts</a> ·
   <a href="docs/REPORT/README.md">Report</a> ·
   <a href="docs/DEMO/README.md">Video</a>
 </p>
@@ -160,7 +159,6 @@ app/src/main/java/com/btk/spm/
 | **[Non-negotiables](docs/guideline.md)** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
 | **[Milestones & issues](docs/GITHUB/README.md)** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
 | **[How to read an issue](docs/GITHUB/ISSUES/README.md)** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
-| **[IDE rules and prompts](docs/IDE/README.md)** | The rules every person and assistant follows; one prompt per issue |
 | **[Labels](docs/GITHUB/LABELS/labels.yml)** · **[PR template](docs/GITHUB/PR/PR_TEMPLATE.md)** · **[Releases](docs/GITHUB/RELEASES/README.md)** | The label set, what a pull request must show, one tag per milestone |
 | **[Report](docs/REPORT/README.md)** · **[Video](docs/DEMO/README.md)** | Where the screenshots, diagrams, challenges, script and checklists live |
 | **The brief** (`.btk/MAD700D/`, local, not in git) | Every requirement the milestones trace back to, by section number |
@@ -229,7 +227,7 @@ open the Recipes tab.
 ## Contributing
 
 - Branch `Issue/<N>/<short-slug>`, commits `Issue <N>: <imperative summary>`, one issue per pull request, no assistant trailer.
-- The PR description is `docs/GITHUB/PR/M<n>/PR_<N>_DESCRIPTION.md`, with real evidence and a screenshot for any UI change, ending `Closes #<N>`.
+- The PR description is `docs/GITHUB/PR/M<n>/PR_<N>_DESCRIPTION.md`, with real evidence and a screenshot for any UI change, ending `Closes #<N>`. It is kept local and git-ignored, never committed; its text is synced to GitHub as the PR body.
 - Every PR regenerates its milestone's bars: `python scripts/milestone_progress.py --assume-closed <N>`.
 - The history is marked: at least ten real, incremental commits spread over the weeks; merge, never squash.
 
