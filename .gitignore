@@ -7,6 +7,9 @@ build/
 .externalNativeBuild
 .cxx
 
+# The Gradle wrapper jar is committed, whatever a global ignore says about *.jar
+!gradle/wrapper/gradle-wrapper.jar
+
 # Local SDK path and machine-specific settings
 local.properties
 
