@@ -37,6 +37,13 @@ android {
             includeAndroidResources = true
         }
     }
+    lint {
+        // Every visible string lives in strings.xml (Issue 2): a typed android:text, android:hint or
+        // contentDescription in a layout (HardcodedText), or a literal passed to setText() in Java
+        // (SetTextI18n), fails the build instead of warning.
+        error += ['HardcodedText', 'SetTextI18n']
+        abortOnError = true
+    }
 }
 
 dependencies {
