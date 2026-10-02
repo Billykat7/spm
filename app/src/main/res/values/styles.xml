@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app's one type scale. Layouts reference text styles by these names
+    (android:textAppearance="@style/TextAppearance.Spm.BodyLarge") and never set android:textSize,
+    so a size, weight or font changes here once and everywhere.
+
+    Each style starts from its Material 3 counterpart (sizes in sp, so they follow the user's font
+    scale) and Theme.Spm maps the matching ?attr/textAppearance* onto it, so Material components
+    (buttons, toolbars, text fields) use the same scale as the layouts.
+-->
+<resources>
+
+    <!-- Headline, for screen titles and the app name -->
+    <style name="TextAppearance.Spm.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge" />
+    <style name="TextAppearance.Spm.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium" />
+    <style name="TextAppearance.Spm.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall" />
+
+    <!-- Title, for section headings, list-item names and toolbar titles -->
+    <style name="TextAppearance.Spm.TitleLarge" parent="TextAppearance.Material3.TitleLarge" />
+    <style name="TextAppearance.Spm.TitleMedium" parent="TextAppearance.Material3.TitleMedium" />
+    <style name="TextAppearance.Spm.TitleSmall" parent="TextAppearance.Material3.TitleSmall" />
+
+    <!-- Body, for running text: descriptions, recipe methods and empty states -->
+    <style name="TextAppearance.Spm.BodyLarge" parent="TextAppearance.Material3.BodyLarge" />
+    <style name="TextAppearance.Spm.BodyMedium" parent="TextAppearance.Material3.BodyMedium" />
+    <style name="TextAppearance.Spm.BodySmall" parent="TextAppearance.Material3.BodySmall" />
+
+    <!-- Label, for buttons, chips, tabs, badges and field labels -->
+    <style name="TextAppearance.Spm.LabelLarge" parent="TextAppearance.Material3.LabelLarge" />
+    <style name="TextAppearance.Spm.LabelMedium" parent="TextAppearance.Material3.LabelMedium" />
+    <style name="TextAppearance.Spm.LabelSmall" parent="TextAppearance.Material3.LabelSmall" />
+
+</resources>
