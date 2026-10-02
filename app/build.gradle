@@ -23,8 +23,19 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        // Java 17: the level AGP 8+ and Android Studio support without desugaring tricks (brief 3.1, Java not Kotlin)
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        // Every layout is bound through its generated binding class; no findViewById in screens
+        viewBinding true
+    }
+    testOptions {
+        unitTests {
+            // JVM tests can read strings.xml and other resources without an emulator
+            includeAndroidResources = true
+        }
     }
 }
 
