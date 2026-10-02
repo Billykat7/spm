@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app's one palette, dark scheme: the same roles as values/colors.xml, generated from the same
+    two core colours. Every name in this file overrides its light counterpart in night mode.
+-->
+<resources>
+    <!-- Primary: leaf green, the brand colour (buttons, active states, the app name) -->
+    <color name="md_theme_primary">#FF93D96D</color>
+    <color name="md_theme_on_primary">#FF123800</color>
+    <color name="md_theme_primary_container">#FF1D5200</color>
+    <color name="md_theme_on_primary_container">#FFAEF586</color>
+    <color name="md_theme_inverse_primary">#FF2D6C0A</color>
+
+    <!-- Secondary: amber, the warm accent (chips, badges, secondary actions) -->
+    <color name="md_theme_secondary">#FFF9BB64</color>
+    <color name="md_theme_on_secondary">#FF452B00</color>
+    <color name="md_theme_secondary_container">#FF633F00</color>
+    <color name="md_theme_on_secondary_container">#FFFFDDB4</color>
+
+    <!-- Tertiary: muted teal, for the rare accent that must not read as primary or secondary -->
+    <color name="md_theme_tertiary">#FFA0CFCF</color>
+    <color name="md_theme_on_tertiary">#FF003737</color>
+    <color name="md_theme_tertiary_container">#FF1E4E4E</color>
+    <color name="md_theme_on_tertiary_container">#FFBBEBEC</color>
+
+    <!-- Error: Material 3's error palette, unchanged -->
+    <color name="md_theme_error">#FFFFB4AB</color>
+    <color name="md_theme_on_error">#FF690005</color>
+    <color name="md_theme_error_container">#FF93000A</color>
+    <color name="md_theme_on_error_container">#FFFFDAD6</color>
+
+    <!-- Surfaces and text: neutrals tinted towards the green -->
+    <color name="md_theme_background">#FF121410</color>
+    <color name="md_theme_on_background">#FFE3E3DC</color>
+    <color name="md_theme_surface">#FF121410</color>
+    <color name="md_theme_on_surface">#FFE3E3DC</color>
+    <color name="md_theme_surface_variant">#FF43483E</color>
+    <color name="md_theme_on_surface_variant">#FFC3C8BB</color>
+    <color name="md_theme_surface_dim">#FF121410</color>
+    <color name="md_theme_surface_bright">#FF383A35</color>
+    <color name="md_theme_surface_container_lowest">#FF0D0F0B</color>
+    <color name="md_theme_surface_container_low">#FF1A1C18</color>
+    <color name="md_theme_surface_container">#FF1E201C</color>
+    <color name="md_theme_surface_container_high">#FF292B26</color>
+    <color name="md_theme_surface_container_highest">#FF343531</color>
+    <color name="md_theme_inverse_surface">#FFE3E3DC</color>
+    <color name="md_theme_inverse_on_surface">#FF2F312D</color>
+    <color name="md_theme_outline">#FF8D9286</color>
+    <color name="md_theme_outline_variant">#FF43483E</color>
+</resources>
