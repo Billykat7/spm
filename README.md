@@ -21,7 +21,7 @@
   <a href="#the-strict-matching-rule">The strict-matching rule</a> ·
   <a href="#database-room-over-sqlite-and-why">Database choice</a> ·
   Milestones &amp; issues ·
-  Non-negotiables ·
+  <a href="docs/guideline.md">Non-negotiables</a> ·
   <a href="docs/REPORT/README.md">Report</a> ·
   <a href="docs/DEMO/README.md">Video</a>
 </p>
@@ -86,7 +86,7 @@ satisfies `tomato`), case and spacing, aliases (`cilantro` is `coriander`), unit
 `250 g`, `1 l` covers `2 cups`), quantities short by a gram, duplicate rows summed, expired items
 ignored. Recipes missing exactly one ingredient can be shown as **Almost there**, under their own
 heading, never in the suggested list. The rule and its guards are written down in
-`docs/guideline.md`.
+[`docs/guideline.md`](docs/guideline.md).
 
 ## Features
 
@@ -156,7 +156,7 @@ app/src/main/java/com/btk/spm/
 
 | Document | What's in it |
 |----------|--------------|
-| **Non-negotiables** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
+| **[Non-negotiables](docs/guideline.md)** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
 | **Milestones & issues** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
 | **How to read an issue** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
 | **Labels** · **PR template** · **Releases** | The label set, what a pull request must show, one tag per milestone |
