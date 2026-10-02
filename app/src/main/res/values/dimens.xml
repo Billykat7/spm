@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app's spacing, touch-target and corner sizes. Layouts take padding and margins from these
+    steps rather than typing a dp value, so every screen keeps the same rhythm.
+-->
+<resources>
+    <!-- Spacing steps on a 4 dp grid: between related items, between groups, screen edges -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_s">8dp</dimen>
+    <dimen name="spacing_m">16dp</dimen>
+    <dimen name="spacing_l">24dp</dimen>
+
+    <!-- The smallest tappable area, from the Android accessibility guidelines -->
+    <dimen name="touch_target_min">48dp</dimen>
+
+    <!-- Corner radius of cards, dialogs and other medium components (Material 3's medium shape) -->
+    <dimen name="corner_radius_medium">12dp</dimen>
+</resources>

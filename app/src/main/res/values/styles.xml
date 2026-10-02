@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The app's one type scale. Layouts reference text styles by these names
-    (android:textAppearance="@style/TextAppearance.Spm.BodyLarge") and never set android:textSize,
-    so a size, weight or font changes here once and everywhere.
+    The app's one type scale, and the shape of its medium components. Layouts reference text styles
+    by name (android:textAppearance="@style/TextAppearance.Spm.BodyLarge") and never set
+    android:textSize, so a size, weight or font changes here once and everywhere.
 
     Each style starts from its Material 3 counterpart (sizes in sp, so they follow the user's font
     scale) and Theme.Spm maps the matching ?attr/textAppearance* onto it, so Material components
@@ -29,5 +29,11 @@
     <style name="TextAppearance.Spm.LabelLarge" parent="TextAppearance.Material3.LabelLarge" />
     <style name="TextAppearance.Spm.LabelMedium" parent="TextAppearance.Material3.LabelMedium" />
     <style name="TextAppearance.Spm.LabelSmall" parent="TextAppearance.Material3.LabelSmall" />
+
+    <!-- Shape: medium components (cards, dialogs) take the app's corner radius -->
+    <style name="ShapeAppearance.Spm.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/corner_radius_medium</item>
+    </style>
 
 </resources>

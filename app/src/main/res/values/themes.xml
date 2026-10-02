@@ -82,6 +82,10 @@
         <item name="textAppearanceLabelLarge">@style/TextAppearance.Spm.LabelLarge</item>
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Spm.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Spm.LabelSmall</item>
+
+        <!-- Shape and touch targets -->
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Spm.MediumComponent</item>
+        <item name="minTouchTargetSize">@dimen/touch_target_min</item>
     </style>
 
     <style name="Theme.Spm" parent="Base.Theme.Spm" />
