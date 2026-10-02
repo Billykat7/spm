@@ -20,9 +20,8 @@
   <a href="#getting-started"><strong>Getting started</strong></a> ·
   <a href="#the-strict-matching-rule">The strict-matching rule</a> ·
   <a href="#database-room-over-sqlite-and-why">Database choice</a> ·
-  <a href="docs/GITHUB/README.md">Milestones &amp; issues</a> ·
-  <a href="docs/guideline.md">Non-negotiables</a> ·
-  <a href="docs/IDE/README.md">IDE rules &amp; prompts</a> ·
+  Milestones &amp; issues ·
+  Non-negotiables ·
   <a href="docs/REPORT/README.md">Report</a> ·
   <a href="docs/DEMO/README.md">Video</a>
 </p>
@@ -87,7 +86,7 @@ satisfies `tomato`), case and spacing, aliases (`cilantro` is `coriander`), unit
 `250 g`, `1 l` covers `2 cups`), quantities short by a gram, duplicate rows summed, expired items
 ignored. Recipes missing exactly one ingredient can be shown as **Almost there**, under their own
 heading, never in the suggested list. The rule and its guards are written down in
-[`docs/guideline.md`](docs/guideline.md).
+`docs/guideline.md`.
 
 ## Features
 
@@ -127,7 +126,7 @@ in-memory database for tests. Firebase would add a cloud dependency, an API key 
 to an app that has no need for any of them; PostgreSQL would add a REST backend to build and host,
 which is a second project. The data model is three tables: `pantry_items`, `recipes` and
 `recipe_ingredients`. The decision and its alternatives are recorded as
-[decision 1](docs/GITHUB/ISSUES/README.md#open-decisions).
+decision 1.
 
 ## Tech stack
 
@@ -157,11 +156,10 @@ app/src/main/java/com/btk/spm/
 
 | Document | What's in it |
 |----------|--------------|
-| **[Non-negotiables](docs/guideline.md)** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
-| **[Milestones & issues](docs/GITHUB/README.md)** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
-| **[How to read an issue](docs/GITHUB/ISSUES/README.md)** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
-| **[IDE rules and prompts](docs/IDE/README.md)** | The rules every person and assistant follows; one prompt per issue |
-| **[Labels](docs/GITHUB/LABELS/labels.yml)** · **[PR template](docs/GITHUB/PR/PR_TEMPLATE.md)** · **[Releases](docs/GITHUB/RELEASES/README.md)** | The label set, what a pull request must show, one tag per milestone |
+| **Non-negotiables** | The ten rules a marker tests or that keep the code honest, each enforced by a test or a guard |
+| **Milestones & issues** | 7 milestones, 38 issues, the dependency graph, conventions, release tags, the pipeline |
+| **How to read an issue** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
+| **Labels** · **PR template** · **Releases** | The label set, what a pull request must show, one tag per milestone |
 | **[Report](docs/REPORT/README.md)** · **[Video](docs/DEMO/README.md)** | Where the screenshots, diagrams, challenges, script and checklists live |
 | **The brief** (`.btk/MAD700D/`, local, not in git) | Every requirement the milestones trace back to, by section number |
 
@@ -173,13 +171,13 @@ cannot drift from the work; each milestone doc links its issues and draws its or
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](docs/GITHUB/MILESTONES/M1_foundation_local_ci.md) | #1–#7 | 1 | `v0.1.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/7 issues) |
-| 2 | [Local Database (Room)](docs/GITHUB/MILESTONES/M2_local_database_room.md) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 3 | [Pantry Management](docs/GITHUB/MILESTONES/M3_pantry_management.md) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 4 | [Strict-Matching Engine](docs/GITHUB/MILESTONES/M4_strict_matching_engine.md) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 5 | [Suggested Recipes & Detail](docs/GITHUB/MILESTONES/M5_suggested_recipes_detail.md) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 6 | [Settings, Alerts & UX](docs/GITHUB/MILESTONES/M6_settings_alerts_ux.md) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
-| 7 | [Evidence, Report & Submission](docs/GITHUB/MILESTONES/M7_evidence_report_submission.md) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
+| 1 | Foundation & Local CI | #1–#7 | 1 | `v0.1.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/7 issues) |
+| 2 | Local Database (Room) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 3 | Pantry Management | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 4 | Strict-Matching Engine ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 5 | Suggested Recipes & Detail | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 6 | Settings, Alerts & UX | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 7 | Evidence, Report & Submission | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
 | ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/38 issues) |
 
 ```mermaid
@@ -199,18 +197,29 @@ flowchart LR
 
 ## Getting started
 
-**Prerequisites:** Android Studio (current stable) with the API 35 SDK, a JDK 17 or newer, and an
-emulator image (API 35; API 26 for the minimum-SDK check). No account, API key or server is needed.
+**Prerequisites:** Android Studio (current stable) with the API 35 SDK, any JDK 17 or newer to start
+the Gradle wrapper, and an emulator image (API 35; API 26 for the minimum-SDK check). No account, API
+key or server is needed. Gradle itself runs on a JetBrains Runtime 25, whatever `JAVA_HOME` says:
+`gradle/gradle-daemon-jvm.properties` asks for it, and the first build downloads one if the machine has
+none. I pinned it because Oracle GraalVM cannot build the app (its `jlink` lacks a module the Android
+system-image step asks for), and Android Studio picked GraalVM for a fresh clone on my machine.
 
 ```bash
 git clone https://github.com/Billykat7/spm.git
 cd spm
-./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
+export ANDROID_HOME="$HOME/Library/Android/sdk"   # the SDK path; not needed once Android Studio has opened the project
+./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk
 ```
 
+The command-line build needs to know where the Android SDK is: `ANDROID_HOME`, or the
+`local.properties` Android Studio writes the first time it opens the project. The path above is
+Android Studio's default on macOS; Studio shows the real one under *Settings > Languages & Frameworks >
+Android SDK*.
+
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
-The app seeds its twenty recipes on first launch; add a few ingredients on the Pantry tab and open
-the Recipes tab.
+Today the app opens on one screen showing its name (Issue 1); the tabs, the seeded recipes and the
+matcher arrive with the milestones below. Once they have, add a few ingredients on the Pantry tab and
+open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
 
@@ -219,35 +228,39 @@ the Recipes tab.
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
-> These commands exist from Milestone 1 (Issues 1 and 4). Until then the repository holds the plan,
-> not the project; the *Delivery at a glance* bars say which.
+> The build commands above work today (Issue 1) and were run on a clean clone before being written
+> down. `./scripts/ci-local.sh` arrives with Issue 4; until then the gate is
+> `./gradlew lint testDebugUnitTest assembleDebug`.
 
 ## Contributing
 
 - Branch `Issue/<N>/<short-slug>`, commits `Issue <N>: <imperative summary>`, one issue per pull request, no assistant trailer.
-- The PR description is `docs/GITHUB/PR/M<n>/PR_<N>_DESCRIPTION.md`, with real evidence and a screenshot for any UI change, ending `Closes #<N>`.
+- The PR description is `docs/GITHUB/PR/M<n>/PR_<N>_DESCRIPTION.md`, with real evidence and a screenshot for any UI change, ending `Closes #<N>`. It is kept local and git-ignored, never committed; its text is synced to GitHub as the PR body.
 - Every PR regenerates its milestone's bars: `python scripts/milestone_progress.py --assume-closed <N>`.
 - The history is marked: at least ten real, incremental commits spread over the weeks; merge, never squash.
 
-The whole workflow and the code rules: [`docs/GITHUB/README.md`](docs/GITHUB/README.md) and
-[`docs/IDE/RULES`](docs/IDE/RULES).
+The whole workflow and the code rules: `docs/GITHUB/README.md` and
+`docs/IDE/RULES`.
 
 ## Status
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Planned. The brief has been broken into seven milestones and 38 issues,
-each with a specification, acceptance criteria and a prompt; the seven decisions the brief leaves
-open (database, build language, navigation shape, SDK levels, units, expired items, recipe editing)
-are [recorded](docs/GITHUB/ISSUES/README.md#open-decisions). No Android project exists yet: Issue 1
-creates it.
+**Where the project is.** Milestone 1 in progress. The brief has been broken into seven milestones and
+38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
+leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
+editing) are recorded. Issue 1, in review as pull request
+[#39](https://github.com/Billykat7/spm/pull/39), creates the Android project: a Java 17 app with
+Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35, ViewBinding on) and the
+package skeleton in place, which builds from a clean clone and runs on API 26 and API 35 emulators.
+The bars above stay hand-written at 0% until Issue 7 ships the script that generates them from GitHub.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
 database, the pantry screens, and in week 4 the matching engine, which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** None cut. A tag builds the APK and attaches it to the GitHub Release (Issue 5); each
-milestone's note lands in [`docs/GITHUB/RELEASES`](docs/GITHUB/RELEASES/) when its last issue closes.
+milestone's note lands in `docs/GITHUB/RELEASES` when its last issue closes.
 
 ## Licence
 

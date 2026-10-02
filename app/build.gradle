@@ -1,0 +1,51 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'com.btk.spm'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.btk.spm"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        // Java 17: the level AGP 8+ and Android Studio support without desugaring tricks (brief 3.1, Java not Kotlin)
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        // Every layout is bound through its generated binding class; no findViewById in screens
+        viewBinding true
+    }
+    testOptions {
+        unitTests {
+            // JVM tests can read strings.xml and other resources without an emulator
+            includeAndroidResources = true
+        }
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}
