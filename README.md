@@ -171,14 +171,14 @@ cannot drift from the work; each milestone doc links its issues and draws its or
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **14%** (1/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **0%** (0/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **3%** (1/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -249,11 +249,12 @@ The bars above are the status. What they cannot say:
 **Where the project is.** Milestone 1 in progress. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
-editing) are recorded. Issue 1, in review as pull request
-[#39](https://github.com/Billykat7/spm/pull/39), creates the Android project: a Java 17 app with
+editing) are recorded. Issue 1, merged in pull request
+[#39](https://github.com/Billykat7/spm/pull/39), created the Android project: a Java 17 app with
 Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35, ViewBinding on) and the
 package skeleton in place, which builds from a clean clone and runs on API 26 and API 35 emulators.
-The bars above stay hand-written at 0% until Issue 7 ships the script that generates them from GitHub.
+Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand from
+GitHub's issue states.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
 database, the pantry screens, and in week 4 the matching engine, which is the critical path.
