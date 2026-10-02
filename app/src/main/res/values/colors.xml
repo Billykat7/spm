@@ -64,4 +64,12 @@
     <color name="md_theme_tertiary_fixed_dim">#FFA0CFCF</color>
     <color name="md_theme_on_tertiary_fixed">#FF002020</color>
     <color name="md_theme_on_tertiary_fixed_variant">#FF1E4E4E</color>
+    <!--
+        Launcher icon only: a cream jar with an amber lid and a green leaf on the brand green. Kept
+        out of values-night on purpose, so the icon looks the same whatever the system theme.
+    -->
+    <color name="ic_launcher_background">#FF2D6C0A</color>
+    <color name="ic_launcher_jar">#FFFFF6E5</color>
+    <color name="ic_launcher_lid">#FFF9BB64</color>
+    <color name="ic_launcher_leaf">#FF468625</color>
 </resources>
