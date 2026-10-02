@@ -197,16 +197,24 @@ flowchart LR
 
 ## Getting started
 
-**Prerequisites:** Android Studio (current stable) with the API 35 SDK, a standard JDK 17 or newer on
-`JAVA_HOME` (Android Studio's bundled JDK, an Oracle JDK or Temurin; Oracle GraalVM cannot build the app,
-its `jlink` lacks a module the Android system-image step asks for), and an emulator image (API 35; API 26
-for the minimum-SDK check). No account, API key or server is needed.
+**Prerequisites:** Android Studio (current stable) with the API 35 SDK, any JDK 17 or newer to start
+the Gradle wrapper, and an emulator image (API 35; API 26 for the minimum-SDK check). No account, API
+key or server is needed. Gradle itself runs on a JetBrains Runtime 25, whatever `JAVA_HOME` says:
+`gradle/gradle-daemon-jvm.properties` asks for it, and the first build downloads one if the machine has
+none. I pinned it because Oracle GraalVM cannot build the app (its `jlink` lacks a module the Android
+system-image step asks for), and Android Studio picked GraalVM for a fresh clone on my machine.
 
 ```bash
 git clone https://github.com/Billykat7/spm.git
 cd spm
-./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
+export ANDROID_HOME="$HOME/Library/Android/sdk"   # the SDK path; not needed once Android Studio has opened the project
+./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk
 ```
+
+The command-line build needs to know where the Android SDK is: `ANDROID_HOME`, or the
+`local.properties` Android Studio writes the first time it opens the project. The path above is
+Android Studio's default on macOS; Studio shows the real one under *Settings > Languages & Frameworks >
+Android SDK*.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
 Today the app opens on one screen showing its name (Issue 1); the tabs, the seeded recipes and the
@@ -220,7 +228,7 @@ open the Recipes tab.
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
-> The three commands above work today (Issue 1) and were run on a clean clone before being written
+> The build commands above work today (Issue 1) and were run on a clean clone before being written
 > down. `./scripts/ci-local.sh` arrives with Issue 4; until then the gate is
 > `./gradlew lint testDebugUnitTest assembleDebug`.
 
