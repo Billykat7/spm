@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    The placeholder screen: the app name and its tagline, centred. Issue 3 replaces the content with
+    the bottom navigation host. Text comes from strings.xml, sizes from TextAppearance.Spm.*, colours
+    from the theme's roles and spacing from dimens.xml; nothing is typed in here.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,13 +14,32 @@
 
     <TextView
         android:id="@+id/app_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_l"
+        android:gravity="center"
         android:text="@string/app_name"
-        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+        android:textAppearance="@style/TextAppearance.Spm.HeadlineMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@id/app_tagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/app_tagline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_l"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:gravity="center"
+        android:text="@string/app_tagline"
+        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/app_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

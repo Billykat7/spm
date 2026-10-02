@@ -1,3 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Every piece of text the user sees lives here: layouts and Java read it by name, never as a typed
+    literal (Lint's HardcodedText and SetTextI18n are errors, see app/build.gradle). Punctuation and
+    style follow docs/IDE/RULES/ui-text-punctuation.mdc: sentence case, no Oxford comma, a full stop
+    on sentences and none on labels.
+-->
 <resources>
     <string name="app_name">Smart Pantry Manager</string>
+    <string name="app_tagline">Cook what you already have. Waste less of it.</string>
+
+    <!-- Bottom navigation tabs (Issue 3) -->
+    <string name="tab_pantry">Pantry</string>
+    <string name="tab_recipes">Recipes</string>
+    <string name="tab_settings">Settings</string>
 </resources>
