@@ -199,8 +199,10 @@ flowchart LR
 
 ## Getting started
 
-**Prerequisites:** Android Studio (current stable) with the API 35 SDK, a JDK 17 or newer, and an
-emulator image (API 35; API 26 for the minimum-SDK check). No account, API key or server is needed.
+**Prerequisites:** Android Studio (current stable) with the API 35 SDK, a standard JDK 17 or newer on
+`JAVA_HOME` (Android Studio's bundled JDK, an Oracle JDK or Temurin; Oracle GraalVM cannot build the app,
+its `jlink` lacks a module the Android system-image step asks for), and an emulator image (API 35; API 26
+for the minimum-SDK check). No account, API key or server is needed.
 
 ```bash
 git clone https://github.com/Billykat7/spm.git
@@ -209,8 +211,9 @@ cd spm
 ```
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
-The app seeds its twenty recipes on first launch; add a few ingredients on the Pantry tab and open
-the Recipes tab.
+Today the app opens on one screen showing its name (Issue 1); the tabs, the seeded recipes and the
+matcher arrive with the milestones below. Once they have, add a few ingredients on the Pantry tab and
+open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
 
@@ -219,8 +222,9 @@ the Recipes tab.
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
-> These commands exist from Milestone 1 (Issues 1 and 4). Until then the repository holds the plan,
-> not the project; the *Delivery at a glance* bars say which.
+> The three commands above work today (Issue 1) and were run on a clean clone before being written
+> down. `./scripts/ci-local.sh` arrives with Issue 4; until then the gate is
+> `./gradlew lint testDebugUnitTest assembleDebug`.
 
 ## Contributing
 
@@ -236,11 +240,14 @@ The whole workflow and the code rules: [`docs/GITHUB/README.md`](docs/GITHUB/REA
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Planned. The brief has been broken into seven milestones and 38 issues,
-each with a specification, acceptance criteria and a prompt; the seven decisions the brief leaves
-open (database, build language, navigation shape, SDK levels, units, expired items, recipe editing)
-are [recorded](docs/GITHUB/ISSUES/README.md#open-decisions). No Android project exists yet: Issue 1
-creates it.
+**Where the project is.** Milestone 1 in progress. The brief has been broken into seven milestones and
+38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
+leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
+editing) are [recorded](docs/GITHUB/ISSUES/README.md#open-decisions). Issue 1 created the Android
+project: a Java 17 app with Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35,
+ViewBinding on) and the package skeleton in place, which builds from a clean clone and runs on API 26
+and API 35 emulators. The bars above stay hand-written at 0% until Issue 7 ships the script that
+generates them from GitHub.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
 database, the pantry screens, and in week 4 the matching engine, which is the critical path.
