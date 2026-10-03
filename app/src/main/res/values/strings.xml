@@ -13,4 +13,17 @@
     <string name="tab_pantry">Pantry</string>
     <string name="tab_recipes">Recipes</string>
     <string name="tab_settings">Settings</string>
+
+    <!--
+        Unit symbols as shown on screen, after a number and a non-breaking space (250 g). One per
+        domain.Unit constant; the enum points at these through Unit.symbolRes().
+    -->
+    <string name="unit_g">g</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_ml">ml</string>
+    <string name="unit_l">l</string>
+    <string name="unit_tsp">tsp</string>
+    <string name="unit_tbsp">tbsp</string>
+    <string name="unit_cup">cup</string>
+    <string name="unit_pcs">pcs</string>
 </resources>

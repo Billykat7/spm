@@ -174,14 +174,14 @@ of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩⬜⬜⬜⬜ **43%** (3/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩🟩⬜⬜⬜ **57%** (4/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **8%** (3/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **11%** (4/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -259,11 +259,15 @@ Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35, ViewB
 package skeleton in place, which builds from a clean clone and runs on API 26 and API 35 emulators.
 Issue 2, merged in pull request [#41](https://github.com/Billykat7/spm/pull/41), gave it one
 Material 3 theme in light and dark (a leaf-green and amber palette), one type scale, every visible
-string in `strings.xml` with a typed string failing Lint, and its own launcher icon. Issue 4, in pull
-request [#42](https://github.com/Billykat7/spm/pull/42), added the gate: `./scripts/ci-local.sh` runs
+string in `strings.xml` with a typed string failing Lint, and its own launcher icon. Issue 4, merged
+in pull request [#42](https://github.com/Billykat7/spm/pull/42), added the gate: `./scripts/ci-local.sh` runs
 the scope guards (no Kotlin, no maps, location or billing), Lint, the unit tests and the debug build,
 GitHub Actions runs the same script on every pull request, and its check is required to merge into
-`main`. Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand
+`main`. Issue 6, in pull request [#43](https://github.com/Billykat7/spm/pull/43), added the
+vocabulary every layer shares: the `Unit` and `UnitKind` enums carrying decision 5's factors,
+`Quantity`, `MatchStatus`, `IntentKeys`, `PrefKey` and the validation result types, with a
+conventions test that fails the build on a typed unit, status, extra or preference key. Until Issue 7
+ships the script that generates the bars from GitHub, I update them by hand
 from GitHub's issue states.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
