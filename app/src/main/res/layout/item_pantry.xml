@@ -2,7 +2,8 @@
 <!--
     One row of the pantry list (PantryAdapter): the name, the amount with its unit symbol, the expiry
     badge and the overflow button. A simple row, so a LinearLayout. The whole row is the touch target
-    for opening the item (Issue 15); the overflow button opens Edit and Delete
+    for opening the item (Issue 15), with its ripple drawn as a foreground so the row paints no
+    background of its own over the list's; the overflow button opens Edit and Delete
     (menu/item_pantry_overflow.xml). Every text is set by the adapter from the item.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -10,7 +11,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:minHeight="@dimen/list_item_two_line_min_height"
     android:orientation="horizontal"
