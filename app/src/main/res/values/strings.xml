@@ -21,6 +21,12 @@
     <string name="placeholder_settings_title">Your preferences</string>
     <string name="placeholder_settings_body">Expiring-soon alerts, units and matching options will be set here.</string>
 
+    <!-- The pantry list (Issue 13) -->
+    <string name="pantry_item_options">More options</string>
+    <string name="pantry_item_options_for">More options for %1$s</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+
     <!--
         Unit symbols as shown on screen, after a number and a non-breaking space (250 g). One per
         domain.Unit constant; the enum points at these through Unit.symbolRes().
