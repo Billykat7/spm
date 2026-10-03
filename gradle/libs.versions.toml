@@ -9,6 +9,16 @@ material = "1.14.0"
 activity = "1.10.1"
 constraintlayout = "2.2.2"
 fragment = "1.9.1"
+# Room 2.6, as the plan pins it (decision 1); its compiler runs as a plain Java annotation processor
+room = "2.6.1"
+# Material 1.14 and fragment 1.9 already pull lifecycle 2.10.0, so the plan's 2.8.x would never be
+# the version used; 2.11.0 is the current stable release and needs only compileSdk 34
+lifecycle = "2.11.0"
+androidxTestRunner = "1.7.0"
+androidxTestRules = "1.7.0"
+archCoreTesting = "2.2.0"
+# The real org.json for JVM tests: android.jar only has stubs that throw "not mocked"
+orgJson = "20260814"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -19,6 +29,15 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycle" }
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxTestRules" }
+arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
+org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -21,5 +21,11 @@
     <issue id="GradleDependency">
         <ignore regexp="compileSdk" />
         <ignore regexp="androidx\.activity:activity" />
+        <!--
+            Decision 1 and the java-android-stack rule pin Room 2.6 (Issue 8). Room 2.7 and later
+            need only compileSdk 34, so this is a choice, not a constraint: moving Room is a change
+            of its own, re-run against the schema and the DAO tests, not a Lint warning to follow.
+        -->
+        <ignore regexp="androidx\.room:room-" />
     </issue>
 </lint>
