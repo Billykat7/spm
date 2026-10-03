@@ -77,11 +77,15 @@ gh pr create --title "Issue <N>: <imperative summary>" \
   the testing with real output, the screenshots, the acceptance criteria ticked with their evidence,
   the risk. Its last line is `Closes #<N>`.
 
-### 7. Merge when CI is green
+### 7. Merge when CI is green and the review is done
 
-The `gate` check must pass before GitHub allows the merge. Merge with a **merge commit**, never
-squash or rebase, so every step of the branch survives on `main`. A pushed branch is never
-force-pushed or amended: a mistake is fixed by a new commit.
+GitHub allows the merge once the `gate` check has passed and a code owner has approved. Merge with a
+**merge commit**, never squash or rebase, so every step of the branch survives on `main`. A pushed
+branch is never force-pushed or amended: a mistake is fixed by a new commit.
+
+While the project has one maintainer, nobody else can approve their pull requests, so the repository
+admin merges with *Merge without waiting for requirements to be met (bypass rules)*. That bypass
+covers the missing approval only: never merge while `gate` is red or still running.
 
 ## What the gate checks
 
@@ -115,10 +119,21 @@ Lint warnings are reported but do not fail the gate. A warning accepted on purpo
   demand (*Actions > CI > Run workflow*), on `ubuntu-latest` with JDK 17 and the Gradle cache. Each
   run keeps the Lint report as the `lint-report` artifact for 30 days. The repository is public, so
   the minutes are free.
-- The `Protect main` ruleset (*Settings > Rules > Rulesets*) applies to `main`: changes arrive
-  through a pull request, merge commits are the only merge method, the branch cannot be deleted or
-  force-pushed and the `gate` check from GitHub Actions must pass. The required check was added on
-  2026-10-03 with Issue 4. To read the ruleset from a terminal:
+- The `Protect main` ruleset (*Settings > Rules > Rulesets*) applies to `main`:
+  - changes arrive only through a pull request, and merge commits are the only merge method (squash
+    and rebase merging are also switched off in the repository settings);
+  - `main` cannot be deleted or force-pushed;
+  - the `gate` check from GitHub Actions must pass;
+  - one approving review is required, from a code owner, approvals are dismissed when new commits
+    are pushed, and every review conversation must be resolved.
+- [`.github/CODEOWNERS`](.github/CODEOWNERS) names the owner of every path, so each pull request
+  requests the owner's review automatically.
+- **The one bypass:** the repository's *Admin* role may bypass the ruleset **on pull requests only**.
+  It exists because a single maintainer cannot approve their own pull request. Direct pushes,
+  force-pushes and deleting `main` stay blocked for everyone, admins included, so the history the
+  brief marks cannot be rewritten.
+- The required check was added on 2026-10-03, and the reviews, code owners and admin bypass the same
+  day, all with Issue 4. To read the ruleset from a terminal:
 
   ```bash
   gh api repos/Billykat7/spm/rulesets --jq '.[].name'
