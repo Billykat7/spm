@@ -18,8 +18,7 @@ import java.util.concurrent.Executors;
  * <p>Exists so that objects that must be created exactly once per process have a home: the Room
  * database, the single-thread I/O executor and the repositories built on them (Issues 9 and 10 add
  * those). Screens reach them through this class, never by constructing their own, so every screen
- * observes the same pantry (non-negotiable 6). This is the only place in the app that calls
- * {@code Room.databaseBuilder}.
+ * observes the same pantry (non-negotiable 6). No other class in the app builds a database.
  */
 public class SpmApplication extends Application {
 

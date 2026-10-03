@@ -20,8 +20,8 @@ import com.btk.spm.data.model.RecipeIngredient;
  * bump {@code version}, add a {@code Migration} and test it against that file. There is no
  * destructive fallback, so a schema change without a migration fails instead of wiping the pantry.
  *
- * <p>{@code SpmApplication} builds the one instance; nothing else calls {@code Room.databaseBuilder}.
- * Tests build their own with {@code Room.inMemoryDatabaseBuilder}.
+ * <p>{@code SpmApplication} builds the one instance and nothing else in the app builds another.
+ * Tests build their own, in memory.
  */
 @Database(
         entities = {PantryItem.class, Recipe.class, RecipeIngredient.class},
