@@ -43,6 +43,9 @@ android {
         // (SetTextI18n), fails the build instead of warning.
         error += ['HardcodedText', 'SetTextI18n']
         abortOnError = true
+        // Warnings are reported, not fatal: an accepted one is suppressed in lint.xml with its reason
+        warningsAsErrors = false
+        lintConfig = file('lint.xml')
     }
 }
 

@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Billykat7/spm/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Billykat7/spm/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Java 17" src="https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white">
   <img alt="Android API 26 to 35" src="https://img.shields.io/badge/Android-API%2026%E2%80%9335-3DDC84?logo=android&logoColor=white">
   <img alt="Room over SQLite" src="https://img.shields.io/badge/database-Room%20%2B%20SQLite-7057ff">
@@ -173,14 +174,14 @@ of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩⬜⬜⬜⬜⬜ **29%** (2/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩⬜⬜⬜⬜ **43%** (3/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **5%** (2/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **8%** (3/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -231,9 +232,9 @@ open the Recipes tab.
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
-> The build commands above work today (Issue 1) and were run on a clean clone before being written
-> down. `./scripts/ci-local.sh` arrives with Issue 4; until then the gate is
-> `./gradlew lint testDebugUnitTest assembleDebug`.
+The gate prints one line per stage and stops at the first failure; CI runs the same script on every
+pull request and on `main`, and its `gate` check must pass before a pull request can merge.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) has the whole loop and what each guard forbids.
 
 ## Contributing
 
@@ -242,8 +243,8 @@ open the Recipes tab.
 - Every PR that closes an issue turns one block of its milestone's bar green, as the bar will read once it merges: by hand until Issue 7, then `python scripts/milestone_progress.py --assume-closed <N>`.
 - The history is marked: at least ten real, incremental commits spread over the weeks; merge, never squash.
 
-The whole workflow and the code rules: `docs/GITHUB/README.md` and
-`docs/IDE/RULES`.
+The whole loop, the gate's stages and the guards: [`CONTRIBUTING.md`](CONTRIBUTING.md). The code
+rules: [`docs/guideline.md`](docs/guideline.md).
 
 ## Status
 
@@ -256,10 +257,14 @@ editing) are recorded. Issue 1, merged in pull request
 [#39](https://github.com/Billykat7/spm/pull/39), created the Android project: a Java 17 app with
 Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35, ViewBinding on) and the
 package skeleton in place, which builds from a clean clone and runs on API 26 and API 35 emulators.
-Issue 2, in pull request [#41](https://github.com/Billykat7/spm/pull/41), gave it one Material 3 theme
-in light and dark (a leaf-green and amber palette), one type scale, every visible string in
-`strings.xml` with a typed string failing Lint, and its own launcher icon. Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand from
-GitHub's issue states.
+Issue 2, merged in pull request [#41](https://github.com/Billykat7/spm/pull/41), gave it one
+Material 3 theme in light and dark (a leaf-green and amber palette), one type scale, every visible
+string in `strings.xml` with a typed string failing Lint, and its own launcher icon. Issue 4, in pull
+request [#42](https://github.com/Billykat7/spm/pull/42), added the gate: `./scripts/ci-local.sh` runs
+the scope guards (no Kotlin, no maps, location or billing), Lint, the unit tests and the debug build,
+GitHub Actions runs the same script on every pull request, and its check is required to merge into
+`main`. Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand
+from GitHub's issue states.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
 database, the pantry screens, and in week 4 the matching engine, which is the critical path.
