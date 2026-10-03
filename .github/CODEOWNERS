@@ -1,0 +1,15 @@
+# Code owners (https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+#
+# Every pull request into main requests a review from the owners of the files it changes, and the
+# "Protect main" ruleset requires a code owner's approval before it merges (see CONTRIBUTING.md).
+# GitHub reads this file from main, the base branch. The last matching pattern wins.
+
+# The whole repository: one maintainer.
+*                       @Billykat7
+
+# The gate and the rules it enforces; listed on their own so a future co-maintainer of the app code
+# does not also become an owner of what checks it.
+/.github/               @Billykat7
+/scripts/               @Billykat7
+/app/lint.xml           @Billykat7
+/CONTRIBUTING.md        @Billykat7
