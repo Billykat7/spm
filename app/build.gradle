@@ -22,6 +22,14 @@ android {
         versionName appVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // Room writes each schema version as JSON under app/schemas/, committed: the report's
+                // ER diagram is drawn from it (Issue 34) and a future migration test reads it
+                arguments += ['room.schemaLocation': "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -70,7 +78,22 @@ dependencies {
     implementation libs.activity
     implementation libs.fragment
     implementation libs.constraintlayout
+
+    // Room over SQLite (decision 1). The app is Java, so the compiler runs through annotationProcessor:
+    // never kapt or ksp, which would need the Kotlin plugin (decision 2)
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.viewmodel
+
     testImplementation libs.junit
+    testImplementation libs.org.json
+
+    // Declared here once (Issue 8) so the DAO tests of Issues 9 and 10 do not both edit this file
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.rules
+    androidTestImplementation libs.arch.core.testing
+    androidTestImplementation libs.room.testing
     androidTestImplementation libs.espresso.core
 }
