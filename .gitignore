@@ -44,6 +44,10 @@ replay_pid*
 # PR description files are written locally and synced as the PR body, never committed
 docs/GITHUB/PR/M*/PR_*_DESCRIPTION.md
 
-# SPM IDE
+# SPM IDE: the plan and the rules stay on the maintainer's machine, except the release notes,
+# which the release workflow reads from the tagged commit (Issue 7)
 docs/IDE
-docs/GITHUB
+docs/GITHUB/*
+!docs/GITHUB/RELEASES/
+docs/GITHUB/RELEASES/*
+!docs/GITHUB/RELEASES/RELEASE_v*.md
