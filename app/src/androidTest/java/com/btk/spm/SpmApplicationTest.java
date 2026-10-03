@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * The objects the process must hold exactly once (Issue 9): every screen that asks for the pantry
+ * The objects the process must hold exactly once (Issues 9 and 10): every screen that asks for a
  * repository gets the same one, so every screen observes the same {@code LiveData}.
  */
 @RunWith(AndroidJUnit4.class)
@@ -21,6 +21,12 @@ public class SpmApplicationTest {
     public void getPantryRepository_returnsTheSameInstanceOnEveryCall() {
         assertSame(application.getPantryRepository(), application.getPantryRepository());
         assertSame(application.getPantryRepository(), SpmApplication.from(application).getPantryRepository());
+    }
+
+    @Test
+    public void getRecipeRepository_returnsTheSameInstanceOnEveryCall() {
+        assertSame(application.getRecipeRepository(), application.getRecipeRepository());
+        assertSame(application.getRecipeRepository(), SpmApplication.from(application).getRecipeRepository());
     }
 
     @Test

@@ -179,13 +179,13 @@ issues and its order of work.
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
-| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
+| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **24%** (9/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **26%** (10/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -285,14 +285,18 @@ request [#47](https://github.com/Billykat7/spm/pull/47), started Milestone 2 wit
 Room database of three tables (`pantry_items`, `recipes`, `recipe_ingredients`, the last with a
 foreign key that cascades on delete), converters that store a unit by its enum name, a date as its
 epoch day and a recipe's steps as one JSON array, the version 1 schema exported and committed for the
-ER diagram, and the database built once in `SpmApplication` with a single write thread. Issue 9, in
-pull request [#48](https://github.com/Billykat7/spm/pull/48), adds the create, read, update and delete
+ER diagram, and the database built once in `SpmApplication` with a single write thread. Issue 9, merged in
+pull request [#48](https://github.com/Billykat7/spm/pull/48), added the create, read, update and delete
 the rubric marks: `PantryItemDao` with a `LiveData` pantry list that updates itself, and
 `PantryRepository`, which runs every write on that thread and is the only way into the pantry from
-outside `data/`. `DaoBoundaryTest` fails the build when a screen reaches a DAO directly.
+outside `data/`. `DaoBoundaryTest` fails the build when a screen reaches a DAO directly. Issue 10,
+in pull request [#49](https://github.com/Billykat7/spm/pull/49), adds the read side of the recipes:
+`RecipeDao` returns each recipe with its ingredients through one `@Relation` query, stores a recipe and
+its ingredients in one transaction for the seed, and `RecipeRepository` offers reads only, because
+recipes are seed data (decision 7).
 
-**What is next.** The rest of M2 in week 2: the recipe DAO and repository (Issue 10), the twenty
-seeded recipes (Issue 11) and the restart test that proves the data persists (Issue 12). The pantry screens follow, and in week 4 the matching engine, which is the
+**What is next.** The rest of M2 in week 2: the twenty seeded recipes (Issue 11) and the restart test
+that proves the data persists (Issue 12). The pantry screens follow, and in week 4 the matching engine, which is the
 critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 

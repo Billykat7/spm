@@ -6,6 +6,7 @@ import androidx.room.Relation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,8 +28,8 @@ public class RecipeWithIngredients {
     private final Recipe recipe;
 
     /**
-     * Every {@code recipe_ingredients} row whose {@code recipe_id} is {@link #recipe}'s id. Empty, never
-     * {@code null}, for a recipe with no ingredients.
+     * Every {@code recipe_ingredients} row whose {@code recipe_id} is {@link #recipe}'s id, in the order
+     * they were inserted. Empty, never {@code null}, for a recipe with no ingredients.
      */
     @Relation(parentColumn = "id", entityColumn = "recipe_id")
     @NonNull
@@ -38,11 +39,16 @@ public class RecipeWithIngredients {
      * Creates the pair, as Room does after reading both tables.
      *
      * @param recipe the recipe row
-     * @param ingredients the rows that point at it; copied
+     * @param ingredients the rows that point at it; copied and put in id order
      */
     public RecipeWithIngredients(@NonNull Recipe recipe, @NonNull List<RecipeIngredient> ingredients) {
         this.recipe = recipe;
-        this.ingredients = Collections.unmodifiableList(new ArrayList<>(ingredients));
+        // Room's @Relation query has no ORDER BY, so SQLite may return the rows in any order. Sorting
+        // by id lists the ingredients as the seed wrote them; the sort is stable, so rows not inserted
+        // yet (id 0) keep the order they were given in.
+        List<RecipeIngredient> inOrder = new ArrayList<>(ingredients);
+        inOrder.sort(Comparator.comparingLong(RecipeIngredient::getId));
+        this.ingredients = Collections.unmodifiableList(inOrder);
     }
 
     /**
@@ -56,7 +62,7 @@ public class RecipeWithIngredients {
     }
 
     /**
-     * Returns the ingredients the recipe needs.
+     * Returns the ingredients the recipe needs, in the order they were inserted.
      *
      * @return an unmodifiable list, empty for a recipe with none
      */
