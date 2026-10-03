@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 
 import com.btk.spm.data.db.AppDatabase;
+import com.btk.spm.data.repo.PantryRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -16,9 +17,10 @@ import java.util.concurrent.Executors;
  * The process-wide entry point of the Smart Pantry Manager.
  *
  * <p>Exists so that objects that must be created exactly once per process have a home: the Room
- * database, the single-thread I/O executor and the repositories built on them (Issues 9 and 10 add
- * those). Screens reach them through this class, never by constructing their own, so every screen
- * observes the same pantry (non-negotiable 6). No other class in the app builds a database.
+ * database, the single-thread I/O executor and the repositories built on them. Screens reach the
+ * repositories through this class, never by constructing their own, so every screen observes the same
+ * pantry (non-negotiable 6). No other class in the app builds a database, and nothing outside
+ * {@code data/} touches a DAO ({@code DaoBoundaryTest}).
  */
 public class SpmApplication extends Application {
 
@@ -27,6 +29,7 @@ public class SpmApplication extends Application {
 
     private AppDatabase database;
     private ExecutorService ioExecutor;
+    private PantryRepository pantryRepository;
 
     @Override
     public void onCreate() {
@@ -37,6 +40,7 @@ public class SpmApplication extends Application {
         // One thread, so writes run in the order they were submitted: an insert followed by its undo
         // can never land the other way round. The process owns it, so it is never shut down.
         ioExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, IO_THREAD_NAME));
+        pantryRepository = new PantryRepository(database, ioExecutor);
     }
 
     /**
@@ -58,6 +62,17 @@ public class SpmApplication extends Application {
     @NonNull
     public Executor getIoExecutor() {
         return ioExecutor;
+    }
+
+    /**
+     * Returns the one pantry repository, the way every screen reads and writes pantry items. The same
+     * instance on every call, so every screen observes the same {@code LiveData}.
+     *
+     * @return the pantry repository built in {@link #onCreate()}
+     */
+    @NonNull
+    public PantryRepository getPantryRepository() {
+        return pantryRepository;
     }
 
     /**
