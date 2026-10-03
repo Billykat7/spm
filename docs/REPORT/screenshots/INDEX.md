@@ -12,3 +12,9 @@ the final set after the UI pass, so earlier rows are working copies.
 | 04 | 04_theme_placeholder.png | The placeholder screen in `Theme.Spm`'s light scheme on API 35: the app name in the leaf-green primary role and the tagline in the on-surface-variant role, both sized by `TextAppearance.Spm.*` | #2 |
 | 04 | 04_theme_placeholder_dark.png | The same screen after switching the emulator to dark mode with the app open: the same theme, re-coloured from `values-night/colors.xml`, with no restart | #2 |
 | 05 | 05_launcher_icon.png | The app's own adaptive launcher icon in the API 35 app drawer, a jar with an amber lid and a leaf on the brand green, beside the system icons | #2 |
+| 06 | 06_tab_pantry.png | The navigation shell on API 35: the Pantry tab selected in the bottom navigation (filled icon on the amber indicator), its title in the toolbar and its placeholder Fragment | #3 |
+| 06 | 06_tab_pantry_dark.png | The Pantry tab in the dark theme | #3 |
+| 07 | 07_tab_recipes.png | The Recipes tab: the toolbar title and the Fragment swapped by the bottom navigation | #3 |
+| 07 | 07_tab_recipes_dark.png | The Recipes tab in the dark theme | #3 |
+| 08 | 08_tab_settings.png | The Settings tab, the third top-level screen | #3 |
+| 08 | 08_tab_settings_dark.png | The Settings tab in the dark theme | #3 |
