@@ -27,5 +27,11 @@
             of its own, re-run against the schema and the DAO tests, not a Lint warning to follow.
         -->
         <ignore regexp="androidx\.room:room-" />
+        <!--
+            Lifecycle 2.11 ships LiveData with Kotlin 2.1 metadata. Room 2.6.1's annotation processor
+            reads at most 2.0, so a @Transaction DAO method stops compiling (Issue 10). Lifecycle
+            stays at 2.10.0 until Room moves, and moves with it.
+        -->
+        <ignore regexp="androidx\.lifecycle:lifecycle-" />
     </issue>
 </lint>
