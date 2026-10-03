@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The placeholder screen: the app name and its tagline, centred. Issue 3 replaces the content with
-    the bottom navigation host. Text comes from strings.xml, sizes from TextAppearance.Spm.*, colours
-    from the theme's roles and spacing from dimens.xml; nothing is typed in here.
+    The host screen (decision 3): a toolbar whose title follows the selected tab, the container the
+    tab Fragments are swapped into, and the bottom navigation, the brief's navigation element.
+    The root is padded for the status bar in MainActivity; the bottom navigation pads itself for the
+    gesture or button bar, so the two never add the same inset twice.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -12,34 +13,32 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <TextView
-        android:id="@+id/app_title"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:gravity="center"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Spm.HeadlineMedium"
-        android:textColor="?attr/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@id/app_tagline"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        tools:title="@string/tab_pantry" />
 
-    <TextView
-        android:id="@+id/app_tagline"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_s"
-        android:gravity="center"
-        android:text="@string/app_tagline"
-        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_title" />
+        app:menu="@menu/bottom_nav" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

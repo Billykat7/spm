@@ -174,14 +174,14 @@ of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩🟩⬜⬜⬜ **57%** (4/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩🟩🟩⬜⬜ **71%** (5/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **11%** (4/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **13%** (5/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -220,10 +220,10 @@ Android Studio's default on macOS; Studio shows the real one under *Settings > L
 Android SDK*.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
-Today the app opens on one themed screen showing its name and tagline, in light or dark with the
-system setting (Issues 1 and 2); the tabs, the seeded recipes and the matcher arrive with the
-milestones below. Once they have, add a few ingredients on the Pantry tab and
-open the Recipes tab.
+Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or dark with the
+system setting; each tab still shows a placeholder (Issues 1 to 3). The pantry list, the seeded
+recipes and the matcher arrive with the milestones below. Once they have, add a few ingredients on
+the Pantry tab and open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
 
@@ -263,10 +263,14 @@ string in `strings.xml` with a typed string failing Lint, and its own launcher i
 in pull request [#42](https://github.com/Billykat7/spm/pull/42), added the gate: `./scripts/ci-local.sh` runs
 the scope guards (no Kotlin, no maps, location or billing), Lint, the unit tests and the debug build,
 GitHub Actions runs the same script on every pull request, and its check is required to merge into
-`main`. Issue 6, in pull request [#43](https://github.com/Billykat7/spm/pull/43), added the
+`main`. Issue 6, merged in pull request [#43](https://github.com/Billykat7/spm/pull/43), added the
 vocabulary every layer shares: the `Unit` and `UnitKind` enums carrying decision 5's factors,
 `Quantity`, `MatchStatus`, `IntentKeys`, `PrefKey` and the validation result types, with a
-conventions test that fails the build on a typed unit, status, extra or preference key. Until Issue 7
+conventions test that fails the build on a typed unit, status, extra or preference key. Issue 3, in
+pull request [#44](https://github.com/Billykat7/spm/pull/44), built the navigation shell:
+`MainActivity` hosts a bottom navigation that swaps the Pantry, Recipes and Settings Fragments,
+keeps the selected tab across rotation, returns Back to Pantry and opens on any tab through
+`MainActivity.intentFor`, and debug builds log every lifecycle callback for the video. Until Issue 7
 ships the script that generates the bars from GitHub, I update them by hand
 from GitHub's issue states.
 

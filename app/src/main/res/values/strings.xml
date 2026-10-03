@@ -7,12 +7,19 @@
 -->
 <resources>
     <string name="app_name">Smart Pantry Manager</string>
-    <string name="app_tagline">Cook what you already have. Waste less of it.</string>
 
     <!-- Bottom navigation tabs (Issue 3) -->
     <string name="tab_pantry">Pantry</string>
     <string name="tab_recipes">Recipes</string>
     <string name="tab_settings">Settings</string>
+
+    <!-- Tab placeholders, until Issues 13, 23 and 28 fill each tab -->
+    <string name="placeholder_pantry_title">Your pantry</string>
+    <string name="placeholder_pantry_body">The ingredients you add will be listed here, with their quantities and expiry dates.</string>
+    <string name="placeholder_recipes_title">Suggested recipes</string>
+    <string name="placeholder_recipes_body">Recipes you can cook with what is in your pantry will appear here.</string>
+    <string name="placeholder_settings_title">Your preferences</string>
+    <string name="placeholder_settings_body">Expiring-soon alerts, units and matching options will be set here.</string>
 
     <!--
         Unit symbols as shown on screen, after a number and a non-breaking space (250 g). One per

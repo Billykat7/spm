@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The three top-level screens, in the order the bottom navigation shows them. Each item's id is the
+    menuItemId of its constant in ui/Tab.java, which maps it to its Fragment and its toolbar title.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_pantry"
+        android:icon="@drawable/ic_tab_pantry"
+        android:title="@string/tab_pantry" />
+    <item
+        android:id="@+id/nav_recipes"
+        android:icon="@drawable/ic_tab_recipes"
+        android:title="@string/tab_recipes" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_tab_settings"
+        android:title="@string/tab_settings" />
+</menu>
