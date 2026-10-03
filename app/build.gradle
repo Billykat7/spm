@@ -53,6 +53,13 @@ android {
         // BuildConfig.DEBUG gates the lifecycle log (Issue 3); AGP 8+ no longer generates it by default
         buildConfig true
     }
+    sourceSets {
+        // JVM tests read the real seed asset (recipes.json) as a resource, never a copy that can
+        // drift from what the app ships (Issue 11; Issue 21's engine tests read it too)
+        test {
+            resources.srcDirs += 'src/main/assets'
+        }
+    }
     testOptions {
         unitTests {
             // JVM tests can read strings.xml and other resources without an emulator

@@ -1,0 +1,325 @@
+[
+  {
+    "name": "Cheese omelette",
+    "servings": 1,
+    "ingredients": [
+      {"name": "egg", "quantity": 3, "unit": "pcs"},
+      {"name": "cheese", "quantity": 30, "unit": "g"},
+      {"name": "butter", "quantity": 10, "unit": "g"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Whisk the eggs with the salt until no streaks of white are left.",
+      "Melt the butter in a frying pan over a medium heat and pour in the eggs.",
+      "Stir gently until the eggs are almost set, then scatter the grated cheese over one half.",
+      "Fold the omelette over the cheese and slide it onto a plate."
+    ]
+  },
+  {
+    "name": "Tomato pasta",
+    "servings": 2,
+    "ingredients": [
+      {"name": "pasta", "quantity": 200, "unit": "g"},
+      {"name": "tomato", "quantity": 4, "unit": "pcs"},
+      {"name": "garlic", "quantity": 2, "unit": "pcs"},
+      {"name": "olive oil", "quantity": 2, "unit": "tbsp"},
+      {"name": "salt", "quantity": 2, "unit": "g"}
+    ],
+    "steps": [
+      "Cook the pasta in a large pan of boiling, salted water until just tender, then drain.",
+      "While it cooks, chop the tomatoes and slice the garlic.",
+      "Warm the olive oil in a frying pan, add the garlic for a minute, then the tomatoes, and simmer for 8 minutes.",
+      "Toss the drained pasta through the sauce and serve."
+    ]
+  },
+  {
+    "name": "Pancakes",
+    "servings": 4,
+    "ingredients": [
+      {"name": "flour", "quantity": 125, "unit": "g"},
+      {"name": "milk", "quantity": 300, "unit": "ml"},
+      {"name": "egg", "quantity": 1, "unit": "pcs"},
+      {"name": "butter", "quantity": 15, "unit": "g"},
+      {"name": "sugar", "quantity": 10, "unit": "g"}
+    ],
+    "steps": [
+      "Whisk the flour, sugar, egg and milk into a smooth batter.",
+      "Melt a little of the butter in a frying pan over a medium heat.",
+      "Pour in a ladle of batter, tilt the pan to spread it and cook for a minute on each side.",
+      "Repeat with the rest of the batter, adding butter as needed."
+    ]
+  },
+  {
+    "name": "Egg fried rice",
+    "servings": 2,
+    "ingredients": [
+      {"name": "rice", "quantity": 250, "unit": "g"},
+      {"name": "egg", "quantity": 2, "unit": "pcs"},
+      {"name": "spring onion", "quantity": 2, "unit": "pcs"},
+      {"name": "soy sauce", "quantity": 2, "unit": "tbsp"},
+      {"name": "oil", "quantity": 1, "unit": "tbsp"}
+    ],
+    "steps": [
+      "Use rice cooked the day before, broken up with a fork.",
+      "Heat the oil in a wok, add the beaten eggs and scramble them until just set.",
+      "Add the rice and stir fry over a high heat for 3 minutes.",
+      "Stir in the soy sauce and the sliced spring onions and serve."
+    ]
+  },
+  {
+    "name": "Garlic butter mushrooms",
+    "servings": 2,
+    "ingredients": [
+      {"name": "mushroom", "quantity": 250, "unit": "g"},
+      {"name": "butter", "quantity": 30, "unit": "g"},
+      {"name": "garlic", "quantity": 3, "unit": "pcs"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Slice the mushrooms and crush the garlic.",
+      "Melt the butter in a frying pan and fry the mushrooms over a high heat for 5 minutes.",
+      "Add the garlic and salt, cook for one more minute and serve."
+    ]
+  },
+  {
+    "name": "Grilled cheese sandwich",
+    "servings": 1,
+    "ingredients": [
+      {"name": "bread", "quantity": 2, "unit": "pcs"},
+      {"name": "cheese", "quantity": 50, "unit": "g"},
+      {"name": "butter", "quantity": 15, "unit": "g"}
+    ],
+    "steps": [
+      "Butter one side of each slice of bread.",
+      "Put the cheese between the slices, buttered sides out.",
+      "Fry in a dry pan over a medium heat for 3 minutes on each side, until golden and melted."
+    ]
+  },
+  {
+    "name": "Scrambled eggs on toast",
+    "servings": 1,
+    "ingredients": [
+      {"name": "egg", "quantity": 3, "unit": "pcs"},
+      {"name": "milk", "quantity": 30, "unit": "ml"},
+      {"name": "butter", "quantity": 10, "unit": "g"},
+      {"name": "bread", "quantity": 2, "unit": "pcs"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Whisk the eggs with the milk and salt.",
+      "Toast the bread.",
+      "Melt the butter in a small pan over a low heat, add the eggs and stir slowly until softly set.",
+      "Spoon the eggs onto the toast."
+    ]
+  },
+  {
+    "name": "Banana oat porridge",
+    "servings": 1,
+    "ingredients": [
+      {"name": "oats", "quantity": 50, "unit": "g"},
+      {"name": "milk", "quantity": 1, "unit": "cup"},
+      {"name": "banana", "quantity": 1, "unit": "pcs"},
+      {"name": "honey", "quantity": 2, "unit": "tsp"}
+    ],
+    "steps": [
+      "Put the oats and milk in a small pan and bring to a simmer.",
+      "Cook for 5 minutes, stirring, until thick and creamy.",
+      "Slice the banana over the top and drizzle with the honey."
+    ]
+  },
+  {
+    "name": "Vegetable stir fry",
+    "servings": 2,
+    "ingredients": [
+      {"name": "carrot", "quantity": 2, "unit": "pcs"},
+      {"name": "bell pepper", "quantity": 1, "unit": "pcs"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "garlic", "quantity": 2, "unit": "pcs"},
+      {"name": "soy sauce", "quantity": 2, "unit": "tbsp"},
+      {"name": "oil", "quantity": 1, "unit": "tbsp"}
+    ],
+    "steps": [
+      "Cut the carrots, pepper and onion into thin strips and slice the garlic.",
+      "Heat the oil in a wok until very hot.",
+      "Stir fry the vegetables for 4 minutes, keeping them crisp.",
+      "Add the soy sauce, toss for 30 seconds and serve."
+    ]
+  },
+  {
+    "name": "Tomato and onion salad",
+    "servings": 2,
+    "ingredients": [
+      {"name": "tomato", "quantity": 3, "unit": "pcs"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "olive oil", "quantity": 2, "unit": "tbsp"},
+      {"name": "lemon", "quantity": 1, "unit": "pcs"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Slice the tomatoes and the onion as thinly as you can.",
+      "Squeeze the lemon over them, add the olive oil and salt, and toss gently.",
+      "Leave for 10 minutes before serving so the onion softens."
+    ]
+  },
+  {
+    "name": "Mashed potatoes",
+    "servings": 4,
+    "ingredients": [
+      {"name": "potato", "quantity": 4, "unit": "pcs"},
+      {"name": "butter", "quantity": 40, "unit": "g"},
+      {"name": "milk", "quantity": 100, "unit": "ml"},
+      {"name": "salt", "quantity": 2, "unit": "g"}
+    ],
+    "steps": [
+      "Peel the potatoes, cut them into chunks and boil in salted water for 15 minutes, until soft.",
+      "Drain well and leave to steam for a minute.",
+      "Mash with the butter, then beat in the warm milk until smooth."
+    ]
+  },
+  {
+    "name": "Chicken and rice",
+    "servings": 2,
+    "ingredients": [
+      {"name": "chicken", "quantity": 300, "unit": "g"},
+      {"name": "rice", "quantity": 150, "unit": "g"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "garlic", "quantity": 2, "unit": "pcs"},
+      {"name": "chicken stock", "quantity": 400, "unit": "ml"},
+      {"name": "olive oil", "quantity": 1, "unit": "tbsp"}
+    ],
+    "steps": [
+      "Cut the chicken into bite-sized pieces and chop the onion and garlic.",
+      "Brown the chicken in the olive oil in a deep pan, then add the onion and garlic for 3 minutes.",
+      "Stir in the rice, pour in the stock and bring to the boil.",
+      "Cover and simmer for 18 minutes, until the rice is tender and the stock absorbed."
+    ]
+  },
+  {
+    "name": "Beef mince tacos",
+    "servings": 2,
+    "ingredients": [
+      {"name": "beef mince", "quantity": 250, "unit": "g"},
+      {"name": "tortilla", "quantity": 4, "unit": "pcs"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "tomato", "quantity": 1, "unit": "pcs"},
+      {"name": "cheese", "quantity": 40, "unit": "g"},
+      {"name": "oil", "quantity": 1, "unit": "tbsp"}
+    ],
+    "steps": [
+      "Chop the onion and fry it in the oil for 3 minutes.",
+      "Add the mince and cook, breaking it up, for 8 minutes until browned.",
+      "Warm the tortillas in a dry pan and dice the tomato.",
+      "Fill each tortilla with mince, tomato and grated cheese."
+    ]
+  },
+  {
+    "name": "Spinach omelette",
+    "servings": 1,
+    "ingredients": [
+      {"name": "egg", "quantity": 3, "unit": "pcs"},
+      {"name": "spinach", "quantity": 50, "unit": "g"},
+      {"name": "butter", "quantity": 10, "unit": "g"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Wilt the spinach in half the butter in a frying pan, then set it aside.",
+      "Whisk the eggs with the salt, melt the rest of the butter and pour in the eggs.",
+      "When almost set, spoon the spinach over one half, fold and serve."
+    ]
+  },
+  {
+    "name": "Lentil soup",
+    "servings": 4,
+    "ingredients": [
+      {"name": "lentil", "quantity": 200, "unit": "g"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "carrot", "quantity": 2, "unit": "pcs"},
+      {"name": "garlic", "quantity": 2, "unit": "pcs"},
+      {"name": "vegetable stock", "quantity": 1, "unit": "l"},
+      {"name": "olive oil", "quantity": 1, "unit": "tbsp"}
+    ],
+    "steps": [
+      "Chop the onion, carrots and garlic and soften them in the olive oil for 5 minutes.",
+      "Rinse the lentils and add them with the stock.",
+      "Simmer for 25 minutes, until the lentils are soft.",
+      "Blend half of the soup and stir it back in to thicken it."
+    ]
+  },
+  {
+    "name": "French toast",
+    "servings": 2,
+    "ingredients": [
+      {"name": "bread", "quantity": 4, "unit": "pcs"},
+      {"name": "egg", "quantity": 2, "unit": "pcs"},
+      {"name": "milk", "quantity": 100, "unit": "ml"},
+      {"name": "butter", "quantity": 20, "unit": "g"},
+      {"name": "sugar", "quantity": 10, "unit": "g"}
+    ],
+    "steps": [
+      "Whisk the eggs, milk and sugar in a shallow dish.",
+      "Soak each slice of bread in the mixture for a few seconds on each side.",
+      "Fry in the butter over a medium heat for 2 minutes on each side, until golden."
+    ]
+  },
+  {
+    "name": "Garlic bread",
+    "servings": 2,
+    "ingredients": [
+      {"name": "bread", "quantity": 4, "unit": "pcs"},
+      {"name": "butter", "quantity": 50, "unit": "g"},
+      {"name": "garlic", "quantity": 3, "unit": "pcs"}
+    ],
+    "steps": [
+      "Crush the garlic and mix it into the softened butter.",
+      "Spread the garlic butter over the bread.",
+      "Bake at 200°C for 8 minutes, until crisp at the edges."
+    ]
+  },
+  {
+    "name": "Potato and egg hash",
+    "servings": 2,
+    "ingredients": [
+      {"name": "potato", "quantity": 3, "unit": "pcs"},
+      {"name": "egg", "quantity": 2, "unit": "pcs"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "oil", "quantity": 2, "unit": "tbsp"},
+      {"name": "salt", "quantity": 1, "unit": "g"}
+    ],
+    "steps": [
+      "Dice the potatoes and boil them for 8 minutes, then drain.",
+      "Fry the potatoes and the chopped onion in the oil with the salt for 10 minutes, until crisp.",
+      "Make two wells, crack in the eggs, cover and cook for 4 minutes."
+    ]
+  },
+  {
+    "name": "Tuna pasta",
+    "servings": 2,
+    "ingredients": [
+      {"name": "pasta", "quantity": 200, "unit": "g"},
+      {"name": "tuna", "quantity": 150, "unit": "g"},
+      {"name": "onion", "quantity": 1, "unit": "pcs"},
+      {"name": "olive oil", "quantity": 1, "unit": "tbsp"},
+      {"name": "cheese", "quantity": 30, "unit": "g"}
+    ],
+    "steps": [
+      "Cook the pasta in a large pan of boiling water, then drain.",
+      "Soften the chopped onion in the olive oil for 5 minutes.",
+      "Stir in the drained tuna and the pasta, then serve with the grated cheese."
+    ]
+  },
+  {
+    "name": "Rice pudding",
+    "servings": 4,
+    "ingredients": [
+      {"name": "rice", "quantity": 100, "unit": "g"},
+      {"name": "milk", "quantity": 800, "unit": "ml"},
+      {"name": "sugar", "quantity": 60, "unit": "g"},
+      {"name": "butter", "quantity": 15, "unit": "g"}
+    ],
+    "steps": [
+      "Put the rice, milk and sugar in a heavy pan and bring slowly to a simmer.",
+      "Cook on the lowest heat for 40 minutes, stirring often, until thick and creamy.",
+      "Stir in the butter and serve warm."
+    ]
+  }
+]

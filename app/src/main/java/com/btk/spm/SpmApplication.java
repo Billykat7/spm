@@ -2,6 +2,7 @@ package com.btk.spm;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Room;
@@ -9,6 +10,8 @@ import androidx.room.Room;
 import com.btk.spm.data.db.AppDatabase;
 import com.btk.spm.data.repo.PantryRepository;
 import com.btk.spm.data.repo.RecipeRepository;
+import com.btk.spm.data.seed.RecipeSeeder;
+import com.btk.spm.data.seed.SeedResult;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +31,9 @@ public class SpmApplication extends Application {
     /** The name of the write thread, as it appears in a stack trace or the profiler. */
     private static final String IO_THREAD_NAME = "spm-io";
 
+    /** The logcat tag of the first-run seed: {@code adb logcat -s Seed}. */
+    private static final String SEED_LOG_TAG = "Seed";
+
     private AppDatabase database;
     private ExecutorService ioExecutor;
     private PantryRepository pantryRepository;
@@ -44,6 +50,16 @@ public class SpmApplication extends Application {
         ioExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, IO_THREAD_NAME));
         pantryRepository = new PantryRepository(database, ioExecutor);
         recipeRepository = new RecipeRepository(database);
+        // The recipe seed runs on every start and inserts only into an empty table (Issue 11). It is
+        // the first task on the write thread, so it finishes before any pantry write the user makes.
+        // A broken asset throws there and stops the app, which the JVM tests catch long before a
+        // release; an empty recipe list would hide it.
+        ioExecutor.execute(() -> {
+            SeedResult result = new RecipeSeeder(this, database).seedIfEmpty();
+            if (BuildConfig.DEBUG) {
+                Log.d(SEED_LOG_TAG, "Recipe seed: " + result);
+            }
+        });
     }
 
     /**
