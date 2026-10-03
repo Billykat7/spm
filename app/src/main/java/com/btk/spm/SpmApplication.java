@@ -8,6 +8,7 @@ import androidx.room.Room;
 
 import com.btk.spm.data.db.AppDatabase;
 import com.btk.spm.data.repo.PantryRepository;
+import com.btk.spm.data.repo.RecipeRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +31,7 @@ public class SpmApplication extends Application {
     private AppDatabase database;
     private ExecutorService ioExecutor;
     private PantryRepository pantryRepository;
+    private RecipeRepository recipeRepository;
 
     @Override
     public void onCreate() {
@@ -41,6 +43,7 @@ public class SpmApplication extends Application {
         // can never land the other way round. The process owns it, so it is never shut down.
         ioExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, IO_THREAD_NAME));
         pantryRepository = new PantryRepository(database, ioExecutor);
+        recipeRepository = new RecipeRepository(database);
     }
 
     /**
@@ -73,6 +76,17 @@ public class SpmApplication extends Application {
     @NonNull
     public PantryRepository getPantryRepository() {
         return pantryRepository;
+    }
+
+    /**
+     * Returns the one recipe repository, the way every screen reads recipes. It has no writes: recipes
+     * are seed data (decision 7). The same instance on every call.
+     *
+     * @return the recipe repository built in {@link #onCreate()}
+     */
+    @NonNull
+    public RecipeRepository getRecipeRepository() {
+        return recipeRepository;
     }
 
     /**

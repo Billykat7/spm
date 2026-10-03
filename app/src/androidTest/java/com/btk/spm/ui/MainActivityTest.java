@@ -14,6 +14,9 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
 
 import com.btk.spm.R;
 import com.btk.spm.ui.pantry.PantryFragment;
@@ -24,6 +27,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The navigation shell on a device (Issue 3): each tab shows its Fragment and title, the tab
@@ -86,17 +93,47 @@ public class MainActivityTest {
     }
 
     @Test
-    public void intentForSwitchesARunningHostToTheTab() {
+    public void intentForSwitchesARunningHostToTheTab() throws InterruptedException {
         // Launched through intentFor too: ActivityScenario keeps track of its Activity by comparing
         // getIntent() with the Intent it launched (Intent.filterEquals, which ignores extras), and
         // onNewIntent replaces getIntent(). A launcher Intent here would make it lose the Activity.
         try (ActivityScenario<MainActivity> scenario =
                      ActivityScenario.launch(MainActivity.intentFor(context, Tab.PANTRY))) {
             assertShowing(scenario, Tab.PANTRY, PantryFragment.class);
-            // Another screen starting the host: it is brought forward and switched (onNewIntent)
-            scenario.onActivity(activity -> activity.startActivity(MainActivity.intentFor(activity, Tab.RECIPES)));
-            Espresso.onIdle();
+            // Another screen starting the host: it is brought forward and switched (onNewIntent).
+            // The Intent goes through the system server, which Espresso's idle check does not see, so
+            // wait for the pause, onNewIntent, resume round the host makes, not for the main looper.
+            awaitPauseAndResume(() -> scenario.onActivity(
+                    activity -> activity.startActivity(MainActivity.intentFor(activity, Tab.RECIPES))));
             assertShowing(scenario, Tab.RECIPES, SuggestedRecipesFragment.class);
+        }
+    }
+
+    /**
+     * Runs {@code action} and waits until a {@link MainActivity} has been paused and then resumed.
+     * A new Intent for the running host is delivered between those two callbacks, on API 26 as on
+     * API 35, so once this returns {@code onNewIntent} has run.
+     */
+    private static void awaitPauseAndResume(Runnable action) throws InterruptedException {
+        AtomicBoolean paused = new AtomicBoolean();
+        CountDownLatch resumedAgain = new CountDownLatch(1);
+        ActivityLifecycleCallback callback = (activity, stage) -> {
+            if (!(activity instanceof MainActivity)) {
+                return;
+            }
+            if (stage == Stage.PAUSED) {
+                paused.set(true);
+            } else if (stage == Stage.RESUMED && paused.get()) {
+                resumedAgain.countDown();
+            }
+        };
+        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(callback);
+        try {
+            action.run();
+            assertTrue("MainActivity was not paused and resumed by the new Intent",
+                    resumedAgain.await(5, TimeUnit.SECONDS));
+        } finally {
+            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback);
         }
     }
 
