@@ -167,10 +167,10 @@ app/src/main/java/com/btk/spm/
 ## Delivery at a glance
 
 Each bar has **one block per issue**, so every merged pull request that closes an issue adds a 🟩 to
-its milestone; a follow-up that closes nothing adds none. Until Issue 7 ships
-`scripts/milestone_progress.py`, which writes the bars from GitHub's own issue states, the pull request
-that closes an issue turns its block green by hand. Each milestone doc lists its issues and its order
-of work.
+its milestone; a follow-up that closes nothing adds none. `scripts/milestone_progress.py` draws the
+bars from GitHub's own issue states, and the pull request that closes an issue runs it with
+`--assume-closed <N>`, so the bars read as they will once it merges. Each milestone doc lists its
+issues and its order of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
@@ -250,7 +250,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 in progress. The brief has been broken into seven milestones and
+**Where the project is.** Milestone 1 done (`v0.1.0` to cut). The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -270,18 +270,20 @@ conventions test that fails the build on a typed unit, status, extra or preferen
 in pull request [#44](https://github.com/Billykat7/spm/pull/44), built the navigation shell:
 `MainActivity` hosts a bottom navigation that swaps the Pantry, Recipes and Settings Fragments,
 keeps the selected tab across rotation, returns Back to Pantry and opens on any tab through
-`MainActivity.intentFor`, and debug builds log every lifecycle callback for the video. Issue 5, in
-pull request [#45](https://github.com/Billykat7/spm/pull/45), made a version tag a release: pushing
-`v*.*.*` runs the gate on the tagged commit, builds the release APK with the tag's version and
-publishes it as `spm-<tag>.apk` on the Releases page. Until Issue 7
-ships the script that generates the bars from GitHub, I update them by hand
-from GitHub's issue states.
+`MainActivity.intentFor`, and debug builds log every lifecycle callback for the video. Issue 5,
+merged in pull request [#45](https://github.com/Billykat7/spm/pull/45), made a version tag a
+release: pushing `v*.*.*` runs the gate on the tagged commit, builds the release APK with the tag's
+version and publishes it as `spm-<tag>.apk` on the Releases page. Issue 7, in pull request
+[#46](https://github.com/Billykat7/spm/pull/46), closes the milestone with the repository tooling:
+labels, milestones and issues synced from the plan by script, the bars above drawn from GitHub's
+issue states, issue and pull request templates, and the `v0.1.0` release note.
 
-**What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the
-database, the pantry screens, and in week 4 the matching engine, which is the critical path.
+**What is next.** Tagging `v0.1.0` once this milestone's last pull request merges, then M2, the
+Room database, in week 2; the pantry screens follow, and in week 4 the matching engine, which is the
+critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
-**Tags.** None cut yet; `v0.1.0` follows Milestone 1's last issue. Pushing a tag builds the APK and
+**Tags.** None cut yet; `v0.1.0` is cut when Issue 7 merges (M1, `v0.1.0` to cut). Pushing a tag builds the APK and
 publishes it on the GitHub Release (Issue 5); the steps are in
 [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
