@@ -97,7 +97,7 @@ script, so a stage that passes on a laptop passes on GitHub.
 |-------|---------|------------|
 | guards | `scripts/check_guards.sh` | a scope guard below is broken |
 | lint | `./gradlew lint` | Lint reports an error, such as a typed string in a layout (`HardcodedText`) or in `setText()` (`SetTextI18n`) |
-| unit tests | `./gradlew testDebugUnitTest` | a JVM test fails, such as `LayoutStyleConventionsTest` on a raw hex colour |
+| unit tests | `./gradlew testDebugUnitTest` | a JVM test fails, such as `LayoutStyleConventionsTest` on a raw hex colour or `DaoBoundaryTest` on a DAO reached from outside `data/` |
 | debug build | `./gradlew assembleDebug` | the app does not compile or package |
 | device tests | `./gradlew connectedDebugAndroidTest` | an instrumented test fails, or no device is attached (`--with-device` only) |
 

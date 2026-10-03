@@ -41,8 +41,10 @@ tooling and are not covered by the rule, but the app the marker reads is Java.
 
 Pantry items and recipes live in the Room database and nowhere else. No screen keeps its own list;
 every list observes a DAO through a repository and a `ViewModel`, so a change made on one screen is
-visible on the next without a refresh. Data survives closing and reopening the app, and a test
-proves it (Issues 8, 12).
+visible on the next without a refresh. Only `data/` touches a DAO: `DaoBoundaryTest` fails the build
+when a file outside it imports from `data.db` or calls `pantryItemDao()` or `recipeDao()`, and
+`SpmApplication` may name `AppDatabase` only to build it (Issue 9). Data survives closing and
+reopening the app, and a test proves it (Issues 8, 12).
 
 ## 7. Fixed sets are enums; keys are constants
 
