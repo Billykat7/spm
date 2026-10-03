@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Lint configuration for the app module (read through lintConfig in app/build.gradle).
+
+    Only deliberate, recorded decisions are suppressed here, each with its reason and the narrowest
+    match that covers it. Everything else stays visible: a warning nobody chose to accept is a task.
+    Severity changes (HardcodedText and SetTextI18n as errors) live in app/build.gradle.
+-->
+<lint>
+    <!--
+        Decision 4 (docs/GITHUB/ISSUES/README.md#open-decisions) fixes targetSdk 35. Moving the
+        target is a decision of its own, re-tested on a device, not a Lint warning to follow.
+    -->
+    <issue id="OldTargetApi" severity="ignore" />
+
+    <!--
+        Decision 4 also fixes compileSdk 35, and androidx.activity 1.11 and later require
+        compileSdk 36 (minCompileSdk in their AAR metadata), so activity stays at 1.10.1. Only these
+        two "newer version" notices are silenced; any other outdated dependency still warns.
+    -->
+    <issue id="GradleDependency">
+        <ignore regexp="compileSdk" />
+        <ignore regexp="androidx\.activity:activity" />
+    </issue>
+</lint>
