@@ -1,0 +1,101 @@
+# Release: a version tag builds the APK and publishes it on the GitHub Releases page (Issue 5).
+#
+# Push a tag such as v0.1.0 (the steps are in docs/GITHUB/RELEASES/README.md). The workflow runs the
+# same gate as CI first, so a tag whose code is broken is never released; then it builds the release
+# APK with the tag's version, names it spm-<tag>.apk and attaches it to a release named after the tag.
+# A tag with a suffix (v0.0.1-test, v1.0.0-rc1) is published as a pre-release.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+# Creating the release and uploading the APK needs write access to the repository's contents.
+permissions:
+  contents: write
+
+# One run per tag; a second push of the same tag waits rather than racing the first.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the tag
+        uses: actions/checkout@v7
+
+      # versionName is the tag without its "v"; versionCode is major*10000 + minor*100 + patch, so
+      # it always rises with the version and the same tag always builds the same code.
+      - name: Read the version from the tag
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag $TAG is not v<major>.<minor>.<patch>[-suffix]"
+            exit 1
+          fi
+          major=${BASH_REMATCH[1]} minor=${BASH_REMATCH[2]} patch=${BASH_REMATCH[3]}
+          if (( minor > 99 || patch > 99 )); then
+            echo "::error::Minor and patch must be at most 99 for versionCode to keep rising"
+            exit 1
+          fi
+          {
+            echo "name=${TAG#v}"
+            echo "code=$(( major * 10000 + minor * 100 + patch ))"
+            echo "prerelease=$([[ -n "${BASH_REMATCH[4]}" ]] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      # The same gate as every pull request: guards, lint, unit tests, debug build. A failure here
+      # ends the run before anything is built for release or published.
+      - name: Run the gate
+        run: ./scripts/ci-local.sh
+
+      - name: Build the release APK
+        run: >
+          ./gradlew --console=plain assembleRelease
+          -PversionName=${{ steps.version.outputs.name }}
+          -PversionCode=${{ steps.version.outputs.code }}
+
+      - name: Name the APK after the tag
+        id: apk
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          apk="spm-${TAG}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk"
+          # Print what is being published: the version inside the APK must match the tag
+          aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 -type f | sort -V | tail -1)"
+          "$aapt2" dump badging "$apk" | head -1
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+
+      # The note is docs/GITHUB/RELEASES/RELEASE_v0_1_0.md for v0.1.0, when it is in the repository;
+      # otherwise GitHub lists the pull requests merged since the previous tag, and the note can be
+      # attached afterwards with gh release edit --notes-file (see the releases README).
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          APK: ${{ steps.apk.outputs.path }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          note="docs/GITHUB/RELEASES/RELEASE_${TAG//./_}.md"
+          args=(--title "$TAG" --verify-tag)
+          if [[ -f "$note" ]]; then args+=(--notes-file "$note"); else args+=(--generate-notes); fi
+          if [[ "$PRERELEASE" == true ]]; then args+=(--prerelease); fi
+          gh release create "$TAG" "$APK" "${args[@]}"
