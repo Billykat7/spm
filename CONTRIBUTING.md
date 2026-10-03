@@ -143,6 +143,29 @@ Lint warnings are reported but do not fail the gate. A warning accepted on purpo
 - Instrumented tests do not run in CI, which has no emulator. A pull request that adds or changes a
   Room, Espresso or other `androidTest` test shows its `--with-device` run in the description.
 
+## Releases
+
+One tag per milestone (`v0.1.0` for Milestone 1, up to `v0.7.0`), and `v1.0.0` for the submitted
+build. Pushing a tag is the whole release: `.github/workflows/release.yml` runs the gate on the
+tagged commit, builds the release APK with the tag's version, and publishes `spm-<tag>.apk` on a
+GitHub Release. A tag whose code fails the gate publishes nothing.
+
+```bash
+git switch main && git pull --ff-only
+./scripts/ci-local.sh
+git tag -a v0.1.0 -m "v0.1.0: Foundation & Local CI"
+git push origin v0.1.0
+```
+
+- `versionName` is the tag without its `v`; `versionCode` is major × 10000 + minor × 100 + patch,
+  so `v0.1.0` is `100` and `v1.0.0` is `10000`. A tag with a suffix (`v1.0.0-rc1`) is a pre-release.
+- There is no release key and no Play Store (brief §3.3): the release APK is signed with the debug
+  keystore of the machine that builds it. A CI-built APK therefore replaces another CI-built one,
+  but not a debug build from a laptop; uninstall that first.
+- If the gate fails on a tag, delete it (`git push --delete origin <tag> && git tag -d <tag>`), fix
+  the cause through a pull request and tag again. A published release is withdrawn with
+  `gh release delete <tag> --yes --cleanup-tag`.
+
 ## Emulator settings for tests and screenshots
 
 Espresso tests run with animations off:

@@ -174,14 +174,14 @@ of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩🟩🟩⬜⬜ **71%** (5/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩🟩🟩🟩🟩⬜ **86%** (6/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **13%** (5/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **16%** (6/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -266,11 +266,14 @@ GitHub Actions runs the same script on every pull request, and its check is requ
 `main`. Issue 6, merged in pull request [#43](https://github.com/Billykat7/spm/pull/43), added the
 vocabulary every layer shares: the `Unit` and `UnitKind` enums carrying decision 5's factors,
 `Quantity`, `MatchStatus`, `IntentKeys`, `PrefKey` and the validation result types, with a
-conventions test that fails the build on a typed unit, status, extra or preference key. Issue 3, in
-pull request [#44](https://github.com/Billykat7/spm/pull/44), built the navigation shell:
+conventions test that fails the build on a typed unit, status, extra or preference key. Issue 3, merged
+in pull request [#44](https://github.com/Billykat7/spm/pull/44), built the navigation shell:
 `MainActivity` hosts a bottom navigation that swaps the Pantry, Recipes and Settings Fragments,
 keeps the selected tab across rotation, returns Back to Pantry and opens on any tab through
-`MainActivity.intentFor`, and debug builds log every lifecycle callback for the video. Until Issue 7
+`MainActivity.intentFor`, and debug builds log every lifecycle callback for the video. Issue 5, in
+pull request [#45](https://github.com/Billykat7/spm/pull/45), made a version tag a release: pushing
+`v*.*.*` runs the gate on the tagged commit, builds the release APK with the tag's version and
+publishes it as `spm-<tag>.apk` on the Releases page. Until Issue 7
 ships the script that generates the bars from GitHub, I update them by hand
 from GitHub's issue states.
 
@@ -278,8 +281,9 @@ from GitHub's issue states.
 database, the pantry screens, and in week 4 the matching engine, which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
-**Tags.** None cut. A tag builds the APK and attaches it to the GitHub Release (Issue 5); each
-milestone's note lands in `docs/GITHUB/RELEASES` when its last issue closes.
+**Tags.** None cut yet; `v0.1.0` follows Milestone 1's last issue. Pushing a tag builds the APK and
+publishes it on the GitHub Release (Issue 5); the steps are in
+[`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence
 
