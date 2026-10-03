@@ -94,16 +94,19 @@ public final class ValidationResult {
         return Optional.empty();
     }
 
+    /** Two results are equal when they hold the same errors in the same order. */
     @Override
     public boolean equals(Object other) {
         return other instanceof ValidationResult && errors.equals(((ValidationResult) other).errors);
     }
 
+    /** Consistent with {@link #equals(Object)}: derived from the errors alone. */
     @Override
     public int hashCode() {
         return errors.hashCode();
     }
 
+    /** Returns {@code ValidationResult.ok}, or {@code ValidationResult.error} and the errors, for logs and test failures. */
     @Override
     public String toString() {
         return isOk() ? "ValidationResult.ok" : "ValidationResult.error" + errors;
