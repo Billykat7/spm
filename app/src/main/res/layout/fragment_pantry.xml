@@ -1,54 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Placeholder for a tab that a later issue fills in: the tab's icon, a title and one line saying
-    what the tab will hold. Text from strings.xml, colours from the theme, sizes from dimens.xml.
+    The Pantry tab (Issue 13): the list of what is in the pantry, the shared empty state shown
+    instead of it when there is nothing, and the button that adds an ingredient. PantryFragment
+    shows exactly one of the list and the empty state, depending on what the database holds; the
+    empty state starts hidden so a first frame never flashes it before the first list arrives.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.pantry.PantryFragment">
 
-    <ImageView
-        android:id="@+id/placeholder_icon"
-        android:layout_width="@dimen/placeholder_icon_size"
-        android:layout_height="@dimen/placeholder_icon_size"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_tab_pantry_outlined"
-        app:layout_constraintBottom_toTopOf="@id/placeholder_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:tint="?attr/colorPrimary" />
-
-    <TextView
-        android:id="@+id/placeholder_title"
+    <!-- Padded at the bottom so the last row can scroll clear of the FAB -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pantry_list"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_m"
-        android:gravity="center"
-        android:text="@string/placeholder_pantry_title"
-        android:textAppearance="@style/TextAppearance.Spm.HeadlineSmall"
-        android:textColor="?attr/colorOnSurface"
-        app:layout_constraintBottom_toTopOf="@id/placeholder_body"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/placeholder_icon" />
-
-    <TextView
-        android:id="@+id/placeholder_body"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_s"
-        android:gravity="center"
-        android:text="@string/placeholder_pantry_body"
-        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/list_bottom_space_for_fab"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/placeholder_title" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_pantry" />
+
+    <include
+        android:id="@+id/empty_state"
+        layout="@layout/view_empty_state"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_ingredient"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_m"
+        android:contentDescription="@string/action_add_ingredient"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
