@@ -213,6 +213,17 @@ written by hand in the same pull request.
 
 ## Emulator settings for tests and screenshots
 
+Two AVDs, one at the floor and one at the target: an API 26 image and an API 35 image (*Device
+Manager* in Android Studio, or `sdkmanager` and `avdmanager`). Named `spm_api26` and `spm_api35`, they
+boot without a window on fixed ports, so `adb` serials stay the same from run to run:
+
+```bash
+"$ANDROID_HOME/emulator/emulator" -avd spm_api26 -port 5560 -no-window -no-audio -no-boot-anim -no-snapshot-save &
+"$ANDROID_HOME/emulator/emulator" -avd spm_api35 -port 5556 -no-window -no-audio -no-boot-anim -no-snapshot-save &
+adb -s emulator-5560 wait-for-device shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
+adb devices                                                          # emulator-5556, emulator-5560
+```
+
 Espresso tests run with animations off:
 
 ```bash
