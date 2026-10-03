@@ -29,6 +29,10 @@ local.properties
 *.keystore
 *.jks
 
+# Python bytecode from the tooling scripts under scripts/
+__pycache__/
+*.py[cod]
+
 # Logs and crash dumps
 *.log
 hs_err_pid*
