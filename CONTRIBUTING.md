@@ -158,6 +158,9 @@ git tag -a v0.1.0 -m "v0.1.0: Foundation & Local CI"
 git push origin v0.1.0
 ```
 
+- The release body is the milestone's note, `docs/GITHUB/RELEASES/RELEASE_v0_<n>_0.md`, committed by
+  the pull request that closes the milestone's last issue; the workflow reads it from the tagged
+  commit. A tag without a note gets GitHub's list of merged pull requests instead.
 - `versionName` is the tag without its `v`; `versionCode` is major × 10000 + minor × 100 + patch,
   so `v0.1.0` is `100` and `v1.0.0` is `10000`. A tag with a suffix (`v1.0.0-rc1`) is a pre-release.
 - There is no release key and no Play Store (brief §3.3): the release APK is signed with the debug
