@@ -12,9 +12,10 @@
 #   6. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
 #
 # Stage 6 does not trust Gradle's exit status alone. Gradle can print BUILD SUCCESSFUL when the APK
-# would not install on one of the devices, which then runs no test at all. So the stage fails when
-# the Gradle output says "AndroidTestRunner failed on <serial>" or when a target device has no JUnit
-# XML with at least one test in it. It prints one line per device, which the summary repeats.
+# would not install on one of the devices, which then runs no test at all. So the stage uninstalls
+# the app and its test APK from every target device first, and afterwards fails when the Gradle
+# output says "AndroidTestRunner failed on <serial>" or when a target device has no JUnit XML with at
+# least one test in it. It prints one line per device, which the summary repeats.
 #
 # Usage:
 #   ./scripts/ci-local.sh                  stages 1-5
@@ -151,6 +152,24 @@ device_tests() {
         return 1
     fi
     printf 'devices: %s\n' "$(printf '%s' "$devices" | tr '\n' ' ')"
+
+    # An APK installed by hand (adb install -r) can make Gradle's install fail with
+    # INSTALL_FAILED_ALREADY_EXISTS. Gradle then skips that device and still exits 0, so both
+    # packages go first. This also wipes the app's data on the device.
+    local app_id pkg
+    app_id="$(sed -n 's/^ *applicationId "\(.*\)"/\1/p' app/build.gradle)"
+    if [[ -z "$app_id" ]]; then
+        printf 'ci-local: no applicationId in app/build.gradle\n' >&2
+        return 1
+    fi
+    for serial in $devices; do
+        for pkg in "$app_id" "$app_id.test"; do
+            if "$adb" -s "$serial" shell pm list packages "$pkg" 2>/dev/null | tr -d '\r' | grep -Fxq "package:$pkg"; then
+                printf 'uninstall %s from %s: %s\n' "$pkg" "$serial" \
+                    "$("$adb" -s "$serial" uninstall "$pkg" 2>&1 | tr -d '\r' | tail -1)"
+            fi
+        done
+    done
 
     # A result left by an earlier run must not count for this one.
     rm -rf "$device_results"
