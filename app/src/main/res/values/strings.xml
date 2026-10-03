@@ -7,7 +7,6 @@
 -->
 <resources>
     <string name="app_name">Smart Pantry Manager</string>
-    <string name="app_tagline">Cook what you already have. Waste less of it.</string>
 
     <!-- Bottom navigation tabs (Issue 3) -->
     <string name="tab_pantry">Pantry</string>
