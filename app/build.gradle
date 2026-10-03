@@ -2,6 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// The version follows the release tag: .github/workflows/release.yml builds a tag such as v0.1.0 with
+// -PversionName=0.1.0 -PversionCode=100. Local builds, CI and Android Studio use these defaults.
+def appVersionName = (project.findProperty('versionName') ?: '0.0.0-dev').toString()
+def appVersionCode = (project.findProperty('versionCode') ?: '1').toString()
+if (!appVersionCode.isInteger() || appVersionCode.toInteger() < 1) {
+    throw new GradleException("versionCode must be a positive whole number, was '${appVersionCode}'")
+}
+
 android {
     namespace 'com.btk.spm'
     compileSdk 35
@@ -10,8 +18,8 @@ android {
         applicationId "com.btk.spm"
         minSdk 26
         targetSdk 35
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode.toInteger()
+        versionName appVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
