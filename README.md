@@ -179,13 +179,13 @@ issues and its order of work.
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
-| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
+| 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **29%** (11/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **32%** (12/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -254,7 +254,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 under way. The brief has been broken into seven milestones and
+**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut). The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -293,19 +293,25 @@ outside `data/`. `DaoBoundaryTest` fails the build when a screen reaches a DAO d
 merged in pull request [#49](https://github.com/Billykat7/spm/pull/49), added the read side of the recipes:
 `RecipeDao` returns each recipe with its ingredients through one `@Relation` query, stores a recipe and
 its ingredients in one transaction for the seed, and `RecipeRepository` offers reads only, because
-recipes are seed data (decision 7). Issue 11, in pull request
-[#50](https://github.com/Billykat7/spm/pull/50), seeds the collection: twenty everyday recipes in
+recipes are seed data (decision 7). Issue 11, merged in pull request
+[#50](https://github.com/Billykat7/spm/pull/50), seeded the collection: twenty everyday recipes in
 `assets/recipes.json`, each ingredient written in one unit kind across all of them, inserted on the
 first start in one transaction and never again, because the app checks for an empty table on every
-start rather than relying on a once-only database callback.
+start rather than relying on a once-only database callback. Issue 12, in pull request
+[#51](https://github.com/Billykat7/spm/pull/51), closes the milestone with the proof the rubric asks
+for: a test writes to a real database file, closes it, opens a new instance on the same file and
+reads everything back; the committed schema is itself under test, and the gate fails when a build
+changes it without a version bump. It also writes the `v0.2.0` release note.
 
-**What is next.** The last issue of M2 in week 2: the restart test that proves the data persists
-(Issue 12), and the `v0.2.0` release note. The pantry screens follow, and in week 4 the matching engine, which is the
+**What is next.** Tagging `v0.2.0` once this pull request merges, then M3 in week 3: the pantry
+list, the add and edit form with its validation, delete with undo, and expiry badges, the first
+screens that read the database. The pantry screens follow, and in week 4 the matching engine, which is the
 critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1), with
-`spm-v0.1.0.apk` on its release; `v0.2.0` is cut when Issue 12 merges (M2, `v0.2.0` to cut). Pushing
+`spm-v0.1.0.apk` on its release; `v0.2.0` is cut when Issue 12 merges (M2, `v0.2.0` to cut), with
+its note in [`RELEASE_v0_2_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_2_0.md). Pushing
 a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are in
 [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
