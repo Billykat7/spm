@@ -173,14 +173,14 @@ of work.
 
 | | Milestone | Issues | Week | Release | Progress |
 |---|-----------|--------|------|---------|----------|
-| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩⬜⬜⬜⬜⬜⬜ **14%** (1/7 issues) |
+| 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | `v0.1.0` (to cut) | 🟩🟩⬜⬜⬜⬜⬜ **29%** (2/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **3%** (1/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **5%** (2/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -219,8 +219,9 @@ Android Studio's default on macOS; Studio shows the real one under *Settings > L
 Android SDK*.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
-Today the app opens on one screen showing its name (Issue 1); the tabs, the seeded recipes and the
-matcher arrive with the milestones below. Once they have, add a few ingredients on the Pantry tab and
+Today the app opens on one themed screen showing its name and tagline, in light or dark with the
+system setting (Issues 1 and 2); the tabs, the seeded recipes and the matcher arrive with the
+milestones below. Once they have, add a few ingredients on the Pantry tab and
 open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
@@ -255,7 +256,9 @@ editing) are recorded. Issue 1, merged in pull request
 [#39](https://github.com/Billykat7/spm/pull/39), created the Android project: a Java 17 app with
 Groovy build scripts (`com.btk.spm`, minSdk 26, target and compile SDK 35, ViewBinding on) and the
 package skeleton in place, which builds from a clean clone and runs on API 26 and API 35 emulators.
-Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand from
+Issue 2, in pull request [#41](https://github.com/Billykat7/spm/pull/41), gave it one Material 3 theme
+in light and dark (a leaf-green and amber palette), one type scale, every visible string in
+`strings.xml` with a typed string failing Lint, and its own launcher icon. Until Issue 7 ships the script that generates the bars from GitHub, I update them by hand from
 GitHub's issue states.
 
 **What is next.** M1 (the project, theme, navigation shell, CI, guards, enums) in week 1, then the

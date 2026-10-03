@@ -1,5 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app's one palette, light scheme. Material 3 colour roles generated with Material Color
+    Utilities (2021 spec, tonal-spot variant) from two core colours: leaf green #4C8C2B as primary
+    and amber #E09F3E as secondary. values-night/colors.xml holds the dark scheme under the same
+    names, so Theme.Spm switches with the system setting. Layouts never use these directly: they
+    read the theme's roles (?attr/colorPrimary, ?attr/colorOnSurface and the rest).
+-->
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary: leaf green, the brand colour (buttons, active states, the app name) -->
+    <color name="md_theme_primary">#FF2D6C0A</color>
+    <color name="md_theme_on_primary">#FFFFFFFF</color>
+    <color name="md_theme_primary_container">#FFAEF586</color>
+    <color name="md_theme_on_primary_container">#FF1D5200</color>
+    <color name="md_theme_inverse_primary">#FF93D96D</color>
+
+    <!-- Secondary: amber, the warm accent (chips, badges, secondary actions) -->
+    <color name="md_theme_secondary">#FF835500</color>
+    <color name="md_theme_on_secondary">#FFFFFFFF</color>
+    <color name="md_theme_secondary_container">#FFFFDDB4</color>
+    <color name="md_theme_on_secondary_container">#FF633F00</color>
+
+    <!-- Tertiary: muted teal, for the rare accent that must not read as primary or secondary -->
+    <color name="md_theme_tertiary">#FF386666</color>
+    <color name="md_theme_on_tertiary">#FFFFFFFF</color>
+    <color name="md_theme_tertiary_container">#FFBBEBEC</color>
+    <color name="md_theme_on_tertiary_container">#FF1E4E4E</color>
+
+    <!-- Error: Material 3's error palette, unchanged -->
+    <color name="md_theme_error">#FFBA1A1A</color>
+    <color name="md_theme_on_error">#FFFFFFFF</color>
+    <color name="md_theme_error_container">#FFFFDAD6</color>
+    <color name="md_theme_on_error_container">#FF93000A</color>
+
+    <!-- Surfaces and text: neutrals tinted towards the green -->
+    <color name="md_theme_background">#FFFAFAF3</color>
+    <color name="md_theme_on_background">#FF1A1C18</color>
+    <color name="md_theme_surface">#FFFAFAF3</color>
+    <color name="md_theme_on_surface">#FF1A1C18</color>
+    <color name="md_theme_surface_variant">#FFE0E4D6</color>
+    <color name="md_theme_on_surface_variant">#FF43483E</color>
+    <color name="md_theme_surface_dim">#FFDADAD4</color>
+    <color name="md_theme_surface_bright">#FFFAFAF3</color>
+    <color name="md_theme_surface_container_lowest">#FFFFFFFF</color>
+    <color name="md_theme_surface_container_low">#FFF4F4ED</color>
+    <color name="md_theme_surface_container">#FFEEEEE7</color>
+    <color name="md_theme_surface_container_high">#FFE8E9E2</color>
+    <color name="md_theme_surface_container_highest">#FFE3E3DC</color>
+    <color name="md_theme_inverse_surface">#FF2F312D</color>
+    <color name="md_theme_inverse_on_surface">#FFF1F1EA</color>
+    <color name="md_theme_outline">#FF74796D</color>
+    <color name="md_theme_outline_variant">#FFC3C8BB</color>
+
+    <!-- Fixed roles keep the same value in light and dark by definition, so they have no night entry -->
+    <color name="md_theme_primary_fixed">#FFAEF586</color>
+    <color name="md_theme_primary_fixed_dim">#FF93D96D</color>
+    <color name="md_theme_on_primary_fixed">#FF072100</color>
+    <color name="md_theme_on_primary_fixed_variant">#FF1D5200</color>
+    <color name="md_theme_secondary_fixed">#FFFFDDB4</color>
+    <color name="md_theme_secondary_fixed_dim">#FFF9BB64</color>
+    <color name="md_theme_on_secondary_fixed">#FF291800</color>
+    <color name="md_theme_on_secondary_fixed_variant">#FF633F00</color>
+    <color name="md_theme_tertiary_fixed">#FFBBEBEC</color>
+    <color name="md_theme_tertiary_fixed_dim">#FFA0CFCF</color>
+    <color name="md_theme_on_tertiary_fixed">#FF002020</color>
+    <color name="md_theme_on_tertiary_fixed_variant">#FF1E4E4E</color>
+    <!--
+        Launcher icon only: a cream jar with an amber lid and a green leaf on the brand green. Kept
+        out of values-night on purpose, so the icon looks the same whatever the system theme.
+    -->
+    <color name="ic_launcher_background">#FF2D6C0A</color>
+    <color name="ic_launcher_jar">#FFFFF6E5</color>
+    <color name="ic_launcher_lid">#FFF9BB64</color>
+    <color name="ic_launcher_leaf">#FF468625</color>
 </resources>
