@@ -48,7 +48,7 @@ public final class ListChangeLog extends RecyclerView.AdapterDataObserver {
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
-        log("changed " + rows(itemCount) + " at " + positionStart);
+        log("changed", itemCount, "at " + positionStart);
     }
 
     @Override
@@ -58,21 +58,31 @@ public final class ListChangeLog extends RecyclerView.AdapterDataObserver {
 
     @Override
     public void onItemRangeInserted(int positionStart, int itemCount) {
-        log("inserted " + rows(itemCount) + " at " + positionStart);
+        log("inserted", itemCount, "at " + positionStart);
     }
 
     @Override
     public void onItemRangeRemoved(int positionStart, int itemCount) {
-        log("removed " + rows(itemCount) + " at " + positionStart);
+        log("removed", itemCount, "at " + positionStart);
     }
 
     @Override
     public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-        log("moved " + rows(itemCount) + " from " + fromPosition + " to " + toPosition);
+        log("moved", itemCount, "from " + fromPosition + " to " + toPosition);
     }
 
     private void log(String change) {
         Log.d(TAG, listName + ": " + change);
+    }
+
+    /**
+     * Logs a ranged change unless it covers no rows: {@code ListAdapter} announces its first list,
+     * even an empty one, as an insertion, and "inserted 0 rows" would only be noise in the demo.
+     */
+    private void log(String change, int count, String where) {
+        if (count > 0) {
+            log(change + " " + rows(count) + " " + where);
+        }
     }
 
     private static String rows(int count) {
