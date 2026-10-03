@@ -120,14 +120,18 @@ heading, never in the suggested list. The rule and its guards are written down i
 ## Database: Room over SQLite, and why
 
 The app persists with **Room over SQLite, on the device**. It is the option the module's
-persistent-data chapter covers, it needs no account, server or network (the app's whole scope is the
-user's own pantry), and Room gives compile-time checked SQL, an exported schema the report's ER
-diagram is drawn from, `LiveData` queries that let the Suggested Recipes screen update itself, and an
-in-memory database for tests. Firebase would add a cloud dependency, an API key and a sign-in story
-to an app that has no need for any of them; PostgreSQL would add a REST backend to build and host,
-which is a second project. The data model is three tables: `pantry_items`, `recipes` and
-`recipe_ingredients`. The decision and its alternatives are recorded as
-decision 1.
+persistent-data chapter covers; it needs no account, server, API key or network, which matches an app
+whose whole scope is the user's own pantry; and Room adds compile-time checked SQL, a schema export
+the report can show, `LiveData` queries that make the Suggested Recipes screen update itself, and an
+in-memory database for tests. Firebase would add a cloud dependency and a sign-in story the app has no
+use for; PostgreSQL would add a REST backend to build and host, a second project.
+
+The data model is three tables: `pantry_items` (what the user has), `recipes` (what can be cooked)
+and `recipe_ingredients` (what each recipe needs, one row per ingredient, pointing at its recipe with
+a foreign key that cascades on delete). Room writes the schema to
+[`app/schemas/com.btk.spm.data.db.AppDatabase/1.json`](app/schemas/com.btk.spm.data.db.AppDatabase/1.json)
+on every build, and that committed file is what the report's ER diagram is drawn from. This is
+decision 1 of the plan, recorded in Issue 8.
 
 ## Tech stack
 
