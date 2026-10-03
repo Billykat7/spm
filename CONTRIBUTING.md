@@ -58,8 +58,9 @@ the test or the code rather than re-running until it is green.
   emulator's demo mode (below) so the status bar is clean.
 - **A real problem goes in `docs/REPORT/CHALLENGES.md`:** the date, the issue, the problem, the
   cause, the fix with its commit and what was learned.
-- **The progress bars move with the work:** the pull request that closes an issue turns that issue's
-  block green in the README's *Delivery at a glance*, as the bar will read once it merges.
+- **The progress bars move with the work:** the pull request that closes an issue redraws the bars
+  as they will read once it merges, with `python scripts/milestone_progress.py --assume-closed <N>`,
+  and commits the result (see *Tooling*).
 
 ### 6. Push and open the pull request
 
@@ -165,6 +166,28 @@ git push origin v0.1.0
 - If the gate fails on a tag, delete it (`git push --delete origin <tag> && git tag -d <tag>`), fix
   the cause through a pull request and tag again. A published release is withdrawn with
   `gh release delete <tag> --yes --cleanup-tag`.
+
+## Tooling
+
+Three Python scripts keep GitHub and the plan in `docs/GITHUB` saying the same thing. They read the
+plan, which lives on the maintainer's machine, and talk to GitHub through the `gh` CLI, so they run
+from a laptop after `gh auth login`, never in CI. Python 3.10 or newer, standard library only.
+
+| Script | Run it | What it does |
+|--------|--------|--------------|
+| `scripts/gh_sync_labels.py` | when `docs/GITHUB/LABELS/labels.yml` changes | Creates or updates every label in the file; lists labels GitHub has and the file does not, and deletes them with `--prune`. `--check` exits 1 on any difference; a second run changes nothing. |
+| `scripts/gh_sync_docs.py` | after the labels, when a milestone doc or issue spec changes | Creates any missing milestone and issue in numeric order, so GitHub issue #N is always `ISSUE_N_*.md`, and refuses when GitHub's next number is not N. Never touches what exists unless `--update-bodies`; `--check` compares every title, milestone, label and body. |
+| `scripts/milestone_progress.py` | in every pull request that closes an issue | Redraws the bars from GitHub's issue states, one block per issue: `--assume-closed <N>` counts the issues the branch closes, `--check` exits 1 if a bar disagrees, `--close-completed` closes a finished milestone on GitHub after its last pull request merges. |
+
+```bash
+python scripts/milestone_progress.py --assume-closed 14      # in the pull request that closes #14
+python scripts/milestone_progress.py --check --assume-closed 14
+python scripts/milestone_progress.py --close-completed       # after the merge that finishes a milestone
+```
+
+The script writes only the bars: the milestone docs' **Progress** rows, the *Milestone summary* in
+`docs/GITHUB/README.md`, and the README's *Delivery at a glance*. The status text next to them is
+written by hand in the same pull request.
 
 ## Emulator settings for tests and screenshots
 
