@@ -21,8 +21,8 @@ so the standard library was not the cause.
 
 **Fix:** lifecycle back to 2.10.0, the version Material 1.14 and Fragment 1.9 resolve anyway, with the
 reason in `gradle/libs.versions.toml` and a narrow `lint.xml` entry for Lint's "newer version" notice
-(commit `Issue 10: hold lifecycle at 2.10.0, because Room 2.6.1's processor cannot read the Kotlin 2.1
-metadata on lifecycle 2.11's LiveData`). Room stays at 2.6.1, as decision 1 pins it. Moving to Room 2.7
+(commit `82ea76c`, `Issue 10: hold lifecycle at 2.10.0, because Room 2.6.1's processor cannot read
+the Kotlin 2.1 metadata on lifecycle 2.11's LiveData`, merged in pull request #49). Room stays at 2.6.1, as decision 1 pins it. Moving to Room 2.7
 or later would lift the limit, and lifecycle can move with it.
 
 **Learned:** an annotation processor reads the libraries on the classpath too, not only my own code,
