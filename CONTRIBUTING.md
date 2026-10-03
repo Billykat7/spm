@@ -39,7 +39,7 @@ git switch -c Issue/<N>/<short-slug>          # e.g. Issue/20/strict-matcher: 2 
 ### 4. Run the gate
 
 ```bash
-./scripts/ci-local.sh                  # guards, lint, unit tests, debug build
+./scripts/ci-local.sh                  # guards, lint, unit tests, debug build, schema
 ./scripts/ci-local.sh --with-device    # the same, then the instrumented tests on an emulator
 ```
 
@@ -99,6 +99,7 @@ script, so a stage that passes on a laptop passes on GitHub.
 | lint | `./gradlew lint` | Lint reports an error, such as a typed string in a layout (`HardcodedText`) or in `setText()` (`SetTextI18n`) |
 | unit tests | `./gradlew testDebugUnitTest` | a JVM test fails, such as `LayoutStyleConventionsTest` on a raw hex colour or `DaoBoundaryTest` on a DAO reached from outside `data/` |
 | debug build | `./gradlew assembleDebug` | the app does not compile or package |
+| schema | `git status --porcelain -- app/schemas/` | the build changed the committed Room schema: an entity changed and the `@Database` version did not. Bump it, add the migration and commit the new `<N>.json` |
 | device tests | `./gradlew connectedDebugAndroidTest` | an instrumented test fails, or no device is attached (`--with-device` only) |
 
 The guards are the brief's hard restrictions (§2.3, §3.1, §3.3), checked by a machine so they cannot
@@ -113,6 +114,24 @@ be broken by accident. Each failure names the file and line:
 
 Lint warnings are reported but do not fail the gate. A warning accepted on purpose is suppressed in
 `app/lint.xml`, with the reason next to it; any other warning is a task.
+
+## Device tests
+
+The JVM tests prove the engine, the parser and the schema file. Everything that needs Android itself
+runs as an instrumented test under `app/src/androidTest` on an emulator: the Room DAOs and
+repositories on an in-memory database, the seed, `PersistenceAcrossRestartTest` on a real database
+file, and the screens with Espresso. CI has no emulator, so these run on a laptop:
+
+```bash
+./scripts/ci-local.sh --with-device                                  # every attached device
+ANDROID_SERIAL=emulator-5560 ./scripts/ci-local.sh --with-device     # one device: the API 26 emulator
+```
+
+API 26 is the floor (`minSdk 26`, decision 4), so a change runs on the API 26 emulator as well as API
+35; the AVDs and the commands that boot them are in *Emulator settings for tests and screenshots*
+below. A pull request that touches `data/`, `ui/`, `notifications/` or `androidTest/` pastes the
+device run in its *Testing* section: the gate summary, the device names and the test count per
+device. A run that is not pasted did not happen.
 
 ## CI and the protection on `main`
 
