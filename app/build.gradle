@@ -26,8 +26,12 @@ android {
 
     buildTypes {
         release {
+            // Nothing to hide and stack traces in the report stay readable
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // No release key and no Play Store (brief 3.3): the debug keystore signs the release APK,
+            // so it installs from a file and replaces a debug build signed on the same machine
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
