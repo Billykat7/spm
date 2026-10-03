@@ -9,6 +9,8 @@ material = "1.14.0"
 activity = "1.10.1"
 constraintlayout = "2.2.2"
 fragment = "1.9.1"
+# Declared, not left to Material's transitive 1.2.1: the pantry list (Issue 13) is built on ListAdapter
+recyclerview = "1.4.0"
 # Room 2.6, as the plan pins it (decision 1); its compiler runs as a plain Java annotation processor
 room = "2.6.1"
 # 2.10.0 is what Material 1.14 and fragment 1.9 resolve to. Not 2.11.0: its LiveData carries Kotlin 2.1
@@ -29,6 +31,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
