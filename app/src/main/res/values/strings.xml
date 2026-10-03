@@ -33,4 +33,7 @@
     <string name="unit_tbsp">tbsp</string>
     <string name="unit_cup">cup</string>
     <string name="unit_pcs">pcs</string>
+
+    <!-- An amount and its unit symbol, joined by a non-breaking space so they never wrap apart: 250 g -->
+    <string name="quantity_with_unit">%1$s\u00A0%2$s</string>
 </resources>
