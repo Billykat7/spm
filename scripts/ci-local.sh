@@ -8,11 +8,12 @@
 #   2. lint         ./gradlew lint                       (Android Lint; HardcodedText is an error)
 #   3. unit tests   ./gradlew testDebugUnitTest          (JUnit on the JVM)
 #   4. debug build  ./gradlew assembleDebug              (app/build/outputs/apk/debug/app-debug.apk)
-#   5. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
+#   5. schema       git status --porcelain -- app/schemas/ (the build left the committed Room schema as it was)
+#   6. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
 #
 # Usage:
-#   ./scripts/ci-local.sh                  stages 1-4
-#   ./scripts/ci-local.sh --with-device    stages 1-5; set ANDROID_SERIAL to pick one device
+#   ./scripts/ci-local.sh                  stages 1-5
+#   ./scripts/ci-local.sh --with-device    stages 1-6; set ANDROID_SERIAL to pick one device
 #
 # Exit status: 0 when every stage passed, the failing stage's status otherwise, 2 on bad usage or a
 # missing Android SDK.
@@ -44,7 +45,7 @@ if [[ -z "${ANDROID_HOME:-}${ANDROID_SDK_ROOT:-}" ]] && ! grep -qs '^sdk\.dir=' 
 fi
 
 gradle=(./gradlew --console=plain)
-total=$((with_device ? 5 : 4))
+total=$((with_device ? 6 : 5))
 stage_no=0
 results=()
 gate_start=$SECONDS
@@ -83,6 +84,23 @@ stage() {
     fi
 }
 
+# Room's annotation processor rewrites app/schemas/ on every build, so a change to an entity that keeps
+# the @Database version shows up here as a modified or new file. The committed JSON is what the ER
+# diagram is drawn from (Issue 34): it must never silently differ from the code (Issue 12).
+schema_unchanged() {
+    local changed
+    if ! changed="$(git status --porcelain -- app/schemas/)"; then
+        printf 'ci-local: cannot read git status for app/schemas/\n' >&2
+        return 1
+    fi
+    if [[ -n "$changed" ]]; then
+        printf '%s\n' "$changed"
+        printf 'schema changed: bump @Database version and commit app/schemas/com.btk.spm.data.db.AppDatabase/<N>.json\n' >&2
+        return 1
+    fi
+    printf 'app/schemas/ matches the commit\n'
+}
+
 # The device stage needs at least one device in the "device" state (ANDROID_SERIAL's, if set).
 device_tests() {
     local adb="adb"
@@ -105,6 +123,7 @@ stage guards ./scripts/check_guards.sh
 stage lint "${gradle[@]}" lint
 stage "unit tests" "${gradle[@]}" testDebugUnitTest
 stage "debug build" "${gradle[@]}" assembleDebug
+stage schema schema_unchanged
 if [[ $with_device -eq 1 ]]; then
     stage "device tests" device_tests
 fi
