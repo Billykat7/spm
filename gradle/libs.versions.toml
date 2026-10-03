@@ -11,9 +11,9 @@ constraintlayout = "2.2.2"
 fragment = "1.9.1"
 # Room 2.6, as the plan pins it (decision 1); its compiler runs as a plain Java annotation processor
 room = "2.6.1"
-# Material 1.14 and fragment 1.9 already resolve lifecycle to 2.10.0; declaring an older 2.8.x would
-# name a version the build never uses
-lifecycle = "2.10.0"
+# Material 1.14 and fragment 1.9 already pull lifecycle 2.10.0, so the plan's 2.8.x would never be
+# the version used; 2.11.0 is the current stable release and needs only compileSdk 34
+lifecycle = "2.11.0"
 androidxTestRunner = "1.7.0"
 androidxTestRules = "1.7.0"
 archCoreTesting = "2.2.0"
