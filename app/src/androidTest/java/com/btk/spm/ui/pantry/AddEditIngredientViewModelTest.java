@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -79,7 +80,7 @@ public class AddEditIngredientViewModelTest {
 
     @Test
     public void theEmptyForm_reportsNameQuantityAndUnit_andWritesNothing() throws InterruptedException {
-        ValidationResult result = viewModel.save("", "");
+        ValidationResult result = viewModel.save("", "", Locale.US);
 
         assertEquals(ValidationResult.error(
                 new FieldError(Field.NAME, R.string.error_name_required),
@@ -93,9 +94,9 @@ public class AddEditIngredientViewModelTest {
         viewModel.setUnit(Unit.PCS);
         viewModel.setExpiry(TODAY.minusDays(1));
 
-        ValidationResult result = viewModel.save("Tomatoes", "4");
+        ValidationResult result = viewModel.save("Tomatoes", "4", Locale.US);
 
-        assertEquals(ValidationResult.error(new FieldError(Field.EXPIRY, R.string.error_expiry_in_past)), result);
+        assertEquals(ValidationResult.error(new FieldError(Field.EXPIRY, R.string.error_expiry_past)), result);
         assertTrue(getOrAwaitValue(repository.observeAll()).isEmpty());
     }
 
@@ -104,7 +105,7 @@ public class AddEditIngredientViewModelTest {
         viewModel.setUnit(Unit.KG);
         viewModel.setExpiry(TODAY);
 
-        ValidationResult result = viewModel.save("  Plain flour ", "1,5");
+        ValidationResult result = viewModel.save("  Plain flour ", "1,5", Locale.GERMANY);
 
         assertTrue(result.isOk());
         List<PantryItem> pantry = getOrAwaitValue(repository.observeAll());
@@ -123,7 +124,7 @@ public class AddEditIngredientViewModelTest {
         viewModel.setExpiry(TODAY.plusDays(3));
         viewModel.setExpiry(null);
 
-        assertTrue(viewModel.save("tomatoes", "4").isOk());
+        assertTrue(viewModel.save("tomatoes", "4", Locale.US).isOk());
         assertNull(getOrAwaitValue(repository.observeAll()).get(0).getExpiryDate());
     }
 
@@ -131,8 +132,8 @@ public class AddEditIngredientViewModelTest {
     public void saveTwice_insertsOnce() throws InterruptedException {
         viewModel.setUnit(Unit.PCS);
 
-        assertTrue(viewModel.save("tomatoes", "4").isOk());
-        assertTrue(viewModel.save("tomatoes", "4").isOk());
+        assertTrue(viewModel.save("tomatoes", "4", Locale.US).isOk());
+        assertTrue(viewModel.save("tomatoes", "4", Locale.US).isOk());
 
         assertEquals(1, getOrAwaitValue(repository.observeAll()).size());
     }
@@ -175,7 +176,7 @@ public class AddEditIngredientViewModelTest {
         viewModel.startEditing(tomatoes.getId());
         viewModel.onPrefillShown();
 
-        assertTrue(viewModel.save("tomatoes", "6").isOk());
+        assertTrue(viewModel.save("tomatoes", "6", Locale.US).isOk());
 
         List<PantryItem> pantry = getOrAwaitValue(repository.observeAll());
         assertEquals(1, pantry.size());
@@ -190,7 +191,7 @@ public class AddEditIngredientViewModelTest {
         PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, null);
         viewModel.startEditing(tomatoes.getId());
 
-        ValidationResult result = viewModel.save("   ", "6");
+        ValidationResult result = viewModel.save("   ", "6", Locale.US);
 
         assertEquals(ValidationResult.error(new FieldError(Field.NAME, R.string.error_name_required)), result);
         assertEquals(List.of(tomatoes), getOrAwaitValue(repository.observeAll()));
@@ -236,7 +237,7 @@ public class AddEditIngredientViewModelTest {
 
         assertTrue(getOrAwaitValue(restored.isReady()));
         assertNull(getOrAwaitValue(restored.getPrefill()));
-        assertTrue(restored.save("tomatoes", "5").isOk());
+        assertTrue(restored.save("tomatoes", "5", Locale.US).isOk());
         PantryItem edited = getOrAwaitValue(repository.observeAll()).get(0);
         assertEquals(tomatoes.getId(), edited.getId());
         assertEquals(5, edited.getQuantity(), 0);
@@ -253,6 +254,6 @@ public class AddEditIngredientViewModelTest {
     public void nothingChosen_readsAsNoUnitAndNoDate() throws InterruptedException {
         assertNull(getOrAwaitValue(viewModel.getUnit()));
         assertNull(getOrAwaitValue(viewModel.getExpiry()));
-        assertFalse(viewModel.save("tomatoes", "4").isOk());
+        assertFalse(viewModel.save("tomatoes", "4", Locale.US).isOk());
     }
 }

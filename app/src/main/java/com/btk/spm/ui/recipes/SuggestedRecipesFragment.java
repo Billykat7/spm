@@ -141,7 +141,7 @@ public class SuggestedRecipesFragment extends Fragment
         views.recipeList.setVisibility(render.list() ? View.VISIBLE : View.GONE);
         if (render.empty()) {
             // The message follows the reason; the button always says the same thing and goes to the pantry
-            StateMessage.showMessage(views.stateMessage, render.emptyMessage(), StateMessage.NONE,
+            StateMessage.showMessage(views.stateMessage, render.emptyMessage(), render.emptyBody(),
                     render.addIngredients() ? R.string.recipes_empty_action : StateMessage.NONE, v -> openPantry());
         } else if (render.list()) {
             StateMessage.hide(views.stateMessage);

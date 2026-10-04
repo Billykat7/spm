@@ -84,15 +84,23 @@ public class SpmApplication extends Application {
         recipeRepository = new RecipeRepository(database);
         // The recipe seed runs on every start and inserts only into an empty table (Issue 11). It is
         // the first task on the write thread, so it finishes before any pantry write the user makes.
-        // A broken asset throws there and stops the app, which the JVM tests catch long before a
-        // release; an empty recipe list would hide it.
+        // A damaged file seeds what it can and logs the rest; a failure leaves the table empty and the
+        // Recipes tab on its error state (Issue 31). Either way the app keeps running: an exception
+        // on this thread would end the process.
         AppDatabase seeded = database;
         ioExecutor.execute(() -> {
-            SeedResult result = new RecipeSeeder(this, seeded).seedIfEmpty();
-            if (BuildConfig.DEBUG) {
-                Log.d(SEED_LOG_TAG, "Recipe seed: " + result);
+            try {
+                SeedResult result = new RecipeSeeder(this, seeded).seedIfEmpty();
+                if (BuildConfig.DEBUG) {
+                    Log.d(SEED_LOG_TAG, "Recipe seed: " + result);
+                }
+            } catch (RuntimeException failed) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(SEED_LOG_TAG, "Recipe seed failed and was rolled back", failed);
+                }
+            } finally {
+                recipeSeedDone.postValue(true);
             }
-            recipeSeedDone.postValue(true);
         });
         // The channel exists before anything can post. The daily check is enqueued once and kept
         // (KEEP), so a start never adds a second one; with alerts off, it is taken off the schedule.

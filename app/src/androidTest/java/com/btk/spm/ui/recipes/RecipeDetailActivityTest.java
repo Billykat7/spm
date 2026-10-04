@@ -7,11 +7,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,9 +19,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.lifecycle.ActivityLifecycleCallback;
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-import androidx.test.runner.lifecycle.Stage;
 
 import com.btk.spm.R;
 import com.btk.spm.SpmApplication;
@@ -45,11 +40,11 @@ import java.util.function.Predicate;
 
 /**
  * The recipe detail screen on a device (Issue 25), against the app's own database and its seeded
- * recipes. It opens Garlic bread through {@link RecipeDetailActivity#intentFor}, checks that an id no
- * recipe has, no id and {@code -1} all close the screen, and inserts a missing ingredient through {@code PantryRepository}
- * while the screen is open, to watch that row's cross become a check in the same Activity.
+ * recipes. It opens Garlic bread through {@link RecipeDetailActivity#intentFor}, and inserts a missing
+ * ingredient through {@code PantryRepository} while the screen is open, to watch that row's cross
+ * become a check in the same Activity. An id that leads nowhere is {@link RecipeDetailUnknownIdTest}'s.
  *
- * <p>Every wait is for the ViewModel's posted state or the lifecycle event itself, never a fixed
+ * <p>Every wait is for the ViewModel's posted state or the list's own notice, never a fixed
  * sleep. The pantry row the test inserts carries its own creation time and is deleted afterwards; any
  * other row is left alone.
  */
@@ -60,9 +55,6 @@ public class RecipeDetailActivityTest {
 
     /** Marks the pantry row this test inserts, so the clean-up deletes that row and no other. */
     private static final long TEST_CREATED_AT = 1_234_567_890_123L;
-
-    /** No recipe has this id: the seed inserts twenty. */
-    private static final long UNKNOWN_ID = 9999L;
 
     private final SpmApplication app = ApplicationProvider.getApplicationContext();
     private final PantryItemDao pantryDao = app.getDatabase().pantryItemDao();
@@ -104,34 +96,6 @@ public class RecipeDetailActivityTest {
                 TextView name = list.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.name);
                 assertEquals("Garlic bread", name.getText().toString());
             });
-        }
-    }
-
-    @Test
-    public void anUnknownId_closesTheScreen() throws InterruptedException {
-        CountDownLatch destroyed = new CountDownLatch(1);
-        ActivityLifecycleCallback callback = (activity, stage) -> {
-            if (activity instanceof RecipeDetailActivity && stage == Stage.DESTROYED) {
-                destroyed.countDown();
-            }
-        };
-        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(callback);
-        try (ActivityScenario<RecipeDetailActivity> ignored =
-                     ActivityScenario.launch(RecipeDetailActivity.intentFor(app, UNKNOWN_ID))) {
-            assertTrue("The screen stayed open for id " + UNKNOWN_ID, destroyed.await(TIMEOUT_S, TimeUnit.SECONDS));
-        } finally {
-            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback);
-        }
-    }
-
-    @Test
-    public void noIdOrANegativeOne_closesTheScreenInOnCreate() {
-        // The guard runs before any query: these never reach the ViewModel
-        for (Intent intent : List.of(new Intent(app, RecipeDetailActivity.class),
-                RecipeDetailActivity.intentFor(app, -1L))) {
-            try (ActivityScenario<RecipeDetailActivity> scenario = ActivityScenario.launch(intent)) {
-                assertEquals(Lifecycle.State.DESTROYED, scenario.getState());
-            }
         }
     }
 

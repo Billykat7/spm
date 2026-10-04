@@ -20,6 +20,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.btk.spm.BuildConfig;
 import com.btk.spm.R;
+import com.btk.spm.domain.validation.Validators;
 import com.btk.spm.notifications.ExpiryAlertScheduler;
 import com.btk.spm.notifications.NotificationAccess;
 import com.btk.spm.settings.AppPreferences;
@@ -77,7 +78,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         SeekBarPreference threshold = requirePreference(PrefKey.EXPIRY_THRESHOLD_DAYS);
         threshold.setSummary(thresholdSummary(threshold.getValue()));
         threshold.setOnPreferenceChangeListener((preference, newValue) -> {
-            preference.setSummary(thresholdSummary((Integer) newValue));
+            // The seek bar's own range is 1–14 already; the validator is the rule it must agree with,
+            // and a value it refuses is not stored (Issue 31)
+            int days = (Integer) newValue;
+            if (!Validators.validateThresholdDays(days).isOk()) {
+                return false;
+            }
+            preference.setSummary(thresholdSummary(days));
             return true;
         });
 

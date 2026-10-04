@@ -38,6 +38,10 @@ import java.util.Set;
  * app. The editorial rules (twenty recipes, 3 to 8 ingredients, one unit kind per ingredient) are
  * {@code RecipesJsonTest}'s.
  *
+ * <p>{@link #parse} is the strict reading the JVM tests use on the shipped asset. The app seeds with
+ * {@link #parseSkippingBroken} instead (Issue 31): the same rules, but a recipe that breaks one is
+ * left out and named, so a damaged file still seeds what it can and never stops the app.
+ *
  * <p>Plain Java plus {@code org.json}, which ships with Android, so the app takes no new dependency
  * and the parser runs on the JVM with the real {@code org.json} on the test classpath.
  */
@@ -92,6 +96,62 @@ public final class RecipeJsonParser {
             recipes.add(recipe);
         }
         return Collections.unmodifiableList(recipes);
+    }
+
+    /**
+     * What {@link #parseSkippingBroken} read: the recipes that passed every rule, and one line for each
+     * one left out.
+     *
+     * @param recipes the good recipes, in document order, ids {@code 0}
+     * @param skipped why each broken one was left out, such as {@code recipe 3: "unit": ...}
+     */
+    public record Report(@NonNull List<RecipeWithIngredients> recipes, @NonNull List<String> skipped) {
+
+        /**
+         * Creates a report, keeping unmodifiable copies.
+         */
+        public Report {
+            recipes = List.copyOf(recipes);
+            skipped = List.copyOf(skipped);
+        }
+    }
+
+    /**
+     * Parses the document as {@link #parse} does, but leaves out each recipe that breaks a rule instead
+     * of throwing: the rest still seeds. A document that is not a JSON array at all gives no recipes and
+     * one line saying so. A recipe whose name repeats an earlier one is left out too.
+     *
+     * @param json the text of the recipes file
+     * @return the good recipes and one line per recipe left out, by position or name
+     */
+    @NonNull
+    public static Report parseSkippingBroken(@NonNull String json) {
+        JSONArray array;
+        try {
+            array = new JSONArray(json);
+        } catch (JSONException e) {
+            return new Report(List.of(), List.of("the file is not a JSON array: " + e.getMessage()));
+        }
+        List<RecipeWithIngredients> recipes = new ArrayList<>(array.length());
+        List<String> skipped = new ArrayList<>();
+        Set<String> seenNames = new HashSet<>();
+        for (int i = 0; i < array.length(); i++) {
+            Object item = array.opt(i);
+            String position = "recipe " + (i + 1);
+            try {
+                if (!(item instanceof JSONObject)) {
+                    throw invalid(position, "is not a JSON object");
+                }
+                RecipeWithIngredients recipe = parseRecipe((JSONObject) item, position);
+                if (!seenNames.add(recipe.getRecipe().getName().toLowerCase(Locale.ROOT))) {
+                    throw invalid(position + " (" + recipe.getRecipe().getName() + ")", "is a duplicate name");
+                }
+                recipes.add(recipe);
+            } catch (IllegalArgumentException broken) {
+                skipped.add(broken.getMessage());
+            }
+        }
+        return new Report(recipes, skipped);
     }
 
     private static RecipeWithIngredients parseRecipe(JSONObject object, String position) {

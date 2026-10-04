@@ -97,7 +97,7 @@ heading, never in the suggested list. The rule and its guards are written down i
 
 | | Feature |
 |---|---|
-| 🧺 | **A pantry you can trust:** add, edit and delete ingredients with quantity, unit and expiry; validation stops a blank name or a zero quantity before it is saved |
+| 🧺 | **A pantry you can trust:** add, edit and delete ingredients with quantity, unit and expiry; validation shows every problem at once (a blank or letter-less name, a zero, a third decimal, a past date) and saves nothing until all are fixed |
 | 🍳 | **Recipes you can make right now:** the suggested list updates itself as the pantry changes, no refresh |
 | 🔍 | **Honest when there is nothing:** "No recipes match your pantry yet, add more ingredients", with a button to the pantry |
 | 📖 | **Recipe detail:** every ingredient marked have or need with the quantities, then the method |
@@ -186,9 +186,9 @@ issues and its order of work.
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜ **79%** (30/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜ **82%** (31/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -279,7 +279,7 @@ The bars above are the status. What they cannot say:
 `v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
 screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6 is under way with
-the Settings screen, the expiring-soon alert and the UX pass. The brief has been broken into
+the Settings screen, the expiring-soon alert, the UX pass and hardened validation. The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -445,8 +445,16 @@ one layout; Lint fails the build on an image with no description; every pantry r
 words ("tomato, 4 pieces, Expires in 3 days"); the delete confirmation survives a rotation; and the
 Accessibility Test Framework, the checks Accessibility Scanner runs, passes on every screen. At font
 scale 2.0 a pantry name broke mid-word, so the expiry badge moved under the amount.
+Issue 31, in pull request [#74](https://github.com/Billykat7/spm/pull/74), puts every rule that
+decides whether input may reach the database in `Validators`, the only class `ConventionsTest`
+lets build a `FieldError`. A quantity is read in the device's own number format with the whole text
+consumed, so "1,5" is one and a half in German and refused in English; a name needs a letter; a
+quantity has at most two decimals; the Settings threshold is held to 1–14 days, even when read back
+corrupted. The form shows every error at once with Save enabled. A damaged `recipes.json` seeds what it
+can and logs the rest, an empty one leaves the Recipes tab on "Recipes could not be loaded", and the
+detail screen says "Recipe not found" for an unknown id instead of closing.
 
-**What is next.** The rest of M6: hardened validation and the Espresso suite, then `v0.6.0`.
+**What is next.** The last of M6, the Espresso suite, then `v0.6.0`.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),

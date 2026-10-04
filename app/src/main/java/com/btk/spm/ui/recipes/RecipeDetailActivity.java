@@ -3,7 +3,7 @@ package com.btk.spm.ui.recipes;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -30,9 +30,10 @@ import java.util.List;
  *
  * <p>It is opened by an explicit {@link Intent} that only {@link #intentFor(Context, long)} builds,
  * carrying the recipe's id in {@link IntentKeys#EXTRA_RECIPE_ID} and nothing else. {@code onCreate}
- * reads the id once; a missing or non-positive id, or one no recipe has, says "Recipe not found" and
- * closes, rather than showing an empty screen. Up and Back both close the screen, so the user lands
- * on the Recipes tab they came from, still showing its list.
+ * reads the id once. A missing or non-positive id, or one no recipe has, shows the shared error state,
+ * "Recipe not found" (Issue 31), under a toolbar whose up arrow still works: never a crash, never an
+ * empty screen, and the user is not thrown out before reading why. Up and Back both close the screen,
+ * so the user lands on the Recipes tab they came from, still showing its list.
  *
  * <p>The screen shows any recipe, suggested or not: the almost-there rows (Issue 27) open it too, and
  * the cross next to the one missing ingredient is what they are for. Every mark comes from
@@ -64,12 +65,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Read once, with a default that means "absent"; anything that cannot be a row id ends here
+        // Read once, with a default that means "absent"
         long recipeId = getIntent().getLongExtra(IntentKeys.EXTRA_RECIPE_ID, NO_ID);
-        if (recipeId <= NO_ID) {
-            closeAsNotFound();
-            return;
-        }
 
         EdgeToEdge.enable(this);
         binding = ActivityRecipeDetailBinding.inflate(getLayoutInflater());
@@ -84,6 +81,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // Anything that cannot be a row id ends here, before any query: the error state, with the up arrow
+        if (recipeId <= NO_ID) {
+            showNotFound();
+            return;
         }
 
         RecipeHeaderAdapter header = new RecipeHeaderAdapter();
@@ -102,7 +105,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             if (state instanceof DetailUiState.Loading) {
                 StateMessage.showLoading(binding.stateMessage, R.string.recipe_loading);
             } else if (state instanceof DetailUiState.NotFound) {
-                closeAsNotFound();
+                showNotFound();
             } else if (state instanceof DetailUiState.Loaded loaded) {
                 StateMessage.hide(binding.stateMessage);
                 header.submitList(List.of(loaded));
@@ -120,9 +123,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
         return true;
     }
 
-    /** Says the recipe does not exist and closes; a Toast, because it must outlive this screen. */
-    private void closeAsNotFound() {
-        Toast.makeText(this, R.string.recipe_not_found, Toast.LENGTH_LONG).show();
-        finish();
+    /** Says the recipe does not exist, in the shared error state in place of the list; up still goes back. */
+    private void showNotFound() {
+        binding.detailList.setVisibility(View.GONE);
+        StateMessage.showMessage(binding.stateMessage, R.string.recipe_not_found, R.string.recipe_not_found_body,
+                StateMessage.NONE, null);
     }
 }

@@ -1,0 +1,17 @@
+[
+  {"name": "Fixture soup", "servings": 2,
+   "ingredients": [{"name": "lentil", "quantity": 200, "unit": "g"}, {"name": "onion", "quantity": 1, "unit": "pcs"}],
+   "steps": ["Simmer the lentils with the onion."]},
+  {"servings": 1,
+   "ingredients": [{"name": "egg", "quantity": 2, "unit": "pcs"}],
+   "steps": ["A recipe with no name."]},
+  {"name": "No ingredients", "servings": 1,
+   "ingredients": [],
+   "steps": ["A recipe with nothing in it."]},
+  {"name": "Handful of rice", "servings": 1,
+   "ingredients": [{"name": "rice", "quantity": 1, "unit": "handful"}],
+   "steps": ["A unit the app does not know."]},
+  {"name": "Fixture salad", "servings": 1,
+   "ingredients": [{"name": "tomato", "quantity": 2, "unit": "pcs"}],
+   "steps": ["Slice the tomatoes."]}
+]

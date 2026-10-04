@@ -4,7 +4,7 @@ package com.btk.spm.domain.validation;
  * The input fields a validator can report an error on.
  *
  * <p>The validators name a field with this enum rather than a view id, so the rules stay plain Java
- * and are tested on the JVM; the screen maps each {@code Field} to its own input (Issue 14).
+ * and are tested on the JVM; each screen maps a {@code Field} to its own input (Issue 14).
  */
 public enum Field {
 
@@ -18,5 +18,8 @@ public enum Field {
     UNIT,
 
     /** The optional expiry date. */
-    EXPIRY
+    EXPIRY,
+
+    /** The Settings tab's expiring-soon threshold, in days (Issue 31). */
+    THRESHOLD_DAYS
 }
