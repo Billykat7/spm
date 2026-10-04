@@ -11,7 +11,8 @@ import com.btk.spm.ui.pantry.SortOrder;
  * The app's settings, read and written by {@link PrefKey}, so no other class names a preference.
  *
  * <p>A thin wrapper over {@link SharedPreferences} holding only what is used so far: the expiring-soon
- * threshold and the pantry's sort order (Issue 17). The Settings screen (Issue 28) adds the rest. It
+ * threshold and the pantry's sort order (Issue 17), and whether expired items count when matching
+ * (Issue 23). The Settings screen (Issue 28) adds the rest. It
  * reads the file {@code PreferenceManager} uses for the default preferences, so that screen and this
  * class will see the same values.
  *
@@ -23,6 +24,9 @@ public final class AppPreferences {
 
     /** Days ahead that still count as expiring soon when the user has chosen none (decision 6). */
     public static final int DEFAULT_EXPIRY_THRESHOLD_DAYS = 3;
+
+    /** Whether expired items count when matching, when the user has chosen nothing: they do not (decision 6). */
+    public static final boolean DEFAULT_COUNT_EXPIRED_ITEMS = false;
 
     /** The pantry's order when the user has chosen none: what to use first at the top. */
     public static final SortOrder DEFAULT_PANTRY_SORT = SortOrder.EXPIRY_SOONEST;
@@ -63,6 +67,22 @@ public final class AppPreferences {
             return days >= 0 ? days : DEFAULT_EXPIRY_THRESHOLD_DAYS;
         } catch (ClassCastException storedAsAnotherType) {
             return DEFAULT_EXPIRY_THRESHOLD_DAYS;
+        }
+    }
+
+    /**
+     * Returns whether expired items still count when recipes are matched (decision 6). The Suggested
+     * Recipes screen passes it to the matcher as {@code MatchOptions.includeExpired}; the Settings
+     * screen that changes it is Issue 28, so until then this is the default.
+     *
+     * @return the stored choice, or {@link #DEFAULT_COUNT_EXPIRED_ITEMS} when none is stored or the
+     *     stored value is not a boolean
+     */
+    public boolean isCountExpiredItems() {
+        try {
+            return preferences.getBoolean(PrefKey.COUNT_EXPIRED_ITEMS.key(), DEFAULT_COUNT_EXPIRED_ITEMS);
+        } catch (ClassCastException storedAsAnotherType) {
+            return DEFAULT_COUNT_EXPIRED_ITEMS;
         }
     }
 
