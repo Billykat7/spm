@@ -79,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // The toolbar is the action bar, so a tab's Fragment can add its own actions to it through
+        // a MenuProvider (the Pantry tab's sort menu, Issue 17)
+        setSupportActionBar(binding.toolbar);
+
         getOnBackPressedDispatcher().addCallback(this, backToFirstTab);
         binding.bottomNav.setOnItemSelectedListener(item -> {
             showTab(Tab.fromMenuItemId(item.getItemId()));
@@ -161,7 +165,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showTab(Tab tab) {
         selectedTab = tab;
-        binding.toolbar.setTitle(tab.titleRes());
+        // Through the Activity, not the toolbar: with the toolbar as the action bar, Android pushes
+        // the Activity's title into it after onCreate, which would replace one set on the toolbar
+        setTitle(tab.titleRes());
         backToFirstTab.setEnabled(tab != Tab.PANTRY);
 
         FragmentManager fragments = getSupportFragmentManager();
