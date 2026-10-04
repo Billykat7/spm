@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Coverage of the JVM unit tests: the jacocoTestReport and jacocoMatchingCoverageVerification tasks below
+    id 'jacoco'
 }
 
 // The version follows the release tag: .github/workflows/release.yml builds a tag such as v0.1.0 with
@@ -104,4 +106,60 @@ dependencies {
     androidTestImplementation libs.arch.core.testing
     androidTestImplementation libs.room.testing
     androidTestImplementation libs.espresso.core
+}
+
+// Coverage of the JVM unit tests (Issue 21). The jacoco plugin puts its agent on testDebugUnitTest;
+// these two tasks read what it recorded against the debug build's compiled classes.
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+tasks.withType(Test).configureEach {
+    // The JDK's own classes are never ours to measure, and instrumenting them only produces warnings
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+def unitTestCoverageData = layout.buildDirectory.file('jacoco/testDebugUnitTest.exec')
+def debugJavaClasses = layout.buildDirectory.dir('intermediates/javac/debug/compileDebugJavaWithJavac/classes')
+
+// HTML and XML under app/build/reports/jacoco/jacocoTestReport/, for the whole app minus generated code
+tasks.register('jacocoTestReport', JacocoReport) {
+    group = 'verification'
+    description = 'Writes the line and branch coverage of the debug unit tests.'
+    dependsOn 'testDebugUnitTest'
+    executionData.from(unitTestCoverageData)
+    sourceDirectories.from('src/main/java')
+    classDirectories.from(debugJavaClasses.map { dir ->
+        fileTree(dir) {
+            exclude '**/R.class', '**/R$*.class', '**/BuildConfig.class', '**/Manifest*.class',
+                    '**/databinding/**', '**/*_Impl*.class'
+        }
+    })
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+// Strict-matching rule 8: every line of the engine is run by a test. Fails the gate's coverage stage
+// naming the class that falls short.
+tasks.register('jacocoMatchingCoverageVerification', JacocoCoverageVerification) {
+    group = 'verification'
+    description = 'Fails unless the unit tests cover every line of domain/matching/.'
+    dependsOn 'testDebugUnitTest'
+    executionData.from(unitTestCoverageData)
+    sourceDirectories.from('src/main/java')
+    classDirectories.from(debugJavaClasses.map { dir ->
+        fileTree(dir) { include 'com/btk/spm/domain/matching/**' }
+    })
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+        }
+    }
 }

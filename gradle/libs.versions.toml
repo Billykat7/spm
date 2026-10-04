@@ -21,6 +21,9 @@ androidxTestRules = "1.7.0"
 archCoreTesting = "2.2.0"
 # The real org.json for JVM tests: android.jar only has stubs that throw "not mocked"
 orgJson = "20260814"
+# Line coverage of the unit tests (Issue 21). 0.8.15 reads the Java 25 class files of the JetBrains
+# runtime the tests run on; Gradle's bundled default is older
+jacoco = "0.8.15"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
