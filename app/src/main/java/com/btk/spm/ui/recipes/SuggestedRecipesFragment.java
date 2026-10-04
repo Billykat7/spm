@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -89,8 +88,8 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         views.emptyState.emptyStateAction.setText(R.string.recipes_empty_action);
         views.emptyState.emptyStateAction.setOnClickListener(v -> openPantry());
         // TalkBack reads the new message when the reason changes, without the user moving focus
-        ViewCompat.setAccessibilityLiveRegion(views.emptyState.emptyStateTitle,
-                ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+        // (a platform call since API 19, so no ViewCompat at minSdk 26)
+        views.emptyState.emptyStateTitle.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does
         viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, adapter));
