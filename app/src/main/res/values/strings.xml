@@ -13,9 +13,36 @@
     <string name="tab_recipes">Recipes</string>
     <string name="tab_settings">Settings</string>
 
-    <!-- Tab placeholders, until Issue 28 fills the Settings tab -->
-    <string name="placeholder_settings_title">Your preferences</string>
-    <string name="placeholder_settings_body">Expiring-soon alerts, units and matching options will be set here.</string>
+    <!--
+        The Settings tab (Issue 28, res/xml/preferences.xml). Titles are labels, so no full stop;
+        summaries are sentences. Each summary says what the setting does at its current value.
+    -->
+    <string name="settings_category_alerts">Alerts</string>
+    <string name="settings_category_display">Display</string>
+    <string name="settings_category_matching">Matching</string>
+    <string name="settings_category_about">About</string>
+    <string name="settings_expiry_alerts_title">Expiring-soon alerts</string>
+    <string name="settings_expiry_alerts_on">A daily notification names the items about to expire.</string>
+    <string name="settings_expiry_alerts_off">Off: no notification is posted.</string>
+    <string name="settings_threshold_title">Expiring soon</string>
+    <plurals name="settings_threshold_summary">
+        <item quantity="one">Items expiring within %1$d day are badged and reported.</item>
+        <item quantity="other">Items expiring within %1$d days are badged and reported.</item>
+    </plurals>
+    <string name="settings_send_test_alert_title">Send a test alert now</string>
+    <string name="settings_send_test_alert_unavailable">Not available in this version.</string>
+    <string name="settings_units_title">Units</string>
+    <string name="settings_units_metric">Metric (g, kg, ml, l)</string>
+    <string name="settings_units_imperial">Imperial (oz, fl oz)</string>
+    <string name="settings_count_expired_title">Count expired items</string>
+    <string name="settings_count_expired_on">Expired items count when recipes are matched, as if they were fresh.</string>
+    <string name="settings_count_expired_off">Expired items are left out when recipes are matched.</string>
+    <string name="settings_version_title">Version</string>
+    <string name="settings_repository_title">Source code</string>
+    <string name="settings_repository_summary">Open the project\'s repository on GitHub.</string>
+    <string name="settings_no_browser">No app on this device can open the link.</string>
+    <!-- Not text: where "Source code" goes -->
+    <string name="repository_url" translatable="false">https://github.com/Billykat7/spm</string>
 
     <!-- The pantry list (Issue 13) -->
     <string name="pantry_empty_title">Your pantry is empty</string>

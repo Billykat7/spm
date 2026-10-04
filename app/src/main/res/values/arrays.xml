@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The choices of the Settings screen's lists (Issue 28). Each entries array is what the user reads;
+    its values array is what is stored, in the same order. Stored values are enum names, never
+    positions, so reordering the choices cannot change what a saved one means.
+-->
+<resources>
+    <!-- The Units preference: the labels, then domain.UnitsSystem names (PreferencesXmlTest checks them) -->
+    <string-array name="units_system_entries">
+        <item>@string/settings_units_metric</item>
+        <item>@string/settings_units_imperial</item>
+    </string-array>
+    <string-array name="units_system_values" translatable="false">
+        <item>METRIC</item>
+        <item>IMPERIAL</item>
+    </string-array>
+</resources>

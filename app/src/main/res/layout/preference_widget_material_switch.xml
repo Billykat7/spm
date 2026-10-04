@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The switch at the end of a SwitchPreferenceCompat row, as a Material 3 MaterialSwitch rather than
+    the library's AppCompat one, so the Settings screen's switches look like the rest of the app.
+    SwitchPreferenceCompat finds it by the id switchWidget, and MaterialSwitch is a SwitchCompat. The
+    row handles the tap and the description, so the switch itself is neither clickable nor focusable.
+-->
+<com.google.android.material.materialswitch.MaterialSwitch xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/switchWidget"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@null"
+    android:clickable="false"
+    android:focusable="false" />

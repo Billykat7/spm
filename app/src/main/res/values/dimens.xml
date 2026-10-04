@@ -10,9 +10,6 @@
     <dimen name="spacing_m">16dp</dimen>
     <dimen name="spacing_l">24dp</dimen>
 
-    <!-- The decorative icon above a placeholder or empty state -->
-    <dimen name="placeholder_icon_size">64dp</dimen>
-
     <!-- The illustration at the top of an empty state (view_empty_state.xml) -->
     <dimen name="empty_state_illustration_size">160dp</dimen>
 
