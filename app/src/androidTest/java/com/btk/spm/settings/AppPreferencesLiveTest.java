@@ -92,6 +92,14 @@ public class AppPreferencesLiveTest {
     }
 
     @Test
+    public void aCorruptedThreshold_readsAsTheDefault() {
+        // Written by anything but the seek bar: Validators.validateThresholdDays refuses it
+        stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), 99).commit();
+
+        assertEquals(3, AppPreferences.from(context).getExpiryThresholdDays());
+    }
+
+    @Test
     public void observeBoolean_isNotWokenByAnotherKey() {
         LiveData<Boolean> countExpired = AppPreferences.from(context).observeBoolean(PrefKey.COUNT_EXPIRED_ITEMS);
         List<Boolean> seen = new CopyOnWriteArrayList<>();
