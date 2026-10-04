@@ -240,6 +240,20 @@ The script writes only the bars: the milestone docs' **Progress** rows, the *Mil
 `docs/GITHUB/README.md`, and the README's *Delivery at a glance*. The status text next to them is
 written by hand in the same pull request.
 
+`scripts/package_submission.sh` builds the submission ZIP from a release tag. It is plain Bash
+(macOS's 3.2 and Linux's 5), needs `git`, `zip`, `unzip` and `ffprobe` (`brew install ffmpeg`), and
+reads `STUDENT_NUMBER` and `SURNAME` from the environment or from a git-ignored `.submission.env`
+at the root, so the student number is never committed. The source is `git archive` of the tag under
+`spm-source/`, so the ZIP holds exactly the tagged commit and never `build/`, `.gradle/` or
+`local.properties`. It stops with a one-line reason, and writes no ZIP, if the tag is missing, the
+video is outside 300 to 420 seconds, the report lacks `github.com/Billykat7/spm`, or the ZIP would
+exceed 50 MB; otherwise it prints each top-level entry's size and the headroom to 50 MB.
+
+```bash
+scripts/package_submission.sh --tag v1.0.0 --video ~/spm_demo.mp4 --report ~/report.docx
+# writes build/submission/<StudentNumber>_<Surname>_MobileAppDev700_Assignment.zip
+```
+
 ## Emulator settings for tests and screenshots
 
 Two AVDs, one at the floor and one at the target: an API 26 image and an API 35 image (*Device
