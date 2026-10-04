@@ -91,6 +91,9 @@ dependencies {
     // The Settings screen (Issue 28): PreferenceFragmentCompat persists, summarises and themes each
     // preference, so the Java left to write is the keys and the typed wrapper around them
     implementation libs.preference
+    // The daily expiring-soon check (Issue 29): a Worker WorkManager runs about once a day, with no
+    // exact alarm and no foreground service, and it survives a reboot on its own
+    implementation libs.work.runtime
 
     // Room over SQLite (decision 1). The app is Java, so the compiler runs through annotationProcessor:
     // never kapt or ksp, which would need the Kotlin plugin (decision 2)
@@ -111,6 +114,8 @@ dependencies {
     androidTestImplementation libs.arch.core.testing
     androidTestImplementation libs.room.testing
     androidTestImplementation libs.espresso.core
+    // WorkManagerTestInitHelper, TestWorkerBuilder and TestDriver: the worker runs in the test, now
+    androidTestImplementation libs.work.testing
 }
 
 // Coverage of the JVM unit tests (Issue 21). The jacoco plugin puts its agent on testDebugUnitTest;
