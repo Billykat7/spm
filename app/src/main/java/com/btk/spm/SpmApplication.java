@@ -21,6 +21,9 @@ import com.btk.spm.data.seed.SeedResult;
 import com.btk.spm.domain.matching.IngredientNormaliser;
 import com.btk.spm.domain.matching.StrictMatcher;
 import com.btk.spm.domain.matching.UnitConverter;
+import com.btk.spm.notifications.ExpiryAlertScheduler;
+import com.btk.spm.notifications.NotificationChannels;
+import com.btk.spm.settings.AppPreferences;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -91,6 +94,10 @@ public class SpmApplication extends Application {
             }
             recipeSeedDone.postValue(true);
         });
+        // The channel exists before anything can post. The daily check is enqueued once and kept
+        // (KEEP), so a start never adds a second one; with alerts off, it is taken off the schedule.
+        NotificationChannels.create(this);
+        ExpiryAlertScheduler.sync(this, AppPreferences.from(this).isExpiryAlertsEnabled());
     }
 
     /**
