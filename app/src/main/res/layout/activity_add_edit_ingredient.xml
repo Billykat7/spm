@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The add and edit ingredient screen (decision 3): a toolbar with the up arrow and the screen's
-    title, and the area the form goes in. A shell until Issue 14 adds the form inside form_container.
-    The root is padded for the system bars in AddEditIngredientActivity.
+    The add and edit ingredient screen (decision 3): a toolbar with the up arrow, the title and Save,
+    over the form. Four fields in screen order, the order Validators reports errors in: name,
+    quantity, unit and an optional expiry date. Every label, hint and error comes from strings.xml;
+    the activity sets each field's error from a FieldError. The root is padded for the system bars in
+    AddEditIngredientActivity.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,7 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Empty until Issue 14: name, quantity, unit and expiry, then Save -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/form_container"
         android:layout_width="0dp"
@@ -27,6 +28,103 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_m">
+
+            <!-- Name: the counter shows the limit Validators enforces; going over it is an error on Save -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/label_name"
+                app:counterEnabled="true"
+                app:counterMaxLength="@integer/pantry_name_max_length">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/name_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/quantity_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_s"
+                android:hint="@string/label_quantity">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/quantity_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--
+                Unit: an exposed dropdown of every Unit by its symbol. The activity maps the tapped
+                position back to Unit.values(); the text is never read. Its state lives in the
+                ViewModel, so the view does not save its own text (saveEnabled false), which would
+                otherwise filter the list down to the one restored symbol after a rotation.
+            -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/unit_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_s"
+                android:hint="@string/label_unit">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/unit_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:saveEnabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--
+                Expiry: read-only; a tap opens the date picker, the end icon clears the date. Its text
+                comes from the ViewModel's date, formatted for the locale, so it is not saved either.
+            -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/expiry_layout"
+                style="?attr/textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_s"
+                android:hint="@string/label_expiry"
+                app:endIconContentDescription="@string/cd_clear_expiry"
+                app:endIconDrawable="@drawable/ic_clear"
+                app:endIconMode="custom"
+                app:helperText="@string/helper_expiry"
+                app:startIconContentDescription="@string/cd_choose_expiry"
+                app:startIconDrawable="@drawable/ic_calendar">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/expiry_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:importantForAutofill="no"
+                    android:inputType="none"
+                    android:longClickable="false"
+                    android:saveEnabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

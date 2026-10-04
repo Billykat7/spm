@@ -30,6 +30,15 @@
     <!-- The add and edit ingredient screen (Issues 13 to 15) -->
     <string name="title_add_ingredient">Add ingredient</string>
     <string name="action_save">Save</string>
+    <string name="label_name">Name</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="label_unit">Unit</string>
+    <string name="label_expiry">Expiry date (optional)</string>
+    <string name="helper_expiry">Leave it empty if the ingredient does not expire.</string>
+    <string name="cd_choose_expiry">Choose expiry date</string>
+    <string name="cd_clear_expiry">Clear expiry date</string>
+    <string name="expiry_picker_title">Expiry date</string>
+    <string name="ingredient_saved">Ingredient saved</string>
 
     <!--
         Why an ingredient cannot be saved (domain/validation/Validators, Issue 14). Each says what to
