@@ -230,16 +230,21 @@ none. I pinned it because Oracle GraalVM cannot build the app (its `jlink` lacks
 system-image step asks for), and Android Studio picked GraalVM for a fresh clone on my machine.
 
 ```bash
-git clone https://github.com/Billykat7/spm.git
+git clone https://github.com/Billykat7/spm.git    # 4 s
 cd spm
 export ANDROID_HOME="$HOME/Library/Android/sdk"   # the SDK path; not needed once Android Studio has opened the project
-./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk; 2 min 3 s with an empty Gradle cache
 ```
 
 The command-line build needs to know where the Android SDK is: `ANDROID_HOME`, or the
 `local.properties` Android Studio writes the first time it opens the project. The path above is
 Android Studio's default on macOS; Studio shows the real one under *Settings > Languages & Frameworks >
 Android SDK*.
+
+The times are from a clean clone of the release candidate on 5 October 2026: an Apple silicon Mac,
+`JAVA_HOME` on JDK 21, `GRADLE_USER_HOME` pointed at an empty directory (873 MB afterwards), and the
+Android SDK already installed with platform 35. The Gradle daemon found the JetBrains Runtime 25
+already on the machine; on a machine without one, the first build also downloads it.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
 Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or dark with the
@@ -268,7 +273,7 @@ and "Send a test alert now" runs the check at once (Issue 29).
 **Before every push**, the same gate CI runs:
 
 ```bash
-./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build
+./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build; 71 s
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
