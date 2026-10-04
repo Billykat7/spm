@@ -19,19 +19,23 @@ import com.btk.spm.ui.MainActivity;
 import com.btk.spm.ui.Tab;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 
-import java.util.List;
-
 /**
  * The Recipes tab: the recipes the pantry can make right now, and only those.
  *
  * <p>It does what a screen does and nothing else: it inflates its binding, observes
- * {@link SuggestedRecipesViewModel#getState()} and forwards taps. Each {@link UiState} is drawn as
- * it comes: {@link UiState.Loading} as a progress indicator, {@link UiState.Empty} as the shared
- * empty state, and {@link UiState.Content} as the list, handed to {@link RecipeAdapter#submitList}.
- * The list is {@link UiState.Content#canMake()} exactly as the ViewModel built it from the matcher's
- * partition; this screen never filters it, and the almost-there recipes it also carries wait for
- * their own section (Issue 27). The toolbar reads "Suggested recipes (N)", N being the length of that
- * same list.
+ * {@link SuggestedRecipesViewModel#getState()} and forwards taps. Each {@link UiState} goes through
+ * {@link RecipesRender}, which decides which one of the progress indicator, the list and the empty
+ * state is shown; this class only applies it. The list is {@link UiState.Content#canMake()} exactly as
+ * the ViewModel built it from the matcher's partition; this screen never filters it, and the
+ * almost-there recipes it also carries wait for their own section (Issue 27). The toolbar reads
+ * "Suggested recipes (N)", N being the length of that same list.
+ *
+ * <p>When nothing can be made, the shared empty state says why ({@link EmptyReason}): the brief's
+ * "No recipes match your pantry yet, add more ingredients", an empty pantry, or recipes that did not
+ * load. For the first two its "Add ingredients" button goes to the Pantry tab of the same
+ * {@link MainActivity}, through {@link MainActivity#intentFor}, so no second host is opened. The
+ * progress indicator is shown only before the first result: a later match leaves the current rows or
+ * message on screen until its result replaces them.
  *
  * <p>The state lives in the ViewModel, so a rotation shows the same rows at once, with no second
  * match and no progress indicator. Its lifecycle callbacks are logged in debug builds
@@ -74,10 +78,13 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         divider.setLastItemDecorated(false);
         views.recipeList.addItemDecoration(divider);
 
-        // The included empty state has no words of its own. Issue 24 gives it its final sentence and
-        // the button to the pantry; until then it says why the list is empty, with no button.
-        views.emptyState.emptyStateTitle.setText(R.string.suggested_empty_title);
-        views.emptyState.emptyStateAction.setVisibility(View.GONE);
+        // The included empty state has no words of its own: the message follows the reason, and the
+        // button always says the same thing and goes to the pantry
+        views.emptyState.emptyStateAction.setText(R.string.recipes_empty_action);
+        views.emptyState.emptyStateAction.setOnClickListener(v -> openPantry());
+        // TalkBack reads the new message when the reason changes, without the user moving focus
+        // (a platform call since API 19, so no ViewCompat at minSdk 26)
+        views.emptyState.emptyStateTitle.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does
         viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, adapter));
@@ -99,21 +106,34 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         startActivity(RecipeDetailActivity.intentFor(requireContext(), recipeId));
     }
 
-    /** Shows exactly one of the progress indicator, the empty state and the list. */
+    /** Applies {@link RecipesRender}: exactly one of the progress indicator, the list and the empty state. */
     private void render(@NonNull UiState state, @NonNull RecipeAdapter adapter) {
         FragmentSuggestedRecipesBinding views = requireBinding();
-        if (state instanceof UiState.Loading) {
+        RecipesRender render = RecipesRender.of(state);
+        // show() and hide() rather than visibility: the indicator waits before it appears, so a first
+        // match that finishes quickly shows no spinner at all
+        if (render.progress()) {
             views.loading.show();
-            views.recipeList.setVisibility(View.GONE);
-            views.emptyState.getRoot().setVisibility(View.GONE);
-            return;
+        } else {
+            views.loading.hide();
+            adapter.submitList(render.rows());
+            showCount(render.count());
         }
-        views.loading.hide();
-        List<MatchedRecipe> canMake = state instanceof UiState.Content content ? content.canMake() : List.of();
-        adapter.submitList(canMake);
-        views.recipeList.setVisibility(canMake.isEmpty() ? View.GONE : View.VISIBLE);
-        views.emptyState.getRoot().setVisibility(canMake.isEmpty() ? View.VISIBLE : View.GONE);
-        showCount(canMake.size());
+        views.recipeList.setVisibility(render.list() ? View.VISIBLE : View.GONE);
+        views.emptyState.getRoot().setVisibility(render.empty() ? View.VISIBLE : View.GONE);
+        if (render.empty()) {
+            views.emptyState.emptyStateTitle.setText(render.emptyMessage());
+            views.emptyState.emptyStateAction.setVisibility(render.addIngredients() ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    /**
+     * Switches the running host to the Pantry tab. {@link MainActivity#intentFor} sets
+     * {@code FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP}, so the host already on screen receives
+     * it in {@code onNewIntent} and selects the tab; no second {@code MainActivity} is created.
+     */
+    private void openPantry() {
+        startActivity(MainActivity.intentFor(requireContext(), Tab.PANTRY));
     }
 
     /** Puts "Suggested recipes (N)" in the host's toolbar, while the Recipes tab is the one shown. */

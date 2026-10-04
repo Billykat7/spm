@@ -60,8 +60,15 @@
         <item quantity="other">You have all %1$d ingredients</item>
     </plurals>
     <string name="recipes_loading">Matching recipes to your pantry</string>
-    <!-- Issue 24 gives the zero-match state its final words and a button to the pantry -->
-    <string name="suggested_empty_title">No recipes can be made with what is in your pantry yet.</string>
+    <!--
+        Why the Recipes tab has nothing to suggest (Issue 24, ui/recipes/EmptyReason). One-line
+        messages, so no full stop; the brief's dash is a comma here. NO_MATCH is the brief's own
+        sentence (2.2), word for word.
+    -->
+    <string name="recipes_empty_no_match">No recipes match your pantry yet, add more ingredients</string>
+    <string name="recipes_empty_pantry_empty">Your pantry is empty, add some ingredients to see what you can cook</string>
+    <string name="recipes_empty_no_recipes">The recipe collection did not load, reinstall the app to restore it</string>
+    <string name="recipes_empty_action">Add ingredients</string>
 
     <!--
         The recipe detail screen (Issue 25). The status line and each ingredient's mark come from the
