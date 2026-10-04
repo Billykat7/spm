@@ -151,3 +151,31 @@ stays visible to the next screen`), which Issue 27 needs as well.
 **Learned:** "not in the hierarchy" and "not on screen" are different questions, and a test should
 ask the one the user would. Writing the proof first also found a gap in a state class that every
 earlier test had passed over.
+
+## 2026-10-04 · Issue 29 · The alert was on, and Android 13 would not show it
+
+**Problem:** on a fresh install on the API 35 emulator the Settings tab said *Expiring-soon alerts*
+was on, as its default says, and the daily check ran, and still nothing appeared. Below API 33 the
+same build posted the alert at once. A toggle on a screen is not enough on its own.
+
+**Cause:** Android 13 (API 33) made `POST_NOTIFICATIONS` a runtime permission. An app that targets 33
+or later, as this one does (`targetSdk 35`, decision 4), starts with it denied, so `notify()` is
+dropped until the user allows it. Below 33 it is granted at install, which is why API 26 showed none
+of this. And on any version the user can still block the app's notifications in system settings.
+Lint also flagged the `notify()` call itself: a permission can be revoked between a check and the post.
+
+**Fix:** one class asks both questions, `NotificationAccess.canPost`, and the worker returns success
+without posting when the answer is no. The Settings tab asks for the permission when the alert is
+turned on, through `ActivityResultContracts.RequestPermission`, after a short explanation once the user
+has said no before. A no turns the switch back off, cancels the daily check and shows a *Notification
+settings* entry that opens the app's page in system settings. A switch that is on while the app may
+not post says so in its summary, so it never reads as if it works. `notify()` sits in a `try` that
+catches the `SecurityException` (commits `Issue 29: ask NotificationAccess whether the alert can post,
+one check for the worker and the Settings tab` and `Issue 29: request POST_NOTIFICATIONS on API 33+
+when the alert is turned on, with a rationale, and on denial switch it off with a shortcut to the
+system settings; enable Send a test alert now`). Testing the worker without waiting a day was the
+other half: `TestWorkerBuilder` runs `doWork()` on the test thread against an in-memory pantry, and
+`WorkManagerTestInitHelper` with `TestDriver.setPeriodDelayMet` runs the periodic check on demand.
+
+**Learned:** a setting is a promise the code has to keep on every API level. The permission belongs
+where the user turns the feature on, and a "no" has to leave the screen telling the truth.
