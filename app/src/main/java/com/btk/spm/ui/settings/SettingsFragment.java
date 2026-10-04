@@ -44,17 +44,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
-        // "Items expiring within 3 days are badged and reported": a plural, so a provider, not XML
+        // "Items expiring within 3 days are badged and reported": a plural, so set from here. Not a
+        // SummaryProvider: SeekBarPreference stores a dragged value without notifying, so a provider
+        // would keep saying "3 days" next to a bar at 7. The change listener sees every new value.
         SeekBarPreference threshold = requirePreference(PrefKey.EXPIRY_THRESHOLD_DAYS);
-        threshold.setSummaryProvider((Preference.SummaryProvider<SeekBarPreference>) preference ->
-                getResources().getQuantityString(R.plurals.settings_threshold_summary,
-                        preference.getValue(), preference.getValue()));
+        threshold.setSummary(thresholdSummary(threshold.getValue()));
+        threshold.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary(thresholdSummary((Integer) newValue));
+            return true;
+        });
 
         requirePreference(PrefKey.ABOUT_VERSION).setSummary(BuildConfig.VERSION_NAME);
         requirePreference(PrefKey.ABOUT_REPOSITORY).setOnPreferenceClickListener(preference -> {
             openRepository();
             return true;
         });
+    }
+
+    /** The threshold's summary for {@code days}, with the right plural. */
+    @NonNull
+    private String thresholdSummary(int days) {
+        return getResources().getQuantityString(R.plurals.settings_threshold_summary, days, days);
     }
 
     /**
