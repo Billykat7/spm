@@ -378,8 +378,8 @@ the pantry and the recipes through Room's `LiveData`, maps the entities to the e
 thread, and lists `MatchResults.partition(...).canMake` and nothing else, with "Suggested recipes
 (N)" in the toolbar. A pantry change made on another tab is already in the list when the user comes
 back, and a match of an older pantry that finishes late is thrown away.
-Issue 24 makes the empty tab say why it is empty, with one shared layout and three reasons: the
-brief's own sentence when the pantry has items but no recipe is complete, a different one for an
+Issue 24, in pull request [#67](https://github.com/Billykat7/spm/pull/67), makes the empty tab say
+why it is empty, with one shared layout and three reasons: the brief's own sentence when the pantry has items but no recipe is complete, a different one for an
 empty pantry, and, with no button, a recipe collection that did not load. "Add ingredients" switches
 the running host to the Pantry tab instead of opening a second one, and the progress indicator shows
 once, before the first result, never between later ones.
