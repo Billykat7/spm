@@ -385,7 +385,8 @@ has items but no recipe is complete, a different one for an empty pantry, and, w
 recipe collection that did not load. "Add ingredients" switches the running host to the Pantry tab
 instead of opening a second one, and the progress indicator shows once, before the first result,
 never between later ones.
-Issue 25 adds the recipe detail screen, the app's second Activity opened by an explicit Intent:
+Issue 25, in pull request [#68](https://github.com/Billykat7/spm/pull/68), adds the recipe detail
+screen, the app's second Activity opened by an explicit Intent:
 `RecipeDetailActivity.intentFor` carries the recipe's id in `IntentKeys.EXTRA_RECIPE_ID` and nothing
 else, and an unknown id says so and closes. Each ingredient shows a check or a cross from the
 matcher's own verdict, through one additive engine change, `MatchResult.checks()`, so no screen
