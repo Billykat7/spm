@@ -56,6 +56,8 @@
 
     <!-- The add and edit ingredient screen (Issues 13 to 15) -->
     <string name="title_add_ingredient">Add ingredient</string>
+    <string name="title_edit_ingredient">Edit ingredient</string>
+    <string name="ingredient_not_found">Ingredient not found</string>
     <string name="action_save">Save</string>
     <string name="label_name">Name</string>
     <string name="label_quantity">Quantity</string>
