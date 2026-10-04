@@ -182,10 +182,10 @@ issues and its order of work.
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **63%** (24/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **66%** (25/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -236,8 +236,9 @@ The Recipes tab lists the recipes the pantry can make right now, matched on a ba
 listed again whenever the pantry changes, with the count in the toolbar: put the five ingredients of
 Tomato pasta in the pantry and it reads "Suggested recipes (1)" (Issue 23). When nothing can be
 made it says why, in the brief's words for four of five ingredients ("No recipes match your pantry
-yet, add more ingredients"), with a button back to the Pantry tab (Issue 24). Settings still shows a
-placeholder.
+yet, add more ingredients"), with a button back to the Pantry tab (Issue 24). Tapping a recipe opens it in full: every ingredient
+with a check or a cross, "need 250 g, have 1 kg", and the numbered method (Issue 25). Settings still
+shows a placeholder.
 
 **Before every push**, the same gate CI runs:
 
@@ -379,13 +380,19 @@ thread, and lists `MatchResults.partition(...).canMake` and nothing else, with "
 (N)" in the toolbar. A pantry change made on another tab is already in the list when the user comes
 back, and a match of an older pantry that finishes late is thrown away.
 Issue 24, in pull request [#67](https://github.com/Billykat7/spm/pull/67), makes the empty tab say
-why it is empty, with one shared layout and three reasons: the brief's own sentence when the pantry has items but no recipe is complete, a different one for an
-empty pantry, and, with no button, a recipe collection that did not load. "Add ingredients" switches
-the running host to the Pantry tab instead of opening a second one, and the progress indicator shows
-once, before the first result, never between later ones.
+why it is empty, with one shared layout and three reasons: the brief's own sentence when the pantry
+has items but no recipe is complete, a different one for an empty pantry, and, with no button, a
+recipe collection that did not load. "Add ingredients" switches the running host to the Pantry tab
+instead of opening a second one, and the progress indicator shows once, before the first result,
+never between later ones.
+Issue 25 adds the recipe detail screen, the app's second Activity opened by an explicit Intent:
+`RecipeDetailActivity.intentFor` carries the recipe's id in `IntentKeys.EXTRA_RECIPE_ID` and nothing
+else, and an unknown id says so and closes. Each ingredient shows a check or a cross from the
+matcher's own verdict, through one additive engine change, `MatchResult.checks()`, so no screen
+compares a quantity. A pantry change made while the screen is open turns a cross into a check.
 
-**What is next.** The rest of M5: the recipe detail screen the rows open (Issue 25), the live re-evaluation proof (Issue 26) and the
-"Almost there" section (Issue 27).
+**What is next.** The rest of M5: the live re-evaluation proof (Issue 26) and the "Almost there"
+section (Issue 27).
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
