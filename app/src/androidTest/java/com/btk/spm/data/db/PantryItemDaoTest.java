@@ -214,6 +214,35 @@ public class PantryItemDaoTest {
         assertEquals(deleted, dao.getByIdSync(id));
     }
 
+    @Test
+    public void insertDeleteInsertOfTheSameObject_leavesExactlyOneRow_withTheOriginalIdAndContents() {
+        // Undo (Issue 16) inserts the very object that was deleted, its id still set
+        PantryItem tomatoes = dao.getByIdSync(dao.insert(new PantryItem("tomatoes", 4, Unit.PCS, EXPIRY, CREATED)));
+        dao.delete(tomatoes);
+        assertEquals(0, dao.countSync());
+
+        dao.insert(tomatoes);
+
+        assertEquals(1, dao.countSync());
+        PantryItem restored = dao.getAllSync().get(0);
+        assertEquals(tomatoes.getId(), restored.getId());
+        assertEquals(tomatoes, restored);
+    }
+
+    @Test
+    public void undoAfterAnotherInsert_keepsBothRows_andNeverReusesTheDeletedId() {
+        // AUTOINCREMENT never hands out an id that was used before, so a row added between the
+        // delete and the undo cannot take the deleted row's id and make the undo fail
+        PantryItem eggs = dao.getByIdSync(dao.insert(new PantryItem("Eggs", 6, Unit.PCS, null, CREATED)));
+        dao.delete(eggs);
+        long milkId = dao.insert(new PantryItem("Milk", 1, Unit.L, EXPIRY, CREATED + 1));
+
+        dao.insert(eggs);
+
+        assertTrue(milkId > eggs.getId());
+        assertEquals(Arrays.asList(eggs, dao.getByIdSync(milkId)), dao.getAllSync());
+    }
+
     // The list updates itself
 
     @Test
