@@ -78,3 +78,28 @@ that are truly singular, such as `asparagus` and `hummus`.
 plan's own examples (loaves, halves) all passed; the bug only showed when I added ingredients from
 an ordinary shopping list. Each row also normalises its own result a second time, which is how the
 `lemongrass` bug showed up even though its first pass was right.
+
+## 2026-10-04 · Issue 19 · Known limitation: 500 g of flour never covers 2 cups
+
+This one is a limit I chose, not a bug I fixed, kept here for the report's reflection.
+
+**Problem:** a recipe can ask for an ingredient by volume (`2 cups` of flour) while the pantry holds
+it by mass (`500 g`). A cook knows that is more than enough. The app says it is a shortfall.
+
+**Cause:** decision 5. Every unit belongs to one kind (mass, volume or count) and converts only to
+that kind's canonical unit (grams, millilitres, pieces). Going from a volume to a mass needs the
+ingredient's density: a cup of flour weighs about half what a cup of sugar does, and a cup of
+spinach far less than either. That is knowledge about every ingredient, which the brief does not ask
+for and which I would have had to invent.
+
+**Fix:** none, on purpose. `CanonicalQuantity.isAtLeast()` returns `false` when the kinds differ, and
+its Javadoc says why (commit `a2e6c62`, `Issue 19: add CanonicalQuantity, whose isAtLeast forgives
+rounding error but never crosses kinds`). `UnitConverter.sum()` refuses to add `200 g` to `1 cup`
+and names both kinds. The seed recipes write each ingredient in the kind a pantry would hold it in,
+and `RecipesJsonTest` checks that each ingredient keeps one kind across all twenty, so the limit never
+shows with the seed. A user who stores flour in cups and cooks a gram recipe will meet it.
+
+**Learned:** a strict rule needs a clear edge. Saying "no" to `500 g` against `2 cups` is wrong for a
+cook, but it is never wrongly "yes", and under the brief a wrong "can make" is the worse mistake.
+With more time I would add a small density table for the few ingredients that people really measure
+both ways (flour, sugar, rice, butter), with a row in the scenario table for each.
