@@ -85,6 +85,9 @@
     <string name="action_add_ingredient">Add ingredient</string>
     <string name="pantry_item_options">More options</string>
     <string name="pantry_item_options_for">More options for %1$s</string>
+    <!-- What TalkBack says for a whole pantry row (Issue 30): name, amount in words, then the badge -->
+    <string name="pantry_row_description">%1$s, %2$s, %3$s</string>
+    <string name="pantry_row_description_no_expiry">%1$s, %2$s</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>
@@ -215,6 +218,51 @@
     -->
     <string name="unit_oz">oz</string>
     <string name="unit_fl_oz">fl\u00A0oz</string>
+
+    <!--
+        Each unit in full, for a screen reader (Issue 30, util/SpokenQuantity): TalkBack reads "pcs" as
+        "p c s". The amount is already formatted for the locale, so it is a string, not a number.
+    -->
+    <plurals name="unit_spoken_g">
+        <item quantity="one">%1$s gram</item>
+        <item quantity="other">%1$s grams</item>
+    </plurals>
+    <plurals name="unit_spoken_kg">
+        <item quantity="one">%1$s kilogram</item>
+        <item quantity="other">%1$s kilograms</item>
+    </plurals>
+    <plurals name="unit_spoken_ml">
+        <item quantity="one">%1$s millilitre</item>
+        <item quantity="other">%1$s millilitres</item>
+    </plurals>
+    <plurals name="unit_spoken_l">
+        <item quantity="one">%1$s litre</item>
+        <item quantity="other">%1$s litres</item>
+    </plurals>
+    <plurals name="unit_spoken_tsp">
+        <item quantity="one">%1$s teaspoon</item>
+        <item quantity="other">%1$s teaspoons</item>
+    </plurals>
+    <plurals name="unit_spoken_tbsp">
+        <item quantity="one">%1$s tablespoon</item>
+        <item quantity="other">%1$s tablespoons</item>
+    </plurals>
+    <plurals name="unit_spoken_cup">
+        <item quantity="one">%1$s cup</item>
+        <item quantity="other">%1$s cups</item>
+    </plurals>
+    <plurals name="unit_spoken_pcs">
+        <item quantity="one">%1$s piece</item>
+        <item quantity="other">%1$s pieces</item>
+    </plurals>
+    <plurals name="unit_spoken_oz">
+        <item quantity="one">%1$s ounce</item>
+        <item quantity="other">%1$s ounces</item>
+    </plurals>
+    <plurals name="unit_spoken_fl_oz">
+        <item quantity="one">%1$s fluid ounce</item>
+        <item quantity="other">%1$s fluid ounces</item>
+    </plurals>
 
     <!-- An amount and its unit symbol, joined by a non-breaking space so they never wrap apart: 250 g -->
     <string name="quantity_with_unit">%1$s\u00A0%2$s</string>
