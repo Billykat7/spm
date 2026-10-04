@@ -1,0 +1,4 @@
+# The recording (docs/DEMO/spm_demo.mp4) lives on the laptop and goes into the ZIP, never into git
+*.mp4
+*.mov
+*.mkv
