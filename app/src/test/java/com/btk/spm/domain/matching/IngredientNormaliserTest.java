@@ -55,6 +55,8 @@ public class IngredientNormaliserTest {
             {"a run of spaces inside", "  Spring   Onions ", "spring onion"},
             {"a tab inside", "spring\tonion", "spring onion"},
             {"a no-break space inside", "spring\u00A0onion", "spring onion"},
+            {"an accent typed as one character stays", "Jalape\u00F1o", "jalape\u00F1o"},
+            {"an accent pasted as a combining mark is joined", "jalapen\u0303os", "jalape\u00F1o"},
             // Step 2: punctuation
             {"a trailing full stop", "TOMATO.", "tomato"},
             {"repeated exclamation marks", "Rice!!!", "rice"},

@@ -1,5 +1,6 @@
 package com.btk.spm.domain.matching;
 
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,9 +20,10 @@ import java.util.regex.Pattern;
  * singular and plural names, and says no NLP is needed. So this class is a fixed list of rules, run
  * in this order:
  * <ol>
- *   <li><b>Case and spaces.</b> Lower case with {@link Locale#ROOT}, so a phone set to Turkish
- *       still turns {@code "RICE"} into {@code "rice"}; trimmed; every run of whitespace, a
- *       no-break space included, becomes one space.</li>
+ *   <li><b>Case and spaces.</b> Unicode NFC, so an accented letter is one character however it
+ *       was typed or pasted; lower case with {@link Locale#ROOT}, so a phone set to Turkish still
+ *       turns {@code "RICE"} into {@code "rice"}; trimmed; every run of whitespace, a no-break
+ *       space included, becomes one space.</li>
  *   <li><b>Punctuation.</b> Anything that is not a letter, a digit or a space becomes a space, except
  *       a hyphen or an apostrophe between two letters or digits: {@code "self-raising flour"} and
  *       {@code "baker's yeast"} keep theirs, {@code "TOMATO."} loses its full stop. A space rather
@@ -65,12 +67,15 @@ public final class IngredientNormaliser {
     /** Whitespace of any kind, including the no-break space a pasted name can carry. */
     private static final Pattern WHITESPACE = Pattern.compile("[\\s\\p{Z}]+");
 
-    /** Anything other than a letter, a digit, whitespace, a hyphen or an apostrophe. */
-    private static final Pattern PUNCTUATION = Pattern.compile("[^\\p{L}\\p{N}\\s\\p{Z}'-]");
+    /**
+     * Anything other than a letter, an accent on one, a digit, whitespace, a hyphen or an apostrophe.
+     * The accent ({@code \p{M}}) is kept for the rare letter Unicode has no single code point for.
+     */
+    private static final Pattern PUNCTUATION = Pattern.compile("[^\\p{L}\\p{M}\\p{N}\\s\\p{Z}'-]");
 
     /** A hyphen or an apostrophe that is not between two letters or digits. */
     private static final Pattern LOOSE_JOINER =
-            Pattern.compile("(?<![\\p{L}\\p{N}])['-]|['-](?![\\p{L}\\p{N}])");
+            Pattern.compile("(?<![\\p{L}\\p{M}\\p{N}])['-]|['-](?![\\p{L}\\p{N}])");
 
     private static final char CURLY_APOSTROPHE = '\u2019';
 
@@ -123,7 +128,10 @@ public final class IngredientNormaliser {
         if (raw == null) {
             return "";
         }
-        String name = raw.toLowerCase(Locale.ROOT).replace(CURLY_APOSTROPHE, '\'');
+        // NFC first: "jalapeño" pasted as n plus a combining tilde becomes the same single ñ as typed
+        String name = Normalizer.normalize(raw, Normalizer.Form.NFC)
+                .toLowerCase(Locale.ROOT)
+                .replace(CURLY_APOSTROPHE, '\'');
         name = PUNCTUATION.matcher(name).replaceAll(" ");
         name = LOOSE_JOINER.matcher(name).replaceAll(" ");
         name = WHITESPACE.matcher(name).replaceAll(" ").trim();
@@ -138,7 +146,7 @@ public final class IngredientNormaliser {
      * Makes one lower-case word singular by its suffix. The longer suffixes are tried first: the
      * generic {@code -s} rule alone would turn "tomatoes" into "tomatoe".
      */
-    static String singularise(String word) {
+    private static String singularise(String word) {
         if (word.length() < SHORTEST_PLURAL || SINGULAR_WORDS_ENDING_IN_S.contains(word)) {
             return word;
         }
