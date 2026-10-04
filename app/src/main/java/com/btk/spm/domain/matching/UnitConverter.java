@@ -1,9 +1,15 @@
 package com.btk.spm.domain.matching;
 
+import com.btk.spm.domain.DisplayQuantity;
+import com.btk.spm.domain.DisplayUnit;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
+import com.btk.spm.domain.UnitsSystem;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -21,10 +27,24 @@ import java.util.Objects;
  * would need a density for every ingredient, which is ingredient knowledge the brief does not ask
  * for; the report's reflection names it as a known limitation.
  *
+ * <p>It also chooses how an amount is <em>shown</em> under the units preference (Issue 28):
+ * {@code 1500 g} as {@code 1.5 kg}, or as {@code 52.9 oz} in imperial. That is display only. It returns
+ * a {@link DisplayQuantity}, which nothing that matches accepts, so the preference can change the
+ * text on screen and never a match.
+ *
  * <p>Plain Java with no Android import and no state. It is an instance rather than static methods so
  * the matcher (Issue 20) receives it in its constructor and a test can hand it a stand-in.
  */
 public class UnitConverter {
+
+    /** A metric amount of this many canonical units or more is shown in kilograms or litres. */
+    static final double LARGER_METRIC_UNIT_FROM = 1000;
+
+    /**
+     * Imperial amounts are rounded to this many significant figures, {@code 52.9 oz} rather than
+     * {@code 52.91094 oz}: an ounce figure is an approximation of the metric amount anyway.
+     */
+    static final MathContext IMPERIAL_PRECISION = new MathContext(3, RoundingMode.HALF_UP);
 
     /**
      * Converts a quantity to its kind's canonical unit.
@@ -96,5 +116,64 @@ public class UnitConverter {
             totals.merge(canonical.kind(), canonical, CanonicalQuantity::plus);
         }
         return Collections.unmodifiableMap(totals);
+    }
+
+    /**
+     * Chooses how a canonical amount is shown under the units preference. Display only: the result
+     * may be rounded and is never compared (decision 5).
+     * <ul>
+     *   <li>{@link UnitsSystem#METRIC}: grams below 1000 and kilograms from 1000
+     *       ({@code 1500 g} is {@code 1.5 kg}); millilitres below 1000 and litres from 1000
+     *       ({@code 750 ml} stays {@code 750 ml}); exact.</li>
+     *   <li>{@link UnitsSystem#IMPERIAL}: mass in ounces and volume in US fluid ounces
+     *       ({@code 1500 g} is {@code 52.9 oz}), rounded to three significant figures.</li>
+     *   <li>Pieces stay pieces in both.</li>
+     * </ul>
+     *
+     * @param quantity the canonical amount
+     * @param system   the user's preference
+     * @return the amount to show and its unit
+     * @throws NullPointerException if either argument is {@code null}
+     */
+    public DisplayQuantity toPreferredDisplay(CanonicalQuantity quantity, UnitsSystem system) {
+        Objects.requireNonNull(quantity, "quantity");
+        Objects.requireNonNull(system, "system");
+        DisplayUnit unit = preferredUnit(quantity, system);
+        double amount = quantity.amount() / unit.factorToCanonical();
+        if (system == UnitsSystem.IMPERIAL && unit.kind() != UnitKind.COUNT) {
+            amount = BigDecimal.valueOf(amount).round(IMPERIAL_PRECISION).doubleValue();
+        }
+        return new DisplayQuantity(amount, unit);
+    }
+
+    /**
+     * Chooses how a stored or recipe quantity is shown under the units preference. Spoons and cups are
+     * kept as the recipe wrote them in both systems ({@code 3 cups} stays {@code 3 cups}), because
+     * that is how a cook measures them; every other unit goes through
+     * {@link #toPreferredDisplay(CanonicalQuantity, UnitsSystem)}.
+     *
+     * @param quantity the quantity as stored or as a recipe states it
+     * @param system   the user's preference
+     * @return the amount to show and its unit
+     * @throws NullPointerException if either argument is {@code null}
+     */
+    public DisplayQuantity toPreferredDisplay(Quantity quantity, UnitsSystem system) {
+        Objects.requireNonNull(quantity, "quantity");
+        Objects.requireNonNull(system, "system");
+        return switch (quantity.unit()) {
+            // A cook measures these with the spoon or cup itself, so they are not re-scaled
+            case TSP, TBSP, CUP -> new DisplayQuantity(quantity.amount(), DisplayUnit.of(quantity.unit()));
+            case G, KG, ML, L, PCS -> toPreferredDisplay(toCanonical(quantity), system);
+        };
+    }
+
+    private static DisplayUnit preferredUnit(CanonicalQuantity quantity, UnitsSystem system) {
+        boolean imperial = system == UnitsSystem.IMPERIAL;
+        boolean large = quantity.amount() >= LARGER_METRIC_UNIT_FROM;
+        return switch (quantity.kind()) {
+            case MASS -> imperial ? DisplayUnit.OZ : (large ? DisplayUnit.KG : DisplayUnit.G);
+            case VOLUME -> imperial ? DisplayUnit.FL_OZ : (large ? DisplayUnit.L : DisplayUnit.ML);
+            case COUNT -> DisplayUnit.PCS;
+        };
     }
 }
