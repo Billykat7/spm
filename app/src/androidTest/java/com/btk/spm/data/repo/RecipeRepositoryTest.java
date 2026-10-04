@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import android.content.Context;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -19,6 +20,7 @@ import com.btk.spm.domain.Unit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,6 +36,13 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class RecipeRepositoryTest {
 
+    // Room computes a LiveData and refreshes it after a write on a background thread. Without this
+    // rule, a refresh started by a write could still be running when @After closed the database,
+    // and its "connection pool has been closed" exception killed the whole test process. The rule
+    // runs that work on the calling thread, so it has finished before the database closes.
+    @Rule
+    public final InstantTaskExecutorRule instantTasks = new InstantTaskExecutorRule();
+
     private AppDatabase database;
     private RecipeDao dao;
     private RecipeRepository repository;
@@ -41,7 +50,9 @@ public class RecipeRepositoryTest {
     @Before
     public void openInMemoryDatabase() {
         Context context = ApplicationProvider.getApplicationContext();
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).build();
+        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class)
+                .allowMainThreadQueries()
+                .build();
         dao = database.recipeDao();
         repository = new RecipeRepository(database);
         dao.insertWithIngredients(new Recipe("Cheese omelette", 1, Arrays.asList("Whisk.", "Cook.")),
