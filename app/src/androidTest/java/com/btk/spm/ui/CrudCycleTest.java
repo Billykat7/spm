@@ -51,6 +51,11 @@ public class CrudCycleTest {
     public void addReadEditDelete_throughTheFabTheFormTheRowAndTheOverflow() {
         // Create, and Read: the row is in the list
         PantryFlows.addThroughTheForm("tomato", "4", Unit.PCS);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
         onView(PantryFlows.row("tomato", "4", Unit.PCS)).check(matches(isDisplayed()));
 
         // Update: the row opens the same form, prefilled; 6 replaces 4
