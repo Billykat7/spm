@@ -16,8 +16,9 @@ make; the words are mine on the day. The target is **6:00**, with 30 seconds of 
 | 4. Database justification | 5:30 | 6:00 | 0:30 | |
 | **Total** | | | **6:00** | |
 
-**Line ranges.** Every path and range below was read at commit `2e225d5`, the base of Issue 36.
-M7 changes nothing under `app/`, so `v0.6.0` and `v1.0.0` carry the same lines. Before recording,
+**Line ranges.** Every path and range below was read at commit `2e225d5` and holds at the tag
+`v0.6.0`: `git diff --stat 2e225d5 v0.6.0 -- app/` prints nothing. M7 changes nothing under `app/`,
+so `v1.0.0` carries the same lines. Before recording,
 check out the tag being recorded and re-check any range with:
 
 ```bash
