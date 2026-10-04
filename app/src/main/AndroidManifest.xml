@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--
+        The expiring-soon alert (Issue 29). A runtime permission from Android 13 (API 33), asked for
+        by the Settings tab when the alert is turned on; below 33 it is granted at install. The app's
+        only permission: no location, no network (scripts/check_guards.sh).
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".SpmApplication"
         android:allowBackup="true"
