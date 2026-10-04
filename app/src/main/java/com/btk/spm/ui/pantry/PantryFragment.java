@@ -14,7 +14,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
@@ -30,7 +29,6 @@ import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
 import com.btk.spm.ui.StateMessage;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -50,7 +48,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link Activity#RESULT_OK} a Snackbar says the ingredient was saved. Nothing is passed back; the new
  * or changed row reaches the list the way every row does, through Room.
  *
- * <p>Delete works the same way. The row's overflow Delete asks for confirmation, then
+ * <p>Delete works the same way. The row's overflow Delete asks for confirmation in a
+ * {@link DeleteIngredientDialog}, which stays open across a rotation, then
  * {@link PantryViewModel#delete} removes the row from the database and the list follows. A Snackbar
  * offers to undo it, and undo inserts the very object that was deleted, so the row comes back with
  * its original id.
@@ -72,10 +71,6 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
 
     /** Set in {@code onViewCreated}; the ViewModel outlives the view, so it is the same one after a rotation. */
     private PantryViewModel viewModel;
-
-    /** The open delete confirmation, kept so it is closed with the view rather than leaked. */
-    @Nullable
-    private AlertDialog deleteConfirmation;
 
     /**
      * Starts the add and edit screen and hears how it ended, for both modes. Registered when the
@@ -119,6 +114,9 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
         views.addIngredient.setOnClickListener(v -> openAddIngredient());
 
         addSortMenu();
+        // The confirmation's answer, also after a rotation re-created both the dialog and this view
+        getChildFragmentManager().setFragmentResultListener(DeleteIngredientDialog.REQUEST_KEY,
+                getViewLifecycleOwner(), (key, result) -> onDeleteConfirmed(result.getLong(DeleteIngredientDialog.KEY_ITEM_ID)));
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does, so a list
         // can never be delivered to a destroyed RecyclerView. The settings first, so the first rows
@@ -132,12 +130,6 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
 
     @Override
     public void onDestroyView() {
-        // A rotation closes the confirmation without deleting; the user taps Delete again (Issue 30
-        // decides whether a DialogFragment that survives it is worth having)
-        if (deleteConfirmation != null) {
-            deleteConfirmation.dismiss();
-            deleteConfirmation = null;
-        }
         super.onDestroyView();
         // The Fragment can outlive its view (another tab is shown); drop the views with it
         binding = null;
@@ -156,21 +148,33 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
     }
 
     /**
-     * Asks before deleting: the dialog names the item, Cancel changes nothing, Delete removes it and
-     * offers an undo.
+     * Asks before deleting, in a {@link DeleteIngredientDialog} that names the item and survives a
+     * rotation. Cancel changes nothing; Delete comes back through {@link #onDeleteConfirmed}.
      */
     @Override
     public void onDelete(@NonNull PantryItem item) {
-        deleteConfirmation = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.delete_confirm_title, item.getName()))
-                .setMessage(R.string.delete_confirm_message)
-                .setNegativeButton(R.string.action_cancel, null)
-                .setPositiveButton(R.string.action_delete, (dialog, which) -> {
-                    viewModel.delete(item);
-                    showUndo(item);
-                })
-                .setOnDismissListener(dialog -> deleteConfirmation = null)
-                .show();
+        if (getChildFragmentManager().findFragmentByTag(DeleteIngredientDialog.TAG) == null) {
+            DeleteIngredientDialog.forItem(item.getId(), item.getName())
+                    .show(getChildFragmentManager(), DeleteIngredientDialog.TAG);
+        }
+    }
+
+    /**
+     * Delete was confirmed for {@code itemId}: removes the row it names, from the list as it is now,
+     * and offers an undo. An item that has gone in the meantime is left alone.
+     */
+    private void onDeleteConfirmed(long itemId) {
+        List<PantryItem> items = viewModel.getItems().getValue();
+        if (items == null) {
+            return;
+        }
+        for (PantryItem item : items) {
+            if (item.getId() == itemId) {
+                viewModel.delete(item);
+                showUndo(item);
+                return;
+            }
+        }
     }
 
     /**
