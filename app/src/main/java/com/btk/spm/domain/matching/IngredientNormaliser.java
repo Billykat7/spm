@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  *       {@code -ies → -y} (berries), {@code -oes → -o} (tomatoes), {@code -ches}, {@code -shes},
  *       {@code -sses}, {@code -xes} lose {@code es} (peaches, radishes), {@code -lves},
  *       {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves, loaves), and
- *       otherwise a final {@code s} goes (eggs, and olives, not "olif"). Words of three letters or fewer are
- *       left alone, and so are the words in {@link #SINGULAR_WORDS_ENDING_IN_S}, which end in
+ *       otherwise a final {@code s} goes (eggs, and olives, not "olif"). Words of three letters or fewer, and
+ *       words ending in {@code ss} (watercress), are left alone, and so are the words in {@link #SINGULAR_WORDS_ENDING_IN_S}, which end in
  *       {@code s} but are not plurals (asparagus, hummus). Only the last word changes, because in
  *       an English ingredient name the last word is the thing itself: {@code "spring onions"} is
  *       {@code "spring onion"}.</li>
@@ -137,6 +137,10 @@ public final class IngredientNormaliser {
      */
     static String singularise(String word) {
         if (word.length() < SHORTEST_PLURAL || SINGULAR_WORDS_ENDING_IN_S.contains(word)) {
+            return word;
+        }
+        // A word ending in ss is never a simple plural (watercress, lemongrass); -sses is handled below
+        if (word.endsWith("ss")) {
             return word;
         }
         if (word.endsWith("ies")) {
