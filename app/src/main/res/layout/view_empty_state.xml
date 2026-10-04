@@ -19,6 +19,11 @@
         android:importantForAccessibility="no"
         android:src="@drawable/ill_empty_pantry" />
 
+    <ImageView
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:src="@drawable/ic_add" />
+
     <TextView
         android:id="@+id/empty_state_title"
         android:layout_width="match_parent"
