@@ -26,8 +26,14 @@ public enum PrefKey {
     /** Whether expired items still count when matching recipes (decision 6, default off). */
     COUNT_EXPIRED_ITEMS("count_expired_items", true),
 
-    /** The "Send a test alert now" action; nothing is stored under it (Issue 29 wires it). */
+    /** The "Send a test alert now" action, which runs the daily check at once; nothing is stored under it. */
     SEND_TEST_ALERT("send_test_alert", true),
+
+    /**
+     * The shortcut to the app's notification settings, shown only while the alert cannot be posted
+     * (Issue 29); nothing is stored under it.
+     */
+    NOTIFICATION_SETTINGS("notification_settings", true),
 
     /** The version name shown under About; nothing is stored under it. */
     ABOUT_VERSION("about_version", true),

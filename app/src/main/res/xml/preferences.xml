@@ -14,7 +14,7 @@
         android:title="@string/settings_category_alerts"
         app:iconSpaceReserved="false">
 
-        <!-- Read by the daily expiring-soon check (Issue 29) -->
+        <!-- Read by the daily expiring-soon check (Issue 29); turning it on asks for POST_NOTIFICATIONS on API 33+ -->
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="expiry_alerts_enabled"
@@ -35,13 +35,20 @@
             app:seekBarIncrement="1"
             app:showSeekBarValue="true" />
 
-        <!-- An action, stored nowhere; Issue 29 enables it -->
+        <!-- Runs the daily check at once (ExpiryAlertScheduler.runOnce); stores nothing -->
         <Preference
-            android:enabled="false"
             android:key="send_test_alert"
-            android:summary="@string/settings_send_test_alert_unavailable"
+            android:summary="@string/settings_send_test_alert_summary"
             android:title="@string/settings_send_test_alert_title"
             app:iconSpaceReserved="false" />
+
+        <!-- Shown by SettingsFragment only while the alert cannot be posted; opens the system page -->
+        <Preference
+            android:key="notification_settings"
+            android:summary="@string/settings_notification_settings_summary"
+            android:title="@string/settings_notification_settings_title"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

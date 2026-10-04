@@ -2,6 +2,7 @@ package com.btk.spm.settings;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -113,11 +114,18 @@ public class PreferencesXmlTest {
     }
 
     @Test
-    public void theTestAlertShipsDisabled_untilIssue29WiresIt() {
+    public void theTestAlert_isEnabled_andStoresNothing() {
         Element testAlert = byKey().get(PrefKey.SEND_TEST_ALERT.key());
         assertNotNull(testAlert);
-        assertEquals("false", testAlert.getAttributeNS(ANDROID, "enabled"));
+        assertNotEquals("false", testAlert.getAttributeNS(ANDROID, "enabled"));
         assertFalse(testAlert.hasAttributeNS(ANDROID, "defaultValue"));
+    }
+
+    @Test
+    public void theNotificationSettingsShortcut_isHiddenUntilTheAlertIsBlocked() {
+        Element shortcut = byKey().get(PrefKey.NOTIFICATION_SETTINGS.key());
+        assertNotNull(shortcut);
+        assertEquals("false", shortcut.getAttributeNS(APP, "isPreferenceVisible"));
     }
 
     private static List<String> keysInXml() {

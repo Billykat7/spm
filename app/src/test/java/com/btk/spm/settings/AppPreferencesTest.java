@@ -54,6 +54,7 @@ public class AppPreferencesTest {
         assertEquals(false, AppPreferences.defaultValue(PrefKey.COUNT_EXPIRED_ITEMS));
         assertEquals("EXPIRY_SOONEST", AppPreferences.defaultValue(PrefKey.PANTRY_SORT));
         assertNull(AppPreferences.defaultValue(PrefKey.SEND_TEST_ALERT));
+        assertNull(AppPreferences.defaultValue(PrefKey.NOTIFICATION_SETTINGS));
         assertNull(AppPreferences.defaultValue(PrefKey.ABOUT_VERSION));
         assertNull(AppPreferences.defaultValue(PrefKey.ABOUT_REPOSITORY));
     }

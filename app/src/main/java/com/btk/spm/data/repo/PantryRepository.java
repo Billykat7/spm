@@ -9,6 +9,7 @@ import com.btk.spm.data.db.AppDatabase;
 import com.btk.spm.data.db.PantryItemDao;
 import com.btk.spm.data.model.PantryItem;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -73,6 +74,20 @@ public class PantryRepository {
     @Nullable
     public PantryItem getByIdSync(long id) {
         return dao.getByIdSync(id);
+    }
+
+    /**
+     * Reads every item that expires on or before {@code limit}, soonest first: expired items and those
+     * expiring soon, when {@code limit} is today plus the threshold. The daily check (Issue 29) runs it
+     * on WorkManager's thread. Blocks, so only call it from a background thread.
+     *
+     * @param limit the last expiry date to include
+     * @return the items with a date on or before {@code limit}; empty, never {@code null}
+     */
+    @WorkerThread
+    @NonNull
+    public List<PantryItem> findWithExpiryOnOrBefore(@NonNull LocalDate limit) {
+        return dao.findWithExpiryOnOrBefore(limit);
     }
 
     /**

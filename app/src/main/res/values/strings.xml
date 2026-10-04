@@ -30,7 +30,15 @@
         <item quantity="other">Items expiring within %1$d days are badged and reported.</item>
     </plurals>
     <string name="settings_send_test_alert_title">Send a test alert now</string>
-    <string name="settings_send_test_alert_unavailable">Not available in this version.</string>
+    <string name="settings_send_test_alert_summary">Check the pantry now and post the alert if anything is expiring.</string>
+    <string name="settings_expiry_alerts_on_blocked">On, but this app may not post notifications, so nothing is shown.</string>
+    <string name="settings_expiry_alerts_off_blocked">Off: notifications are not allowed for this app.</string>
+    <string name="settings_notification_settings_title">Notification settings</string>
+    <string name="settings_notification_settings_summary">Allow this app\'s notifications in the system settings.</string>
+    <string name="notification_rationale_title">Allow notifications?</string>
+    <string name="notification_rationale_message">The expiring-soon alert is a notification. Without permission to post one, the alert stays off.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_not_now">Not now</string>
     <string name="settings_units_title">Units</string>
     <string name="settings_units_metric">Metric (g, kg, ml, l)</string>
     <string name="settings_units_imperial">Imperial (oz, fl oz)</string>
@@ -41,6 +49,34 @@
     <string name="settings_repository_title">Source code</string>
     <string name="settings_repository_summary">Open the project\'s repository on GitHub.</string>
     <string name="settings_no_browser">No app on this device can open the link.</string>
+    <!--
+        The expiring-soon notification (Issue 29, notifications/ResourceExpiryTexts). The title is a
+        label, the body a list: "tomato (tomorrow), milk (in 3 days) and 2 more". The separator keeps
+        its space, so it is quoted.
+    -->
+    <plurals name="expiry_alert_title">
+        <item quantity="one">%1$d item expiring soon</item>
+        <item quantity="other">%1$d items expiring soon</item>
+    </plurals>
+    <string name="expiry_alert_today">today</string>
+    <string name="expiry_alert_tomorrow">tomorrow</string>
+    <plurals name="expiry_alert_in_days">
+        <item quantity="one">in %1$d day</item>
+        <item quantity="other">in %1$d days</item>
+    </plurals>
+    <plurals name="expiry_alert_expired_ago">
+        <item quantity="one">expired %1$d day ago</item>
+        <item quantity="other">expired %1$d days ago</item>
+    </plurals>
+    <string name="expiry_alert_item">%1$s (%2$s)</string>
+    <string name="expiry_alert_separator">", "</string>
+    <plurals name="expiry_alert_and_more">
+        <item quantity="one">%1$s and %2$d more</item>
+        <item quantity="other">%1$s and %2$d more</item>
+    </plurals>
+    <string name="expiry_channel_name">Expiring-soon alerts</string>
+    <string name="expiry_channel_description">A daily reminder of the pantry items about to expire.</string>
+
     <!-- Not text: where "Source code" goes -->
     <string name="repository_url" translatable="false">https://github.com/Billykat7/spm</string>
 

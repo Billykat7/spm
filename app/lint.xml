@@ -33,5 +33,10 @@
             stays at 2.10.0 until Room moves, and moves with it.
         -->
         <ignore regexp="androidx\.lifecycle:lifecycle-" />
+        <!--
+            WorkManager 2.11 and later depend on Room 2.7, which would replace the pinned Room 2.6.1 at
+            run time under its 2.6.1 compiler (Issue 29). WorkManager stays on 2.10.x until Room moves.
+        -->
+        <ignore regexp="androidx\.work:work-" />
     </issue>
 </lint>

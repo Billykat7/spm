@@ -186,9 +186,9 @@ issues and its order of work.
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩⬜⬜⬜⬜ **20%** (1/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **74%** (28/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **76%** (29/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -245,7 +245,10 @@ suggestions, under their own heading, recipes one ingredient away say which one,
 cheese", and are never counted as suggestions (Issue 27). The Settings tab sets the expiring-soon
 threshold (1–14 days) that the badges use, metric or imperial amounts on the pantry list and the
 detail screen, and whether expired items count when matching; each change reaches an open screen at
-once, and the About entries give the version and a link to this repository (Issue 28).
+once, and the About entries give the version and a link to this repository (Issue 28). Once a day,
+with no screen open, the app checks the pantry and posts one notification naming what is about to
+expire, "2 items expiring soon: tomato (tomorrow), milk (in 3 days)"; tapping it opens the Pantry tab,
+and "Send a test alert now" runs the check at once (Issue 29).
 
 **Before every push**, the same gate CI runs:
 
@@ -276,7 +279,7 @@ The bars above are the status. What they cannot say:
 `v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
 screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6 is under way with
-the Settings screen. The brief has been broken into
+the Settings screen and the expiring-soon alert. The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -427,9 +430,16 @@ days) re-badges the open pantry list, Imperial shows `1500 g` as `52.9 oz` on th
 detail screen without changing what is stored or what matches, and *Count expired items* runs the
 matcher again on the Recipes tab and the open detail screen. The alerts switch waits for the worker of
 Issue 29, and About shows the version name and links this repository.
+Issue 29, in pull request [#72](https://github.com/Billykat7/spm/pull/72), is what that switch
+controls: `ExpiryCheckWorker`, a WorkManager `Worker` enqueued once as unique periodic work every 24
+hours, reads the expired and expiring-soon rows in one synchronous query, judges them with the same
+`ExpiryRules` as the pantry badges, and posts one notification with a fixed id, worded by a plain-Java
+`ExpiryMessageBuilder`. On Android 13 and later, turning the alert on asks for `POST_NOTIFICATIONS`,
+the app's only permission; a refusal turns the switch back off and offers the system settings. No
+exact alarm and no foreground service.
 
-**What is next.** The rest of M6: the expiring-soon notification, the UX and accessibility pass,
-hardened validation and the Espresso suite, then `v0.6.0`.
+**What is next.** The rest of M6: the UX and accessibility pass, hardened validation and the
+Espresso suite, then `v0.6.0`.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
