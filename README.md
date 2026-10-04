@@ -160,6 +160,20 @@ app/src/main/java/com/btk/spm/
 └── util/            IntentKeys, ExpiryStatus
 ```
 
+## Project layout
+
+```text
+spm/
+├── app/                 the Android app: src/main (Java), src/test (JVM), src/androidTest (Room, Espresso)
+│   └── schemas/         the exported Room schema, version 1
+├── docs/
+│   ├── REPORT/          REPORT.md, screenshots/, diagrams/, CHALLENGES.md, UX_CHECKLIST.md
+│   ├── DEMO/            MATCH_PROOF_STEPS.md and VIDEO_SCRIPT.md (the recording is never committed)
+│   └── guideline.md     the ten non-negotiables
+├── scripts/             ci-local.sh (the gate), milestone_progress.py, export_diagrams.sh, package_submission.sh
+└── .github/             CI on every pull request, the APK on every v* tag
+```
+
 ## Project documentation
 
 | Document | What's in it |
@@ -169,6 +183,7 @@ app/src/main/java/com/btk/spm/
 | **How to read an issue** | The spec format, where code goes, the seven recorded decisions, the glossary, every issue in one table |
 | **Labels** · **PR template** · **Releases** | The label set, what a pull request must show, one tag per milestone |
 | **[Report](docs/REPORT/README.md)** · **[Video](docs/DEMO/README.md)** | Where the screenshots, diagrams, challenges, script and checklists live |
+| **[Written report](docs/REPORT/REPORT.md)** · **[Video script](docs/DEMO/VIDEO_SCRIPT.md)** · **[Package script](scripts/package_submission.sh)** | The report in the brief's nine sections, the video's four timed parts, and the script that builds the submission ZIP from a tag |
 | **The brief** (`.btk/MAD700D/`, local, not in git) | Every requirement the milestones trace back to, by section number |
 
 ## Delivery at a glance
@@ -187,8 +202,8 @@ issues and its order of work.
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` (to cut) → **`v1.0.0`** | 🟩🟩🟩🟩🟩⬜ **83%** (5/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜ **97%** (37/38 issues) |
+| 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** (both to cut) | 🟩🟩🟩🟩🟩🟩 **100%** (6/6 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 **100%** (38/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -215,16 +230,21 @@ none. I pinned it because Oracle GraalVM cannot build the app (its `jlink` lacks
 system-image step asks for), and Android Studio picked GraalVM for a fresh clone on my machine.
 
 ```bash
-git clone https://github.com/Billykat7/spm.git
+git clone https://github.com/Billykat7/spm.git    # 4 s
 cd spm
 export ANDROID_HOME="$HOME/Library/Android/sdk"   # the SDK path; not needed once Android Studio has opened the project
-./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleDebug                           # app/build/outputs/apk/debug/app-debug.apk; 2 min 3 s with an empty Gradle cache
 ```
 
 The command-line build needs to know where the Android SDK is: `ANDROID_HOME`, or the
 `local.properties` Android Studio writes the first time it opens the project. The path above is
 Android Studio's default on macOS; Studio shows the real one under *Settings > Languages & Frameworks >
 Android SDK*.
+
+The times are from a clean clone of the release candidate on 5 October 2026: an Apple silicon Mac,
+`JAVA_HOME` on JDK 21, `GRADLE_USER_HOME` pointed at an empty directory (873 MB afterwards), and the
+Android SDK already installed with platform 35. The Gradle daemon found the JetBrains Runtime 25
+already on the machine; on a machine without one, the first build also downloads it.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
 Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or dark with the
@@ -253,12 +273,20 @@ and "Send a test alert now" runs the check at once (Issue 29).
 **Before every push**, the same gate CI runs:
 
 ```bash
-./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build
+./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build; 71 s
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
 The gate prints one line per stage and stops at the first failure; CI runs the same script on every
 pull request and on `main`, and its `gate` check must pass before a pull request can merge.
+
+**The submission** needs `pandoc` for the report and `ffmpeg` for the video checks (`brew install
+pandoc ffmpeg`). [`docs/REPORT/README.md`](docs/REPORT/README.md) has the export command, and the
+package script builds the ZIP the brief names, from the tag, and refuses anything over 50 MB:
+
+```bash
+./scripts/package_submission.sh --tag v1.0.0 --video docs/DEMO/spm_demo.mp4 --report build/report/<StudentNumber>_Katalayi_MobileAppDev700_Assignment.docx
+```
 [`CONTRIBUTING.md`](CONTRIBUTING.md) has the whole loop and what each guard forbids.
 
 ## Contributing
@@ -280,7 +308,9 @@ The bars above are the status. What they cannot say:
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
 screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6, the Settings
 screen, the expiring-soon alert, the UX pass, hardened validation and the Espresso suite, done (M6,
-`v0.6.0` to cut). The brief has been broken into
+`v0.6.0` to cut). Milestone 7, the evidence, done: the report's screenshots and diagrams, the
+written report, the video script, the package script and this README (`v0.7.0` and `v1.0.0` to cut).
+Once this pull request merges, every one of the 38 issues is closed. The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -461,10 +491,9 @@ re-created Activity, and the Settings toggle that changes a match. Each test sta
 seeded database with idling executors for the app's threads, so none of them sleeps, and the gate
 turns the emulator's animations off itself. It also writes the `v0.6.0` release note.
 
-**What is next.** Tagging `v0.6.0` once this pull request merges, then M7 in weeks 7 and 8: the
-report's screenshots and diagrams, the report itself, the video, and the submission package that
-becomes `v1.0.0`.
-**`v1.0.0`, the submitted build, follows M7.**
+**What is next.** Tagging `v0.6.0`, `v0.7.0` and `v1.0.0` in that order as their pull requests
+merge; recording the video from [`VIDEO_SCRIPT.md`](docs/DEMO/VIDEO_SCRIPT.md); exporting the report;
+and running the package script on `v1.0.0`. That ZIP is the submission.
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
 [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2),
@@ -472,8 +501,11 @@ becomes `v1.0.0`.
 [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) (M4) and its patch
 [`v0.4.1`](https://github.com/Billykat7/spm/releases/tag/v0.4.1), and
 [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) (M5), each with its APK on its
-release; `v0.6.0` is cut when Issue 32 merges (M6, `v0.6.0` to cut), with its note in
-[`RELEASE_v0_6_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_6_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
+release; `v0.6.0` is cut when Issue 32 merges (M6), `v0.7.0` when Issue 37 merges and `v1.0.0`, the
+submitted build, when Issue 38 merges, with their notes in
+[`RELEASE_v0_6_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_6_0.md),
+[`RELEASE_v0_7_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_7_0.md) and
+[`RELEASE_v1_0_0.md`](docs/GITHUB/RELEASES/RELEASE_v1_0_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
 in [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence
