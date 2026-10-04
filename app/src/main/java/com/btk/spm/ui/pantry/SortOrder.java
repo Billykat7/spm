@@ -14,8 +14,8 @@ import java.util.List;
  *
  * <p>The order is applied by {@link PantryViewModel}, never by the adapter (adapters render, they do
  * not decide) and never by a second DAO query, so changing it re-sorts the list the screen already
- * observes. Issue 13 fixes the list at {@link #NAME}; Issue 17 adds the menu that switches between
- * the two, remembers the choice and makes {@link #EXPIRY_SOONEST} the default.
+ * observes. The Pantry tab's sort menu switches between the two, and the choice is remembered by its
+ * {@link #name()} under {@code PrefKey.PANTRY_SORT}; {@link #EXPIRY_SOONEST} is the default.
  *
  * <p>Both orders end on the creation time and then the id, the same tie-breaks as
  * {@code PantryItemDao.observeAll()}, so two rows that compare equal never swap places between

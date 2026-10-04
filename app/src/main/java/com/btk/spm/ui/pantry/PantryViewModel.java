@@ -13,6 +13,7 @@ import androidx.lifecycle.Transformations;
 import com.btk.spm.SpmApplication;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.repo.PantryRepository;
+import com.btk.spm.settings.AppPreferences;
 
 import java.util.List;
 
@@ -27,16 +28,21 @@ import java.util.List;
  *
  * <p>The ViewModel outlives a rotation, so the observed list (and the {@code RecyclerView}'s scroll
  * position, which the adapter keeps because the same items come back) survives it without a query.
+ * The order is a setting: it is read from {@link AppPreferences} when the ViewModel is created and
+ * written there when the user picks another, so it survives the app being closed.
  */
 public class PantryViewModel extends AndroidViewModel {
 
-    /** The order the list is shown in. Fixed at {@link SortOrder#NAME} until Issue 17 adds the menu. */
-    private final MutableLiveData<SortOrder> sortOrder = new MutableLiveData<>(SortOrder.NAME);
+    /** The order the list is shown in, starting from the one last chosen. */
+    private final MutableLiveData<SortOrder> sortOrder;
 
     private final LiveData<List<PantryItem>> items;
 
     /** Where deletes and their undo go; the reads come from it too, through {@link #items}. */
     private final PantryRepository repository;
+
+    /** Where the chosen order and the expiring-soon threshold are kept. */
+    private final AppPreferences preferences;
 
     /**
      * Creates the ViewModel over the app's one {@link PantryRepository}. Called by the default
@@ -45,19 +51,24 @@ public class PantryViewModel extends AndroidViewModel {
      * @param application the running app, whose {@link SpmApplication} holds the repository
      */
     public PantryViewModel(@NonNull Application application) {
-        this(application, SpmApplication.from(application).getPantryRepository());
+        this(application, SpmApplication.from(application).getPantryRepository(), AppPreferences.from(application));
     }
 
     /**
-     * Creates the ViewModel over {@code repository}; a test passes one built on an in-memory database.
+     * Creates the ViewModel over {@code repository} and {@code preferences}; a test passes a repository
+     * built on an in-memory database and preferences of its own.
      *
      * @param application the running app
      * @param repository  where the pantry is read from and deleted from
+     * @param preferences where the order is read from and remembered
      */
     @VisibleForTesting
-    PantryViewModel(@NonNull Application application, @NonNull PantryRepository repository) {
+    PantryViewModel(@NonNull Application application, @NonNull PantryRepository repository,
+                    @NonNull AppPreferences preferences) {
         super(application);
         this.repository = repository;
+        this.preferences = preferences;
+        sortOrder = new MutableLiveData<>(preferences.getPantrySort());
         LiveData<List<PantryItem>> pantry = repository.observeAll();
         // switchMap: a new order swaps in a new mapping of the same Room query, so changing the order
         // never starts a second query. map: each emission of the table is sorted by the current order.
@@ -79,16 +90,37 @@ public class PantryViewModel extends AndroidViewModel {
     }
 
     /**
-     * Shows the list in {@code order}. The sort menu of Issue 17 calls this; setting the order the
-     * list already has does nothing.
+     * Returns the order the list is in, for the sort menu to check the matching item.
      *
-     * @param order the order to show
+     * @return the observed order; it always has a value
+     */
+    @NonNull
+    public LiveData<SortOrder> getSortOrder() {
+        return sortOrder;
+    }
+
+    /**
+     * Shows the list in {@code order} and remembers it for the next time the app opens. Choosing the
+     * order the list already has does nothing.
+     *
+     * @param order the order the user picked in the sort menu
      */
     @MainThread
     public void setSortOrder(@NonNull SortOrder order) {
         if (order != sortOrder.getValue()) {
+            preferences.setPantrySort(order);
             sortOrder.setValue(order);
         }
+    }
+
+    /**
+     * Returns how many days ahead an item's badge reads as expiring soon, for the adapter to pass to
+     * {@code ExpiryRules} when it binds a row.
+     *
+     * @return the stored threshold, or the default of 3 days
+     */
+    public int getExpiryThresholdDays() {
+        return preferences.getExpiryThresholdDays();
     }
 
     /**
