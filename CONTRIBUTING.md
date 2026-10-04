@@ -100,7 +100,7 @@ script, so a stage that passes on a laptop passes on GitHub.
 | unit tests | `./gradlew testDebugUnitTest` | a JVM test fails, such as `LayoutStyleConventionsTest` on a raw hex colour or `DaoBoundaryTest` on a DAO reached from outside `data/` |
 | debug build | `./gradlew assembleDebug` | the app does not compile or package |
 | schema | `git status --porcelain -- app/schemas/` | the build changed the committed Room schema: an entity changed and the `@Database` version did not. Bump it, add the migration and commit the new `<N>.json` |
-| device tests | `./gradlew connectedDebugAndroidTest` | an instrumented test fails, or no device is attached (`--with-device` only) |
+| device tests | `./gradlew connectedDebugAndroidTest` | an instrumented test fails, no device is attached, or a target device ran no tests even though Gradle passed (`--with-device` only; see *Device tests*) |
 
 The guards are the brief's hard restrictions (§2.3, §3.1, §3.3), checked by a machine so they cannot
 be broken by accident. Each failure names the file and line:
@@ -123,15 +123,43 @@ repositories on an in-memory database, the seed, `PersistenceAcrossRestartTest` 
 file, and the screens with Espresso. CI has no emulator, so these run on a laptop:
 
 ```bash
-./scripts/ci-local.sh --with-device                                  # every attached device
-ANDROID_SERIAL=emulator-5560 ./scripts/ci-local.sh --with-device     # one device: the API 26 emulator
+./scripts/ci-local.sh --with-device                                                # every attached device
+ANDROID_SERIAL=emulator-5560 ./scripts/ci-local.sh --with-device                   # one device: the API 26 emulator
+ANDROID_SERIAL=emulator-5556,emulator-5560 ./scripts/ci-local.sh --with-device     # the two spm AVDs and nothing else
 ```
+
+Gradle's exit status is not enough on its own. When the APK will not install on one device, Gradle
+logs `AndroidTestRunner failed on emulator-5560`, skips that device, and still prints BUILD
+SUCCESSFUL with `test-result-exit-code.txt` at 0. That happened on the Issue 13 branch: `com.btk.spm`
+had been installed by hand with `adb install -r` on the API 26 emulator, the install failed with
+`INSTALL_FAILED_ALREADY_EXISTS`, and the gate passed on 75 tests from API 35 alone instead of 150. So
+the device stage now:
+
+1. takes its targets from `adb devices`, or from `ANDROID_SERIAL` (one serial or a comma-separated
+   list, which Gradle also accepts), and fails if a listed serial is not attached;
+2. uninstalls `com.btk.spm` and `com.btk.spm.test` from every target first, so an APK installed by
+   hand cannot block the run. This wipes the app's data on those devices, so set `ANDROID_SERIAL` when
+   an emulator you use for anything else is attached;
+3. deletes the old results under `app/build/outputs/androidTest-results/connected/debug/`, runs
+   Gradle, and then fails if the output says `AndroidTestRunner failed on <serial>` or if a target has
+   no JUnit XML (matched by its `device` property, the adb serial) with at least one test in it.
+
+It prints one line per device, and the summary repeats them under the stage:
+
+```text
+    FAIL device tests   24s
+         OK   emulator-5556 spm_api35(AVD) - 15: 68 tests, 0 failures, 0 errors
+         FAIL emulator-5560 spm_api26: no test results (AndroidTestRunner failed on emulator-5560)
+```
+
+A `FAIL` line with Gradle green means the reason is in the Gradle output above it, usually an
+`adb: failed to install` line.
 
 API 26 is the floor (`minSdk 26`, decision 4), so a change runs on the API 26 emulator as well as API
 35; the AVDs and the commands that boot them are in *Emulator settings for tests and screenshots*
 below. A pull request that touches `data/`, `ui/`, `notifications/` or `androidTest/` pastes the
-device run in its *Testing* section: the gate summary, the device names and the test count per
-device. A run that is not pasted did not happen.
+device run in its *Testing* section: the gate summary, whose per-device lines give the device names
+and the test count of each. A run that is not pasted did not happen.
 
 ## CI and the protection on `main`
 

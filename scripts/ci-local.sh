@@ -11,9 +11,16 @@
 #   5. schema       git status --porcelain -- app/schemas/ (the build left the committed Room schema as it was)
 #   6. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
 #
+# Stage 6 does not trust Gradle's exit status alone. Gradle can print BUILD SUCCESSFUL when the APK
+# would not install on one of the devices, which then runs no test at all. So the stage uninstalls
+# the app and its test APK from every target device first, and afterwards fails when the Gradle
+# output says "AndroidTestRunner failed on <serial>" or when a target device has no JUnit XML with at
+# least one test in it. It prints one line per device, which the summary repeats.
+#
 # Usage:
 #   ./scripts/ci-local.sh                  stages 1-5
-#   ./scripts/ci-local.sh --with-device    stages 1-6; set ANDROID_SERIAL to pick one device
+#   ./scripts/ci-local.sh --with-device    stages 1-6 on every attached device; ANDROID_SERIAL picks
+#                                          one device, or several separated by commas
 #
 # Exit status: 0 when every stage passed, the failing stage's status otherwise, 2 on bad usage or a
 # missing Android SDK.
@@ -48,6 +55,7 @@ gradle=(./gradlew --console=plain)
 total=$((with_device ? 6 : 5))
 stage_no=0
 results=()
+stage_notes=()
 gate_start=$SECONDS
 
 print_summary() {
@@ -66,18 +74,24 @@ print_summary() {
 }
 
 # stage <name> <command...>: runs one stage, records "OK|FAIL name (time)", stops the gate on failure.
+# A stage can add lines to stage_notes; the summary prints them under the stage's own line.
 stage() {
     local name="$1"
     shift
     stage_no=$((stage_no + 1))
+    stage_notes=()
     printf '\n==> [%d/%d] %s: %s\n' "$stage_no" "$total" "$name" "$*"
     local start=$SECONDS
     "$@"
     local status=$?
-    local line
+    local line note
     line="$(printf '%-4s %-12s %4ds' "$([[ $status -eq 0 ]] && echo OK || echo FAIL)" "$name" "$((SECONDS - start))")"
     results+=("$line")
     printf '==> %s\n' "$line"
+    # Bash 3.2 (macOS) treats an empty "${array[@]}" as unbound under set -u, hence the + form.
+    for note in ${stage_notes[@]+"${stage_notes[@]}"}; do
+        results+=("     $note")
+    done
     if [[ $status -ne 0 ]]; then
         print_summary "FAILED at $name"
         exit "$status"
@@ -101,22 +115,118 @@ schema_unchanged() {
     printf 'app/schemas/ matches the commit\n'
 }
 
-# The device stage needs at least one device in the "device" state (ANDROID_SERIAL's, if set).
+adb="adb"
+[[ -n "${ANDROID_HOME:-}" && -x "$ANDROID_HOME/platform-tools/adb" ]] && adb="$ANDROID_HOME/platform-tools/adb"
+device_results="app/build/outputs/androidTest-results/connected/debug"
+
+# device_label <serial>: "spm_api26" for an emulator (its AVD name), the model for a phone.
+device_label() {
+    local label
+    if [[ "$1" == emulator-* ]]; then
+        label="$("$adb" -s "$1" emu avd name 2>/dev/null | head -1)"
+    else
+        label="$("$adb" -s "$1" shell getprop ro.product.model 2>/dev/null)"
+    fi
+    label="$(printf '%s' "$label" | tr -d '\r')"
+    printf '%s' "${label:-unknown}"
+}
+
+# The device stage needs at least one device in the "device" state: every attached one, or the ones
+# ANDROID_SERIAL names (Gradle reads the same variable and accepts a comma-separated list).
 device_tests() {
-    local adb="adb"
-    [[ -n "${ANDROID_HOME:-}" && -x "$ANDROID_HOME/platform-tools/adb" ]] && adb="$ANDROID_HOME/platform-tools/adb"
-    local devices
-    devices="$("$adb" devices 2>/dev/null | awk 'NR > 1 && $2 == "device" { print $1 }')"
+    local attached devices serial
+    attached="$("$adb" devices 2>/dev/null | awk 'NR > 1 && $2 == "device" { print $1 }')"
+    devices="$attached"
     if [[ -n "${ANDROID_SERIAL:-}" ]]; then
-        devices="$(printf '%s\n' "$devices" | grep -Fx "$ANDROID_SERIAL")"
+        devices="$(printf '%s\n' "$ANDROID_SERIAL" | tr ',' '\n' | sed '/^$/d')"
+        for serial in $devices; do
+            if ! printf '%s\n' "$attached" | grep -Fxq "$serial"; then
+                printf 'ci-local: %s (from ANDROID_SERIAL) is not an attached device; adb devices lists: %s\n' \
+                    "$serial" "$(printf '%s' "$attached" | tr '\n' ' ')" >&2
+                return 1
+            fi
+        done
     fi
     if [[ -z "$devices" ]]; then
-        printf 'ci-local: no device for the instrumented tests%s; boot an emulator first.\n' \
-            "${ANDROID_SERIAL:+ (ANDROID_SERIAL=$ANDROID_SERIAL)}" >&2
+        printf 'ci-local: no device for the instrumented tests; boot an emulator first.\n' >&2
         return 1
     fi
     printf 'devices: %s\n' "$(printf '%s' "$devices" | tr '\n' ' ')"
-    "${gradle[@]}" connectedDebugAndroidTest
+
+    # An APK installed by hand (adb install -r) can make Gradle's install fail with
+    # INSTALL_FAILED_ALREADY_EXISTS. Gradle then skips that device and still exits 0, so both
+    # packages go first. This also wipes the app's data on the device.
+    local app_id pkg
+    app_id="$(sed -n 's/^ *applicationId "\(.*\)"/\1/p' app/build.gradle)"
+    if [[ -z "$app_id" ]]; then
+        printf 'ci-local: no applicationId in app/build.gradle\n' >&2
+        return 1
+    fi
+    for serial in $devices; do
+        for pkg in "$app_id" "$app_id.test"; do
+            if "$adb" -s "$serial" shell pm list packages "$pkg" 2>/dev/null | tr -d '\r' | grep -Fxq "package:$pkg"; then
+                printf 'uninstall %s from %s: %s\n' "$pkg" "$serial" \
+                    "$("$adb" -s "$serial" uninstall "$pkg" 2>&1 | tr -d '\r' | tail -1)"
+            fi
+        done
+    done
+
+    # A result left by an earlier run must not count for this one.
+    rm -rf "$device_results"
+    local log gradle_status
+    log="$(mktemp "${TMPDIR:-/tmp}/ci-local-device.XXXXXX")" || return 2
+    "${gradle[@]}" connectedDebugAndroidTest 2>&1 | tee "$log"
+    gradle_status=${PIPESTATUS[0]}
+
+    # Every target device must have a JUnit XML that names its serial and holds at least one test.
+    printf '\n==> tests per device (%s)\n' "$device_results"
+    local failed=0 runner_failed xml counts tests failures errors line
+    runner_failed="$(grep -o 'AndroidTestRunner failed on [^ ]*' "$log" | sed 's/.* on //; s/[^[:alnum:]]*$//' | sort -u)"
+    rm -f "$log"
+    for serial in $devices; do
+        xml="$(grep -lF "<property name=\"device\" value=\"$serial\" />" "$device_results"/TEST-*.xml 2>/dev/null | head -1)"
+        if [[ -n "$xml" ]]; then
+            counts="$(sed -n 's/.*<testsuites tests="\([0-9]*\)" failures="\([0-9]*\)" errors="\([0-9]*\)".*/\1 \2 \3/p' "$xml" | head -1)"
+            read -r tests failures errors <<< "${counts:-0 0 0}"
+            line="$(printf '%s %s: %d tests, %d failures, %d errors' "$serial" \
+                "$(basename "$xml" .xml | sed 's/^TEST-//')" "$tests" "$failures" "$errors")"
+            if [[ $tests -eq 0 ]]; then
+                line="FAIL $line"
+                failed=1
+            elif [[ $failures -ne 0 || $errors -ne 0 ]]; then
+                line="FAIL $line"
+            else
+                line="OK   $line"
+            fi
+        else
+            line="$(printf 'FAIL %s %s: no test results' "$serial" "$(device_label "$serial")")"
+            failed=1
+        fi
+        if printf '%s\n' "$runner_failed" | grep -Fxq "$serial"; then
+            [[ "$line" == FAIL* ]] || line="FAIL ${line#OK   }"
+            line="$line (AndroidTestRunner failed on $serial)"
+            failed=1
+        fi
+        printf '    %s\n' "$line"
+        stage_notes+=("$line")
+    done
+    # A serial the runner failed on that is not a target (it should not happen) still fails the stage.
+    for serial in $runner_failed; do
+        if ! printf '%s\n' "$devices" | grep -Fxq "$serial"; then
+            line="FAIL $serial: AndroidTestRunner failed on $serial"
+            printf '    %s\n' "$line"
+            stage_notes+=("$line")
+            failed=1
+        fi
+    done
+
+    if [[ $gradle_status -ne 0 ]]; then
+        return "$gradle_status"
+    fi
+    if [[ $failed -ne 0 ]]; then
+        printf 'ci-local: Gradle passed, but a device above ran no tests. Its install or runner error is in the Gradle output.\n' >&2
+        return 1
+    fi
 }
 
 stage guards ./scripts/check_guards.sh
