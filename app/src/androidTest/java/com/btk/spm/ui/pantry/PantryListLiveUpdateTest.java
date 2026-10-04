@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.Choreographer;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +22,7 @@ import com.btk.spm.SpmApplication;
 import com.btk.spm.data.db.PantryItemDao;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.settings.PrefKey;
 import com.btk.spm.ui.MainActivity;
@@ -53,7 +55,9 @@ import java.util.function.Supplier;
  * inserted and leaves any others alone.
  *
  * <p>The list is pinned to soonest expiry first for the run (Issue 17), and the stored order is put
- * back afterwards, so a choice made on the device by hand neither breaks the tests nor is lost.
+ * back afterwards, so a choice made on the device by hand neither breaks the tests nor is lost. The
+ * same goes for the threshold and the units, which one test changes the way the Settings tab does,
+ * with the list open (Issue 28).
  */
 @RunWith(AndroidJUnit4.class)
 public class PantryListLiveUpdateTest {
@@ -184,6 +188,59 @@ public class PantryListLiveUpdateTest {
         assertTrue("rebound: " + changes, changes.stream().anyMatch(change -> change.startsWith("changed 1 ")));
         assertBadge(cheddar, context.getResources().getQuantityString(R.plurals.expiry_badge_expires_in, 1, 1),
                 com.google.android.material.R.attr.colorTertiaryContainer);
+    }
+
+    @Test
+    public void theSettingsTab_reBadgesAndReUnitsTheOpenList() throws InterruptedException {
+        // What the Settings tab writes, put back afterwards so a choice made on the device is kept
+        int thresholdBefore = AppPreferences.from(context).getExpiryThresholdDays();
+        String unitsBefore = stored.getString(PrefKey.UNITS_SYSTEM.key(), null);
+        writeOnMain(stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), 3)
+                .putString(PrefKey.UNITS_SYSTEM.key(), UnitsSystem.METRIC.name()));
+        try {
+            long flour = insert("Plain flour", 1500, Unit.G, LocalDate.now().plusDays(5));
+            awaitItemCount(baseline + 1);
+            awaitFrames();
+            String fiveDays = context.getResources().getQuantityString(R.plurals.expiry_badge_expires_in, 5, 5);
+            assertBadge(flour, fiveDays, com.google.android.material.R.attr.colorSurfaceVariant);
+            assertQuantity(flour, "1.5", R.string.unit_kg);
+
+            // Threshold 7, the list still open: the same row now reads as expiring soon
+            int seen = events.count();
+            writeOnMain(stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), 7));
+            assertTrue("no rebind after the threshold changed", events.awaitAfter(seen, System.currentTimeMillis() + TIMEOUT_MS));
+            awaitFrames();
+            assertBadge(flour, fiveDays, com.google.android.material.R.attr.colorTertiaryContainer);
+
+            // Imperial: 1500 g reads 52.9 oz; the stored row is not touched
+            seen = events.count();
+            writeOnMain(stored.edit().putString(PrefKey.UNITS_SYSTEM.key(), UnitsSystem.IMPERIAL.name()));
+            assertTrue("no rebind after the units changed", events.awaitAfter(seen, System.currentTimeMillis() + TIMEOUT_MS));
+            awaitFrames();
+            assertQuantity(flour, "52.9", R.string.unit_oz);
+            assertEquals(1500, dao.getByIdSync(flour).getQuantity(), 0);
+            assertEquals(Unit.G, dao.getByIdSync(flour).getUnit());
+        } finally {
+            SharedPreferences.Editor restore = stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), thresholdBefore);
+            writeOnMain(unitsBefore == null ? restore.remove(PrefKey.UNITS_SYSTEM.key())
+                    : restore.putString(PrefKey.UNITS_SYSTEM.key(), unitsBefore));
+        }
+    }
+
+    /** Commits on the main thread, where SharedPreferences calls the app's change listeners. */
+    private static void writeOnMain(SharedPreferences.Editor edit) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(edit::commit);
+    }
+
+    /** Checks the amount on the row showing {@code id}, as the user reads it: {@code 52.9 oz}. */
+    private void assertQuantity(long id, String amount, int unitRes) {
+        String expected = context.getString(R.string.quantity_with_unit, amount, context.getString(unitRes));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            RecyclerView.ViewHolder row = list.findViewHolderForAdapterPosition(positionOf(id));
+            assertTrue("no row on screen for id " + id, row != null);
+            TextView quantity = row.itemView.findViewById(R.id.quantity);
+            assertEquals(expected, String.valueOf(quantity.getText()));
+        });
     }
 
     private long insert(String name, double quantity, Unit unit) {
