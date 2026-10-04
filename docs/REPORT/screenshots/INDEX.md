@@ -18,3 +18,7 @@ the final set after the UI pass, so earlier rows are working copies.
 | 07 | 07_tab_recipes_dark.png | The Recipes tab in the dark theme | #3 |
 | 08 | 08_tab_settings.png | The Settings tab, the third top-level screen | #3 |
 | 08 | 08_tab_settings_dark.png | The Settings tab in the dark theme | #3 |
+| 09 | 09_pantry_list.png | The Pantry tab on API 35 with ten items read live from Room through `PantryViewModel` and shown by `PantryAdapter`: sorted by name ignoring case, each amount formatted by `QuantityFormatter` with its unit symbol (`2 kg`, `1.5 kg`, `6 pcs`, `1 l`, never `2.0 KG`), a 48 dp overflow button on every row and the add FAB | #13 |
+| 09 | 09_pantry_list_dark.png | The same list in the dark theme | #13 |
+| 10 | 10_pantry_empty.png | The Pantry tab on a fresh install: the shared `view_empty_state` (the empty-jar illustration, "Your pantry is empty" and an "Add ingredient" button) in place of the hidden list | #13 |
+| 10 | 10_pantry_empty_dark.png | The empty state in the dark theme: the illustration's colours are theme roles, so it re-colours with the screen | #13 |

@@ -180,12 +180,12 @@ issues and its order of work.
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩⬜⬜⬜⬜ **20%** (1/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **32%** (12/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **34%** (13/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -225,9 +225,10 @@ Android SDK*.
 
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
 Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or dark with the
-system setting; each tab still shows a placeholder (Issues 1 to 3). The pantry list, the seeded
-recipes and the matcher arrive with the milestones below. Once they have, add a few ingredients on
-the Pantry tab and open the Recipes tab.
+system setting. The Pantry tab lists what is in the database, live, and says so when it is empty
+(Issue 13); its add button opens the add ingredient screen, whose form arrives with Issue 14. Recipes
+and Settings still show a placeholder. Once the form and the matcher are in, add a few ingredients
+on the Pantry tab and open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
 
@@ -254,7 +255,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut). The brief has been broken into seven milestones and
+**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 1 of its 5 issues closed. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -301,12 +302,17 @@ start rather than relying on a once-only database callback. Issue 12, in pull re
 [#51](https://github.com/Billykat7/spm/pull/51), closes the milestone with the proof the rubric asks
 for: a test writes to a real database file, closes it, opens a new instance on the same file and
 reads everything back; the committed schema is itself under test, and the gate fails when a build
-changes it without a version bump. It also writes the `v0.2.0` release note.
+changes it without a version bump. It also writes the `v0.2.0` release note. Issue 13, in pull request
+[#52](https://github.com/Billykat7/spm/pull/52), opens Milestone 3 with the first screen that reads
+the database: the Pantry tab is a `RecyclerView` whose `PantryAdapter` (a `ListAdapter` with a
+`DiffUtil` callback) shows the `LiveData` list `PantryViewModel` derives from the repository, so a row
+written anywhere appears with no refresh and an edit redraws only its own row. Amounts read `4 pcs`
+and `1.5 kg`, an empty pantry shows an empty state with an "Add ingredient" button, and that button
+and the FAB open the add ingredient screen by an explicit `Intent`.
 
-**What is next.** Tagging `v0.2.0` once this pull request merges, then M3 in week 3: the pantry
-list, the add and edit form with its validation, delete with undo, and expiry badges, the first
-screens that read the database. The pantry screens follow, and in week 4 the matching engine, which is the
-critical path.
+**What is next.** Tagging `v0.2.0`, then the rest of M3 in week 3: the add and edit form with its
+validation (Issues 14 and 15), delete with undo (Issue 16) and expiry badges with the sort menu
+(Issue 17). In week 4 the matching engine, which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1), with

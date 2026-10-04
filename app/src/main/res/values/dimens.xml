@@ -13,6 +13,15 @@
     <!-- The decorative icon above a placeholder or empty state -->
     <dimen name="placeholder_icon_size">64dp</dimen>
 
+    <!-- The illustration at the top of an empty state (view_empty_state.xml) -->
+    <dimen name="empty_state_illustration_size">160dp</dimen>
+
+    <!-- A list row with a title and a supporting line, as Material 3's two-line list item -->
+    <dimen name="list_item_two_line_min_height">72dp</dimen>
+
+    <!-- Space under the last row of a list with a FAB: the FAB's 56 dp and its 16 dp margins -->
+    <dimen name="list_bottom_space_for_fab">88dp</dimen>
+
     <!-- The smallest tappable area, from the Android accessibility guidelines -->
     <dimen name="touch_target_min">48dp</dimen>
 

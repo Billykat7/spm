@@ -244,6 +244,28 @@ adb exec-out screencap -p > docs/REPORT/screenshots/NN_<slug>.png
 adb shell am broadcast -a com.android.systemui.demo -e command exit
 ```
 
+## Showing a list update live
+
+The lists observe Room through `LiveData`, so a write the app makes shows up with no refresh. To show
+it in the video, write to `pantry_items` with Android Studio's **Database Inspector** (*View > Tool
+Windows > App Inspection*, the running `com.btk.spm` process, `spm.db`) while the Pantry tab is open,
+and watch which rows the adapter redraws:
+
+```bash
+adb logcat -s ListChange     # debug builds: "Pantry: inserted 1 row at 3", "Pantry: changed 1 row at 2"
+```
+
+```sql
+INSERT INTO pantry_items (name, quantity, unit, expiry_date, created_at) VALUES ('Tomatoes', 4, 'PCS', NULL, 0);
+UPDATE pantry_items SET quantity = 6 WHERE name = 'Tomatoes';
+```
+
+Use the Inspector, not `adb shell run-as com.btk.spm sqlite3 databases/spm.db`: Room learns of a
+change from triggers on its own connection, and the Inspector tells the app's Room to check again,
+while a write from another process reaches the file and nothing else. The list then only shows it
+after the app restarts. `PantryListLiveUpdateTest` makes the same point on a device, writing through
+the app's own database while the list is open.
+
 ## Before pushing a branch
 
 ```bash

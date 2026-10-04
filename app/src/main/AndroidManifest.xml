@@ -23,6 +23,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Opened only by AddEditIngredientActivity.intentForAdd, an explicit Intent, so not exported -->
+        <activity
+            android:name=".ui.pantry.AddEditIngredientActivity"
+            android:exported="false"
+            android:label="@string/title_add_ingredient"
+            android:parentActivityName=".ui.MainActivity" />
     </application>
 
 </manifest>

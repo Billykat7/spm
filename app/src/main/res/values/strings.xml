@@ -13,13 +13,22 @@
     <string name="tab_recipes">Recipes</string>
     <string name="tab_settings">Settings</string>
 
-    <!-- Tab placeholders, until Issues 13, 23 and 28 fill each tab -->
-    <string name="placeholder_pantry_title">Your pantry</string>
-    <string name="placeholder_pantry_body">The ingredients you add will be listed here, with their quantities and expiry dates.</string>
+    <!-- Tab placeholders, until Issues 23 and 28 fill each tab -->
     <string name="placeholder_recipes_title">Suggested recipes</string>
     <string name="placeholder_recipes_body">Recipes you can cook with what is in your pantry will appear here.</string>
     <string name="placeholder_settings_title">Your preferences</string>
     <string name="placeholder_settings_body">Expiring-soon alerts, units and matching options will be set here.</string>
+
+    <!-- The pantry list (Issue 13) -->
+    <string name="pantry_empty_title">Your pantry is empty</string>
+    <string name="action_add_ingredient">Add ingredient</string>
+    <string name="pantry_item_options">More options</string>
+    <string name="pantry_item_options_for">More options for %1$s</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- The add and edit ingredient screen (Issues 13 to 15) -->
+    <string name="title_add_ingredient">Add ingredient</string>
 
     <!--
         Unit symbols as shown on screen, after a number and a non-breaking space (250 g). One per
@@ -33,4 +42,7 @@
     <string name="unit_tbsp">tbsp</string>
     <string name="unit_cup">cup</string>
     <string name="unit_pcs">pcs</string>
+
+    <!-- An amount and its unit symbol, joined by a non-breaking space so they never wrap apart: 250 g -->
+    <string name="quantity_with_unit">%1$s\u00A0%2$s</string>
 </resources>

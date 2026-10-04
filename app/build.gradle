@@ -85,6 +85,7 @@ dependencies {
     implementation libs.activity
     implementation libs.fragment
     implementation libs.constraintlayout
+    implementation libs.recyclerview
 
     // Room over SQLite (decision 1). The app is Java, so the compiler runs through annotationProcessor:
     // never kapt or ksp, which would need the Kotlin plugin (decision 2)
