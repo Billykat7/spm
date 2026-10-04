@@ -103,6 +103,8 @@
             <!--
                 Expiry: read-only; a tap opens the date picker, the end icon clears the date. Its text
                 comes from the ViewModel's date, formatted for the locale, so it is not saved either.
+                No error icon: TextInputLayout shows it in place of the end icon, which would hide the
+                clear button exactly when a past date needs clearing.
             -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/expiry_layout"
@@ -114,6 +116,7 @@
                 app:endIconContentDescription="@string/cd_clear_expiry"
                 app:endIconDrawable="@drawable/ic_clear"
                 app:endIconMode="custom"
+                app:errorIconDrawable="@null"
                 app:helperText="@string/helper_expiry"
                 app:startIconContentDescription="@string/cd_choose_expiry"
                 app:startIconDrawable="@drawable/ic_calendar">
