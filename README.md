@@ -391,7 +391,8 @@ screen, the app's second Activity opened by an explicit Intent:
 else, and an unknown id says so and closes. Each ingredient shows a check or a cross from the
 matcher's own verdict, through one additive engine change, `MatchResult.checks()`, so no screen
 compares a quantity. A pantry change made while the screen is open turns a cross into a check.
-Issue 26 pins down the moment the video depends on. A JVM test pushes four, then five, then four of
+Issue 26, in pull request [#69](https://github.com/Billykat7/spm/pull/69), pins down the moment the
+video depends on. A JVM test pushes four, then five, then four of
 Tomato pasta's ingredients and watches it move from "almost there" into the suggestions and back, one
 state per push; a device test keeps the Recipes tab open while the fifth ingredient is inserted and
 deleted, and waits on the matcher through an `IdlingResource`. The "count expired items" setting is now
