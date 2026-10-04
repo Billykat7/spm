@@ -157,7 +157,8 @@ public class AddEditIngredientActivity extends AppCompatActivity {
 
     /**
      * Puts each error under its field and clears the fields that are now valid, then moves focus to
-     * the first field in error. The errors arrive in screen order, so the first is the top one.
+     * the first field in error, or scrolls to it when it cannot take focus. The errors arrive in
+     * screen order, so the first is the top one.
      */
     private void showErrors(@NonNull List<FieldError> errors) {
         for (TextInputLayout layout : fieldLayouts.values()) {
@@ -170,8 +171,13 @@ public class AddEditIngredientActivity extends AppCompatActivity {
             }
         }
         TextInputLayout first = fieldLayouts.get(errors.get(0).field());
-        if (first != null && first.getEditText() != null) {
-            first.getEditText().requestFocus();
+        if (first == null) {
+            return;
+        }
+        // The expiry field is read-only and cannot take focus, so when it is the first field in
+        // error it is scrolled into view instead
+        if (first.getEditText() == null || !first.getEditText().requestFocus()) {
+            binding.formContainer.smoothScrollTo(0, first.getTop());
         }
     }
 
