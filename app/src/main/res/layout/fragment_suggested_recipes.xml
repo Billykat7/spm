@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     The Recipes tab (Issue 23): the recipes the pantry can make right now, the shared empty state shown
-    instead of them when there are none, and a progress indicator while the first match runs.
-    SuggestedRecipesFragment shows exactly one of the three, from the ViewModel's UiState. The empty
+    instead of them when there are none (included, never copied; Issue 24 gives it a message for each
+    EmptyReason and the "Add ingredients" button), and a progress indicator while the first match
+    runs. SuggestedRecipesFragment shows exactly one of the three, as RecipesRender decides. The empty
     state and the indicator start hidden, so the first frame flashes neither; the indicator waits
     before it appears (showDelay), so a match that finishes quickly shows no spinner at all.
 -->
