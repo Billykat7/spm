@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.view.Choreographer;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -18,15 +21,21 @@ import com.btk.spm.SpmApplication;
 import com.btk.spm.data.db.PantryItemDao;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.settings.AppPreferences;
+import com.btk.spm.settings.PrefKey;
 import com.btk.spm.ui.MainActivity;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.color.MaterialColors;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -42,14 +51,21 @@ import java.util.function.Supplier;
  * {@link RecyclerView.AdapterDataObserver}, the same hook {@code ListChangeLog} logs in debug builds,
  * and every wait is for the next notification, never a fixed sleep. Each test deletes the rows it
  * inserted and leaves any others alone.
+ *
+ * <p>The list is pinned to soonest expiry first for the run (Issue 17), and the stored order is put
+ * back afterwards, so a choice made on the device by hand neither breaks the tests nor is lost.
  */
 @RunWith(AndroidJUnit4.class)
 public class PantryListLiveUpdateTest {
 
     private static final long TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 
+    private final Context context = ApplicationProvider.getApplicationContext();
     private final PantryItemDao dao = ApplicationProvider.<SpmApplication>getApplicationContext()
             .getDatabase().pantryItemDao();
+    /** The app's own preferences file, the one {@link AppPreferences#from} reads. */
+    private final SharedPreferences stored =
+            context.getSharedPreferences(context.getPackageName() + "_preferences", Context.MODE_PRIVATE);
     private final List<Long> inserted = new ArrayList<>();
 
     private ActivityScenario<MainActivity> scenario;
@@ -57,9 +73,12 @@ public class PantryListLiveUpdateTest {
     private View emptyState;
     private AdapterEvents events;
     private int baseline;
+    private String storedSort;
 
     @Before
     public void openThePantryTab() {
+        storedSort = stored.getString(PrefKey.PANTRY_SORT.key(), null);
+        AppPreferences.from(context).setPantrySort(SortOrder.EXPIRY_SOONEST);
         scenario = ActivityScenario.launch(MainActivity.class);
         events = new AdapterEvents();
         scenario.onActivity(activity -> {
@@ -78,6 +97,13 @@ public class PantryListLiveUpdateTest {
             dao.deleteById(id);
         }
         scenario.close();
+        SharedPreferences.Editor restore = stored.edit();
+        if (storedSort == null) {
+            restore.remove(PrefKey.PANTRY_SORT.key());
+        } else {
+            restore.putString(PrefKey.PANTRY_SORT.key(), storedSort);
+        }
+        restore.commit();
     }
 
     @Test
@@ -130,10 +156,67 @@ public class PantryListLiveUpdateTest {
         assertEquals(View.GONE, onMain(list::getVisibility).intValue());
     }
 
+    @Test
+    public void movingAnExpiryToTomorrow_movesTheRowUp_andRebindsItsBadge() throws InterruptedException {
+        LocalDate today = LocalDate.now();
+        long tomatoes = insert("Tomatoes", 4, Unit.PCS, today.plusDays(2));
+        long cheddar = insert("Cheddar", 200, Unit.G, today.plusDays(10));
+        awaitItemCount(baseline + 2);
+        awaitFrames();
+        assertTrue(onMain(() -> positionOf(cheddar) > positionOf(tomatoes)));
+        assertBadge(cheddar, context.getResources().getQuantityString(R.plurals.expiry_badge_expires_in, 10, 10),
+                com.google.android.material.R.attr.colorSurfaceVariant);
+        events.drain();
+
+        // What editing the date to tomorrow writes (the edit form is Issue 15): the same row, a new date
+        PantryItem before = dao.getByIdSync(cheddar);
+        int seen = events.count();
+        dao.update(new PantryItem(cheddar, before.getName(), before.getQuantity(), before.getUnit(),
+                today.plusDays(1), before.getCreatedAt()));
+        assertTrue("the adapter announced no change",
+                events.awaitAfter(seen, System.currentTimeMillis() + TIMEOUT_MS));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        awaitFrames();
+
+        assertTrue("Cheddar moved above Tomatoes", onMain(() -> positionOf(cheddar) < positionOf(tomatoes)));
+        List<String> changes = events.drain();
+        assertTrue("moved: " + changes, changes.stream().anyMatch(change -> change.startsWith("moved 1 ")));
+        assertTrue("rebound: " + changes, changes.stream().anyMatch(change -> change.startsWith("changed 1 ")));
+        assertBadge(cheddar, context.getResources().getQuantityString(R.plurals.expiry_badge_expires_in, 1, 1),
+                com.google.android.material.R.attr.colorTertiaryContainer);
+    }
+
     private long insert(String name, double quantity, Unit unit) {
-        long id = dao.insert(new PantryItem(name, quantity, unit, null, System.currentTimeMillis()));
+        return insert(name, quantity, unit, null);
+    }
+
+    private long insert(String name, double quantity, Unit unit, LocalDate expiry) {
+        long id = dao.insert(new PantryItem(name, quantity, unit, expiry, System.currentTimeMillis()));
         inserted.add(id);
         return id;
+    }
+
+    /** Checks the badge on the row showing {@code id}: its words and its fill's theme colour. */
+    private void assertBadge(long id, String text, int backgroundAttr) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            RecyclerView.ViewHolder row = list.findViewHolderForAdapterPosition(positionOf(id));
+            assertTrue("no row on screen for id " + id, row != null);
+            Chip badge = row.itemView.findViewById(R.id.expiry_badge);
+            assertEquals(View.VISIBLE, badge.getVisibility());
+            assertEquals(text, String.valueOf(badge.getText()));
+            assertEquals(MaterialColors.getColor(badge, backgroundAttr), badge.getChipBackgroundColor().getDefaultColor());
+        });
+    }
+
+    /** Waits for two frames, so a layout the last change requested has been drawn. */
+    private static void awaitFrames() throws InterruptedException {
+        CountDownLatch frames = new CountDownLatch(2);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                Choreographer.getInstance().postFrameCallback(first -> {
+                    frames.countDown();
+                    Choreographer.getInstance().postFrameCallback(second -> frames.countDown());
+                }));
+        assertTrue("no frame was drawn", frames.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     /** Waits, one adapter notification at a time, until the list shows {@code expected} rows. */

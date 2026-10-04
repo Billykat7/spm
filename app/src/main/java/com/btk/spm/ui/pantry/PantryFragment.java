@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,6 +15,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,6 +50,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link PantryViewModel#delete} removes the row from the database and the list follows. A Snackbar
  * offers to undo it, and undo inserts the very object that was deleted, so the row comes back with
  * its original id.
+ *
+ * <p>While the tab is on screen it adds a sort action to the host's toolbar: soonest expiry first,
+ * the default, or by name. The choice goes to {@link PantryViewModel#setSortOrder}, which re-sorts the
+ * list and remembers it; the menu checks whichever order is in use.
  *
  * <p>Its lifecycle callbacks are logged in debug builds ({@link LifecycleLoggingFragment}), and so
  * is every change the adapter makes to the list ({@link ListChangeLog}).
@@ -87,7 +97,8 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         super.onViewCreated(view, savedInstanceState);
         FragmentPantryBinding views = requireBinding();
 
-        PantryAdapter adapter = new PantryAdapter(this);
+        viewModel = new ViewModelProvider(this).get(PantryViewModel.class);
+        PantryAdapter adapter = new PantryAdapter(this, viewModel.getExpiryThresholdDays());
         // Hold the saved scroll position until the first list arrives, so a rotation lands on the
         // same rows instead of the top of an adapter that is still empty
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
@@ -104,7 +115,8 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         views.emptyState.emptyStateAction.setOnClickListener(v -> openAddIngredient());
         views.addIngredient.setOnClickListener(v -> openAddIngredient());
 
-        viewModel = new ViewModelProvider(this).get(PantryViewModel.class);
+        addSortMenu();
+
         // The view's lifecycle, not the Fragment's: the observer goes when the view does, so a list
         // can never be delivered to a destroyed RecyclerView
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
@@ -154,6 +166,41 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
                 })
                 .setOnDismissListener(dialog -> deleteConfirmation = null)
                 .show();
+    }
+
+    /**
+     * Adds the sort action to the host's toolbar for as long as this view is resumed, so it leaves
+     * with the tab, and keeps the checked item in step with the order in use.
+     */
+    private void addSortMenu() {
+        MenuHost host = requireActivity();
+        host.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+                inflater.inflate(R.menu.pantry_sort, menu);
+            }
+
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                SortOrder current = viewModel.getSortOrder().getValue();
+                MenuItem checked = current == null ? null : menu.findItem(current.menuItemId());
+                if (checked != null) {
+                    checked.setChecked(true);
+                }
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                SortOrder chosen = SortOrder.fromMenuItemId(item.getItemId());
+                if (chosen == null) {
+                    return false; // the "Sort by" action itself: it only opens the choices
+                }
+                viewModel.setSortOrder(chosen);
+                return true;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        // Re-check the right item whenever the order changes
+        viewModel.getSortOrder().observe(getViewLifecycleOwner(), order -> host.invalidateMenu());
     }
 
     /** Shows the list when the pantry has items and the empty state when it has none, never both. */

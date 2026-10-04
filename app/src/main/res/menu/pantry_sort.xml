@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Pantry tab's sort action, added to the toolbar by PantryFragment's MenuProvider while the tab
+    is shown. The icon opens "Sort by" with the two orders as a single-choice group; the checked one is
+    the order in use. Each item's id is the menuItemId of its constant in ui/pantry/SortOrder.java.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:title="@string/sort_by"
+        app:contentDescription="@string/cd_sort_pantry"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group
+                android:id="@+id/sort_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/sort_expiry"
+                    android:title="@string/sort_expiry_soonest" />
+                <item
+                    android:id="@+id/sort_name"
+                    android:title="@string/sort_name" />
+            </group>
+        </menu>
+    </item>
+</menu>

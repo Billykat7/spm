@@ -23,8 +23,10 @@ public class PrefKeyTest {
     }
 
     @Test
-    public void hasTheFourKeysTheSettingsScreenNeeds() {
-        assertEquals(4, PrefKey.values().length);
+    public void hasTheFourSettingsKeysAndThePantrySort() {
+        assertEquals(5, PrefKey.values().length);
         assertEquals("count_expired_items", PrefKey.COUNT_EXPIRED_ITEMS.key());
+        // Stored on users' devices from Issue 17 on: changing it would lose their chosen order
+        assertEquals("pantry_sort", PrefKey.PANTRY_SORT.key());
     }
 }

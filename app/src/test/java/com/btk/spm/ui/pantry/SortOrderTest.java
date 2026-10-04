@@ -1,8 +1,11 @@
 package com.btk.spm.ui.pantry;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
+import com.btk.spm.R;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.domain.Unit;
 
@@ -74,6 +77,16 @@ public class SortOrderTest {
         for (SortOrder order : SortOrder.values()) {
             assertEquals(order.name(), 0, order.sort(new ArrayList<>()).size());
         }
+    }
+
+    @Test
+    public void everyOrder_isPickedByItsOwnMenuItem_andAnotherItemPicksNone() {
+        for (SortOrder order : SortOrder.values()) {
+            assertEquals(order, SortOrder.fromMenuItemId(order.menuItemId()));
+        }
+        assertNotEquals(SortOrder.EXPIRY_SOONEST.menuItemId(), SortOrder.NAME.menuItemId());
+        // The "Sort by" action only opens the choices; it is not one of them
+        assertNull(SortOrder.fromMenuItemId(R.id.action_sort));
     }
 
     private static PantryItem item(long id, String name, LocalDate expiry, long createdAt) {
