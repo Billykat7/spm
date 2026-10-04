@@ -6,9 +6,12 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import com.btk.spm.domain.DisplayQuantity;
+import com.btk.spm.domain.DisplayUnit;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
+import com.btk.spm.domain.UnitsSystem;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,6 +20,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +29,8 @@ import java.util.Map;
 
 /**
  * {@link UnitConverter} on the JVM (Issue 19): every unit to its canonical amount by decision 5's
- * factors, same-kind sums, and the explicit refusal to add a mass to a volume.
+ * factors, same-kind sums, the explicit refusal to add a mass to a volume, and the display helper
+ * for the units preference, which never changes a match.
  */
 @RunWith(Enclosed.class)
 public class UnitConverterTest {
@@ -148,6 +154,139 @@ public class UnitConverterTest {
             assertThrows(NullPointerException.class, () -> CONVERTER.sum(null));
             assertThrows(NullPointerException.class,
                     () -> CONVERTER.sumByKind(Arrays.asList(q(1, Unit.G), null)));
+        }
+    }
+
+    /** One row per display rule: {@code toPreferredDisplay(quantity, system)} as text. */
+    @RunWith(Parameterized.class)
+    public static class PreferredDisplay {
+
+        private static final UnitsSystem METRIC = UnitsSystem.METRIC;
+        private static final UnitsSystem IMPERIAL = UnitsSystem.IMPERIAL;
+
+        @Parameters(name = "{index}: {0} {1} in {2} shows {3}")
+        public static List<Object[]> rows() {
+            return Arrays.asList(new Object[][]{
+                {1500.0, Unit.G, METRIC, "1.5 kg"},
+                {999.0, Unit.G, METRIC, "999 g"},
+                {1000.0, Unit.G, METRIC, "1 kg"},
+                {0.25, Unit.KG, METRIC, "250 g"},
+                {750.0, Unit.ML, METRIC, "750 ml"},
+                {1.5, Unit.L, METRIC, "1.5 l"},
+                {3.0, Unit.CUP, METRIC, "3 cup"},
+                {2.0, Unit.TBSP, METRIC, "2 tbsp"},
+                {1.0, Unit.TSP, IMPERIAL, "1 tsp"},
+                {3.0, Unit.CUP, IMPERIAL, "3 cup"},
+                {1500.0, Unit.G, IMPERIAL, "52.9 oz"},
+                {1.0, Unit.KG, IMPERIAL, "35.3 oz"},
+                {28.349523125, Unit.G, IMPERIAL, "1 oz"},
+                {500.0, Unit.ML, IMPERIAL, "16.9 fl oz"},
+                {1.0, Unit.L, IMPERIAL, "33.8 fl oz"},
+                {6.0, Unit.PCS, METRIC, "6 pcs"},
+                {6.0, Unit.PCS, IMPERIAL, "6 pcs"},
+            });
+        }
+
+        @Parameter(0) public double amount;
+        @Parameter(1) public Unit unit;
+        @Parameter(2) public UnitsSystem system;
+        @Parameter(3) public String shown;
+
+        @Test
+        public void toPreferredDisplay() {
+            assertEquals(shown, CONVERTER.toPreferredDisplay(q(amount, unit), system).toString());
+        }
+
+        @Test
+        public void theCanonicalOverload_agreesExceptForSpoonsAndCups() {
+            DisplayQuantity fromCanonical =
+                    CONVERTER.toPreferredDisplay(CONVERTER.toCanonical(q(amount, unit)), system);
+            boolean keptAsWritten = unit == Unit.TSP || unit == Unit.TBSP || unit == Unit.CUP;
+
+            if (!keptAsWritten) {
+                assertEquals(shown, fromCanonical.toString());
+            } else {
+                // Without the recipe's own unit, a volume can only be shown in ml, l or fl oz
+                assertTrue(fromCanonical.toString(), fromCanonical.unit().kind() == UnitKind.VOLUME
+                        && fromCanonical.unit() != DisplayUnit.of(unit));
+            }
+        }
+    }
+
+    /**
+     * The units preference never changes a match. The comparison below is the one the matcher makes
+     * (Issue 20): the pantry rows summed by kind, then {@code isAtLeast} the requirement. Each case
+     * is decided once per preference, after every quantity has been displayed in it, and the
+     * decision must be the same and right every time.
+     */
+    public static class DisplayNeverChangesMatching {
+
+        /** pantry rows, required, can make. */
+        private static final Object[][] CASES = {
+            {List.of(q(1500, Unit.G)), q(1.5, Unit.KG), true},
+            {List.of(q(1, Unit.KG)), q(250, Unit.G), true},
+            {List.of(q(200, Unit.G)), q(250, Unit.G), false},
+            {List.of(q(200, Unit.G), q(0.05, Unit.KG)), q(250, Unit.G), true},
+            {List.of(q(1, Unit.L)), q(2, Unit.CUP), true},
+            {List.of(q(400, Unit.ML)), q(2, Unit.CUP), false},
+            {List.of(q(500, Unit.G)), q(2, Unit.CUP), false},
+            {List.of(q(0.1, Unit.G), q(0.2, Unit.G)), q(0.3, Unit.G), true},
+            {List.of(q(6, Unit.PCS)), q(6, Unit.PCS), true},
+        };
+
+        @Test
+        public void eachCase_isDecidedTheSameUnderBothPreferences() {
+            for (Object[] row : CASES) {
+                @SuppressWarnings("unchecked")
+                List<Quantity> pantry = (List<Quantity>) row[0];
+                Quantity required = (Quantity) row[1];
+                boolean canMake = (Boolean) row[2];
+                for (UnitsSystem system : UnitsSystem.values()) {
+                    assertEquals(pantry + " for " + required + " in " + system,
+                            canMake, decide(pantry, required, system));
+                }
+            }
+        }
+
+        @Test
+        public void matchingOnTheRoundedImperialFigure_wouldTurnEnoughIntoShort() {
+            // Why display never feeds matching: 1500 g shows as 52.9 oz, and 52.9 oz is 1499.7 g
+            DisplayQuantity shown = CONVERTER.toPreferredDisplay(q(1500, Unit.G), UnitsSystem.IMPERIAL);
+            double grams = shown.amount() * shown.unit().factorToCanonical();
+
+            assertTrue(grams < 1500);
+            assertTrue(CONVERTER.toCanonical(q(1500, Unit.G))
+                    .isAtLeast(CONVERTER.toCanonical(q(1.5, Unit.KG))));
+        }
+
+        @Test
+        public void nothingThatMatches_acceptsADisplayValueOrAPreference() {
+            List<String> offenders = new ArrayList<>();
+            for (Class<?> type : List.of(CanonicalQuantity.class, UnitConverter.class)) {
+                for (Method method : type.getMethods()) {
+                    if (method.getName().equals("toPreferredDisplay")) {
+                        continue;
+                    }
+                    for (Class<?> parameter : method.getParameterTypes()) {
+                        if (parameter == DisplayQuantity.class || parameter == DisplayUnit.class
+                                || parameter == UnitsSystem.class) {
+                            offenders.add(type.getSimpleName() + "." + method.getName());
+                        }
+                    }
+                }
+            }
+            assertTrue("Only toPreferredDisplay may take display types: " + offenders, offenders.isEmpty());
+        }
+
+        /** Shows every quantity in {@code system}, as a screen would, then decides from canonical amounts. */
+        private static boolean decide(List<Quantity> pantry, Quantity required, UnitsSystem system) {
+            for (Quantity row : pantry) {
+                CONVERTER.toPreferredDisplay(row, system);
+            }
+            CONVERTER.toPreferredDisplay(required, system);
+            CanonicalQuantity need = CONVERTER.toCanonical(required);
+            CanonicalQuantity have = CONVERTER.sumByKind(pantry).get(need.kind());
+            return have != null && have.isAtLeast(need);
         }
     }
 }
