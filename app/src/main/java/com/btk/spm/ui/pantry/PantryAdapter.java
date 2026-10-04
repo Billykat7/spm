@@ -16,11 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.btk.spm.R;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.databinding.ItemPantryBinding;
+import com.btk.spm.domain.DisplayQuantity;
 import com.btk.spm.domain.ExpiryRules;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.matching.UnitConverter;
 import com.btk.spm.util.ExpiryStatus;
 import com.btk.spm.util.QuantityFormatter;
+import com.btk.spm.util.SpokenQuantity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.color.MaterialColors;
 
@@ -169,16 +171,25 @@ public class PantryAdapter extends ListAdapter<PantryItem, PantryAdapter.ViewHol
         void bind(@NonNull PantryItem item, @NonNull LocalDate today, @NonNull PantryDisplay display) {
             Context context = binding.getRoot().getContext();
             binding.name.setText(item.getName());
-            binding.quantity.setText(QuantityFormatter.format(context, DISPLAY.toPreferredDisplay(
-                    new Quantity(item.getQuantity(), item.getUnit()), display.unitsSystem())));
+            DisplayQuantity amount = DISPLAY.toPreferredDisplay(
+                    new Quantity(item.getQuantity(), item.getUnit()), display.unitsSystem());
+            binding.quantity.setText(QuantityFormatter.format(context, amount));
             // Spoken by TalkBack, so it names the row it belongs to
             binding.overflow.setContentDescription(
                     context.getString(R.string.pantry_item_options_for, item.getName()));
 
             LocalDate expiry = item.getExpiryDate();
             ExpiryStatus status = ExpiryRules.statusOf(expiry, today, display.expiryThresholdDays());
-            showBadge(ExpiryBadgeFormatter.format(context.getResources(), status,
-                    expiry == null ? 0 : ExpiryRules.daysUntil(expiry, today)));
+            ExpiryBadgeFormatter.Badge badge = ExpiryBadgeFormatter.format(context.getResources(), status,
+                    expiry == null ? 0 : ExpiryRules.daysUntil(expiry, today));
+            showBadge(badge);
+
+            // One announcement for the whole row, in words: "tomato, 4 pieces, Expires in 3 days".
+            // The row is the focusable target, so TalkBack reads this instead of the three texts
+            String spoken = SpokenQuantity.of(context.getResources(), amount);
+            binding.getRoot().setContentDescription(badge == null
+                    ? context.getString(R.string.pantry_row_description_no_expiry, item.getName(), spoken)
+                    : context.getString(R.string.pantry_row_description, item.getName(), spoken, badge.text()));
         }
 
         /** Shows the badge in its theme colours, or hides it for an item with no date. */

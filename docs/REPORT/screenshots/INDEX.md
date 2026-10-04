@@ -58,3 +58,49 @@ the final set after the UI pass, so earlier rows are working copies.
 | 30 | 30_alerts_denied.png | After "Don't allow": the switch is back off, its summary says "Off: notifications are not allowed for this app.", the daily check is cancelled, and *Notification settings* opens the app's page in system settings | #29 |
 | 31 | 31_permission_rationale.png | Turning the alert on again after a refusal: the app's own explanation first, "Allow notifications?", with Continue (to the system prompt) and Not now | #29 |
 | 32 | 32_expiry_notification.png | "Send a test alert now" with tomato expiring tomorrow and milk in three days: one notification on the `expiry_alerts` channel, "2 items expiring soon", "tomato (tomorrow), milk (in 3 days)", worded by `ExpiryMessageBuilder`; tapping it opens the Pantry tab | #29 |
+| 33 | 33_ux_add_form_dark.png | The empty add form, dark theme | #30 |
+| 33 | 33_ux_add_form_errors_dark.png | Save on the empty form: three errors at once, dark theme | #30 |
+| 33 | 33_ux_add_form_errors_fontscale13.png | Save on the empty form: three errors at once, at font scale 1.3 | #30 |
+| 33 | 33_ux_add_form_errors_fontscale2.png | Save on the empty form: three errors at once, at font scale 2.0 | #30 |
+| 33 | 33_ux_add_form_errors_light.png | Save on the empty form: three errors at once | #30 |
+| 33 | 33_ux_add_form_fontscale2.png | The empty add form, at font scale 2.0 | #30 |
+| 33 | 33_ux_add_form_light.png | The empty add form | #30 |
+| 33 | 33_ux_add_form_rotated_land.png | The add form half filled (Basil, 2, pcs, Oct 10) after a rotation to landscape: every value kept, the form scrolls | #30 |
+| 33 | 33_ux_delete_dialog_dark.png | The delete confirmation, now a DialogFragment, dark theme | #30 |
+| 33 | 33_ux_delete_dialog_fontscale2.png | The delete confirmation, now a DialogFragment, at font scale 2.0 | #30 |
+| 33 | 33_ux_delete_dialog_light.png | The delete confirmation, now a DialogFragment | #30 |
+| 33 | 33_ux_delete_dialog_rotated_land.png | The delete confirmation still open after a rotation | #30 |
+| 33 | 33_ux_edit_form_dark.png | The edit form, prefilled, dark theme | #30 |
+| 33 | 33_ux_edit_form_fontscale2.png | The edit form, prefilled, at font scale 2.0 | #30 |
+| 33 | 33_ux_edit_form_light.png | The edit form, prefilled | #30 |
+| 33 | 33_ux_pantry_empty_dark.png | The empty pantry in the shared state layout: illustration, headline and the Add ingredient button, dark theme | #30 |
+| 33 | 33_ux_pantry_empty_fontscale2.png | The empty pantry in the shared state layout: illustration, headline and the Add ingredient button, at font scale 2.0 | #30 |
+| 33 | 33_ux_pantry_empty_land.png | The empty pantry in landscape | #30 |
+| 33 | 33_ux_pantry_empty_light.png | The empty pantry in the shared state layout: illustration, headline and the Add ingredient button | #30 |
+| 33 | 33_ux_pantry_list_dark.png | The Pantry tab with ten items: the badge under each amount since this pass, "Expired 1 day ago" on the error colours, dark theme | #30 |
+| 33 | 33_ux_pantry_list_fontscale13.png | The Pantry tab with ten items: the badge under each amount since this pass, "Expired 1 day ago" on the error colours, at font scale 1.3 | #30 |
+| 33 | 33_ux_pantry_list_fontscale2.png | The Pantry tab with ten items: the badge under each amount since this pass, "Expired 1 day ago" on the error colours, at font scale 2.0 | #30 |
+| 33 | 33_ux_pantry_list_land.png | The Pantry tab in landscape | #30 |
+| 33 | 33_ux_pantry_list_light.png | The Pantry tab with ten items: the badge under each amount since this pass, "Expired 1 day ago" on the error colours | #30 |
+| 33 | 33_ux_recipe_detail_dark.png | Tomato pasta in full, every mark from the matcher, dark theme | #30 |
+| 33 | 33_ux_recipe_detail_fontscale2.png | Tomato pasta in full, every mark from the matcher, at font scale 2.0 | #30 |
+| 33 | 33_ux_recipe_detail_land.png | The detail screen in landscape | #30 |
+| 33 | 33_ux_recipe_detail_light.png | Tomato pasta in full, every mark from the matcher | #30 |
+| 33 | 33_ux_recipes_dark.png | One suggestion and three almost-there cards, dark theme | #30 |
+| 33 | 33_ux_recipes_fontscale2.png | One suggestion and three almost-there cards, at font scale 2.0 | #30 |
+| 33 | 33_ux_recipes_light.png | One suggestion and three almost-there cards | #30 |
+| 33 | 33_ux_recipes_no_match_dark.png | The zero-match sentence over the almost-there section, dark theme | #30 |
+| 33 | 33_ux_recipes_no_match_fontscale2.png | The zero-match sentence over the almost-there section, at font scale 2.0 | #30 |
+| 33 | 33_ux_recipes_no_match_light.png | The zero-match sentence over the almost-there section | #30 |
+| 33 | 33_ux_recipes_scrolled_land.png | The Recipes tab in landscape, scrolled to the almost-there cards | #30 |
+| 33 | 33_ux_recipes_scrolled_land_recreated.png | The same tab after the Activity was re-created (theme change): still scrolled to Garlic bread | #30 |
+| 33 | 33_ux_settings_dark.png | The Settings tab, dark theme | #30 |
+| 33 | 33_ux_settings_fontscale2.png | The Settings tab, at font scale 2.0 | #30 |
+| 33 | 33_ux_settings_land.png | The Settings tab in landscape | #30 |
+| 33 | 33_ux_settings_light.png | The Settings tab | #30 |
+| 33 | 33_ux_settings_scroll_recreated.png | Settings scrolled, before (light) and after (dark) the Activity was re-created: the same position | #30 |
+| 33 | 33_ux_talkback_form.png | TalkBack on the edit form: "Navigate up. Button" | #30 |
+| 33 | 33_ux_talkback_pantry.png | TalkBack on, with its speech output captioned: "Sort the pantry. Button. Sort by" | #30 |
+| 33 | 33_ux_undo_snackbar_dark.png | "Deleted milk" with Undo, above the FAB, dark theme | #30 |
+| 33 | 33_ux_undo_snackbar_fontscale2.png | "Deleted milk" with Undo, above the FAB, at font scale 2.0 | #30 |
+| 33 | 33_ux_undo_snackbar_light.png | "Deleted milk" with Undo, above the FAB | #30 |

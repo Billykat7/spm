@@ -27,8 +27,8 @@
         tools:listitem="@layout/item_pantry" />
 
     <include
-        android:id="@+id/empty_state"
-        layout="@layout/view_empty_state"
+        android:id="@+id/state_message"
+        layout="@layout/view_state_message"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"

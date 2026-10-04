@@ -87,7 +87,7 @@ public class PantryListLiveUpdateTest {
         events = new AdapterEvents();
         scenario.onActivity(activity -> {
             list = activity.findViewById(R.id.pantry_list);
-            emptyState = activity.findViewById(R.id.empty_state);
+            emptyState = activity.findViewById(R.id.state_message);
             list.getAdapter().registerAdapterDataObserver(events);
         });
         baseline = dao.getAllSync().size();
@@ -225,6 +225,29 @@ public class PantryListLiveUpdateTest {
             writeOnMain(unitsBefore == null ? restore.remove(PrefKey.UNITS_SYSTEM.key())
                     : restore.putString(PrefKey.UNITS_SYSTEM.key(), unitsBefore));
         }
+    }
+
+    @Test
+    public void eachRow_isAnnouncedOnce_inWords() throws InterruptedException {
+        long tomato = insert("tomato", 4, Unit.PCS, LocalDate.now().plusDays(3));
+        long rice = insert("rice", 1, Unit.KG);
+        awaitItemCount(baseline + 2);
+        awaitFrames();
+
+        String fourPieces = context.getResources().getQuantityString(R.plurals.unit_spoken_pcs, 2, "4");
+        String threeDays = context.getResources().getQuantityString(R.plurals.expiry_badge_expires_in, 3, 3);
+        assertEquals(context.getString(R.string.pantry_row_description, "tomato", fourPieces, threeDays),
+                onMain(() -> rowAt(tomato).getContentDescription().toString()));
+        String oneKilogram = context.getResources().getQuantityString(R.plurals.unit_spoken_kg, 1, "1");
+        assertEquals(context.getString(R.string.pantry_row_description_no_expiry, "rice", oneKilogram),
+                onMain(() -> rowAt(rice).getContentDescription().toString()));
+    }
+
+    /** The row view showing {@code id}; call on the main thread. */
+    private View rowAt(long id) {
+        RecyclerView.ViewHolder row = list.findViewHolderForAdapterPosition(positionOf(id));
+        assertTrue("no row on screen for id " + id, row != null);
+        return row.itemView;
     }
 
     /** Commits on the main thread, where SharedPreferences calls the app's change listeners. */

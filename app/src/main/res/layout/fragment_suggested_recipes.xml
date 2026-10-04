@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The Recipes tab (Issue 23): the recipes the pantry can make right now, the shared empty state shown
-    instead of them when there are none (included, never copied; Issue 24 gives it a message for each
-    EmptyReason and the "Add ingredients" button), and a progress indicator while the first match
-    runs. SuggestedRecipesFragment shows exactly one of the three, as RecipesRender decides. The empty
-    state and the indicator start hidden, so the first frame flashes neither; the indicator waits
-    before it appears (showDelay), so a match that finishes quickly shows no spinner at all.
+    The Recipes tab (Issue 23): the recipes the pantry can make right now, or the shared state layout
+    (Issue 30) in their place: its progress indicator while the first match runs, or a message for
+    each EmptyReason with the "Add ingredients" button (Issue 24). SuggestedRecipesFragment shows
+    exactly one of the list, the progress and the message, as RecipesRender decides. The state layout
+    starts hidden, so the first frame flashes nothing, and its indicator waits before it appears, so
+    a match that finishes quickly shows no spinner at all.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -28,8 +28,8 @@
         tools:listitem="@layout/item_recipe" />
 
     <include
-        android:id="@+id/empty_state"
-        layout="@layout/view_empty_state"
+        android:id="@+id/state_message"
+        layout="@layout/view_state_message"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
@@ -37,19 +37,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/recipes_loading"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:minHideDelay="@integer/progress_min_hide_delay_ms"
-        app:showDelay="@integer/progress_show_delay_ms" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

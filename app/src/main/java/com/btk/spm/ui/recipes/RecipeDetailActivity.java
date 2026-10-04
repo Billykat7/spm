@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.btk.spm.R;
 import com.btk.spm.databinding.ActivityRecipeDetailBinding;
+import com.btk.spm.ui.StateMessage;
 import com.btk.spm.util.IntentKeys;
 
 import java.util.List;
@@ -98,9 +99,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
         RecipeDetailViewModel viewModel = new ViewModelProvider(this,
                 new RecipeDetailViewModelFactory(getApplication(), recipeId)).get(RecipeDetailViewModel.class);
         viewModel.getState().observe(this, state -> {
-            if (state instanceof DetailUiState.NotFound) {
+            if (state instanceof DetailUiState.Loading) {
+                StateMessage.showLoading(binding.stateMessage, R.string.recipe_loading);
+            } else if (state instanceof DetailUiState.NotFound) {
                 closeAsNotFound();
             } else if (state instanceof DetailUiState.Loaded loaded) {
+                StateMessage.hide(binding.stateMessage);
                 header.submitList(List.of(loaded));
                 ingredients.submitList(loaded.rows());
                 methodHeading.setShown(!loaded.recipe().getRecipe().getSteps().isEmpty());

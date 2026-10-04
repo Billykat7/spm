@@ -186,9 +186,9 @@ issues and its order of work.
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜ **76%** (29/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜ **79%** (30/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -279,7 +279,7 @@ The bars above are the status. What they cannot say:
 `v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
 screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6 is under way with
-the Settings screen and the expiring-soon alert. The brief has been broken into
+the Settings screen, the expiring-soon alert and the UX pass. The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -437,9 +437,16 @@ hours, reads the expired and expiring-soon rows in one synchronous query, judges
 `ExpiryMessageBuilder`. On Android 13 and later, turning the alert on asks for `POST_NOTIFICATIONS`,
 the app's only permission; a refusal turns the switch back off and offers the system settings. No
 exact alarm and no foreground service.
+Issue 30, in pull request [#73](https://github.com/Billykat7/spm/pull/73), is one pass over every
+screen and state with one checklist, recorded in
+[`docs/REPORT/UX_CHECKLIST.md`](docs/REPORT/UX_CHECKLIST.md) with a screenshot behind every tick:
+light and dark, font scale 2.0, rotation, labels and touch targets. Loading, empty and error now share
+one layout; Lint fails the build on an image with no description; every pantry row is announced in
+words ("tomato, 4 pieces, Expires in 3 days"); the delete confirmation survives a rotation; and the
+Accessibility Test Framework, the checks Accessibility Scanner runs, passes on every screen. At font
+scale 2.0 a pantry name broke mid-word, so the expiry badge moved under the amount.
 
-**What is next.** The rest of M6: the UX and accessibility pass, hardened validation and the
-Espresso suite, then `v0.6.0`.
+**What is next.** The rest of M6: hardened validation and the Espresso suite, then `v0.6.0`.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),

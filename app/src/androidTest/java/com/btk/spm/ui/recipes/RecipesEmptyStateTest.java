@@ -90,10 +90,10 @@ public class RecipesEmptyStateTest {
 
             Espresso.onIdle();
             scenario.onActivity(activity -> {
-                TextView message = activity.findViewById(R.id.empty_state_title);
+                TextView message = activity.findViewById(R.id.state_headline);
                 assertEquals(activity.getString(R.string.recipes_empty_no_recipes), message.getText().toString());
-                assertEquals(View.VISIBLE, activity.findViewById(R.id.empty_state).getVisibility());
-                assertEquals(View.GONE, activity.findViewById(R.id.empty_state_action).getVisibility());
+                assertEquals(View.VISIBLE, activity.findViewById(R.id.state_message).getVisibility());
+                assertEquals(View.GONE, activity.findViewById(R.id.state_action).getVisibility());
                 assertEquals(View.GONE, activity.findViewById(R.id.recipe_list).getVisibility());
             });
         }
@@ -109,12 +109,12 @@ public class RecipesEmptyStateTest {
             AtomicReference<Activity> host = new AtomicReference<>();
             scenario.onActivity(activity -> {
                 host.set(activity);
-                TextView message = activity.findViewById(R.id.empty_state_title);
+                TextView message = activity.findViewById(R.id.state_headline);
                 assertEquals(activity.getString(R.string.recipes_empty_pantry_empty), message.getText().toString());
-                assertEquals(View.VISIBLE, activity.findViewById(R.id.empty_state_action).getVisibility());
+                assertEquals(View.VISIBLE, activity.findViewById(R.id.state_action).getVisibility());
             });
 
-            awaitPauseAndResume(() -> onView(withId(R.id.empty_state_action)).perform(click()));
+            awaitPauseAndResume(() -> onView(withId(R.id.state_action)).perform(click()));
 
             Espresso.onIdle();
             scenario.onActivity(activity -> {
