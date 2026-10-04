@@ -152,17 +152,19 @@ stays visible to the next screen`), which Issue 27 needs as well.
 ask the one the user would. Writing the proof first also found a gap in a state class that every
 earlier test had passed over.
 
-## 2026-10-04 · Issue 29 · The alert was on, and Android 13 would not show it
+## 2026-10-04 · Issue 29 · An alert that is "on" by default, on a phone that has not allowed it
 
-**Problem:** on a fresh install on the API 35 emulator the Settings tab said *Expiring-soon alerts*
-was on, as its default says, and the daily check ran, and still nothing appeared. Below API 33 the
-same build posted the alert at once. A toggle on a screen is not enough on its own.
+**Problem:** the first build of `ExpiryCheckWorker` failed Lint with `MissingPermission` on its
+`notify()` call: "code should explicitly check to see if permission is available". On the API 35
+emulator, a fresh install also starts with *Expiring-soon alerts* on, as its default says,
+while the app is not yet allowed to post anything. Below API 33 the same build posted the alert at
+once. A switch on a screen is not enough on its own.
 
 **Cause:** Android 13 (API 33) made `POST_NOTIFICATIONS` a runtime permission. An app that targets 33
 or later, as this one does (`targetSdk 35`, decision 4), starts with it denied, so `notify()` is
 dropped until the user allows it. Below 33 it is granted at install, which is why API 26 showed none
 of this. And on any version the user can still block the app's notifications in system settings.
-Lint also flagged the `notify()` call itself: a permission can be revoked between a check and the post.
+Lint's point is the last gap: a permission can be revoked between a check and the post.
 
 **Fix:** one class asks both questions, `NotificationAccess.canPost`, and the worker returns success
 without posting when the answer is no. The Settings tab asks for the permission when the alert is
