@@ -324,6 +324,18 @@ public class SuggestedRecipesViewModelTest {
         assertSame(shown, viewModel.getState().getValue());
     }
 
+    @Test
+    public void pendingMatches_countsJobsSubmittedAndNotFinished() {
+        recipes.setValue(SEED);
+        pantry.setValue(pantryFor("Tomato pasta"));
+        pantry.setValue(List.of());
+        assertEquals(2, viewModel.pendingMatches());
+
+        jobs.runNewestFirst(); // the stale one finishes too, and is counted off without posting
+
+        assertEquals(0, viewModel.pendingMatches());
+    }
+
     /**
      * The threading proof. The test's thread plays the main thread: LiveData's posts are queued for it
      * instead of running at once. Jobs go to a real thread named {@code spm-match-test}, and the

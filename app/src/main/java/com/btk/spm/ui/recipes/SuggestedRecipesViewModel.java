@@ -3,6 +3,7 @@ package com.btk.spm.ui.recipes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -65,6 +66,9 @@ public class SuggestedRecipesViewModel extends ViewModel {
     /** The number of the newest job; a job whose number is not this one throws its result away. */
     private final AtomicInteger generation = new AtomicInteger();
 
+    /** Jobs submitted and not finished yet; a device test waits for it to reach 0 (Issue 26). */
+    private final AtomicInteger pendingMatches = new AtomicInteger();
+
     /** The last pantry Room emitted, or {@code null} before the first. Main thread only. */
     @Nullable
     private List<PantryItem> pantry;
@@ -126,6 +130,18 @@ public class SuggestedRecipesViewModel extends ViewModel {
         return state;
     }
 
+    /**
+     * Returns how many matches have been submitted and have not finished. An instrumented test wraps it
+     * in an {@code IdlingResource}, so Espresso waits for the matcher as it waits for the main thread;
+     * nothing in the app reads it.
+     *
+     * @return 0 when no match is running or queued
+     */
+    @VisibleForTesting
+    public int pendingMatches() {
+        return pendingMatches.get();
+    }
+
     /** Submits a match of the latest pantry, recipes and setting, once all three have been read. */
     @MainThread
     private void recompute() {
@@ -136,11 +152,17 @@ public class SuggestedRecipesViewModel extends ViewModel {
             return; // still Loading: one source has not delivered
         }
         int job = generation.incrementAndGet();
+        pendingMatches.incrementAndGet();
         matchExecutor.execute(() -> {
-            UiState result = match(pantryNow, recipesNow, countExpiredNow);
-            // A newer job was submitted while this one ran: its pantry is the current one
-            if (job == generation.get()) {
-                state.postValue(result);
+            try {
+                UiState result = match(pantryNow, recipesNow, countExpiredNow);
+                // A newer job was submitted while this one ran: its pantry is the current one
+                if (job == generation.get()) {
+                    state.postValue(result);
+                }
+            } finally {
+                // After postValue, so the state is already on its way to the main thread when this reaches 0
+                pendingMatches.decrementAndGet();
             }
         });
     }
