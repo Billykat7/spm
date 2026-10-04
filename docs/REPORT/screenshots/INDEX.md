@@ -36,3 +36,5 @@ the final set after the UI pass, so earlier rows are working copies.
 | 17 | 17_expiry_badges_dark.png | The same badges in the dark theme: every colour is a theme role, so each pair stays legible | #17 |
 | 18 | 18_sort_menu.png | The sort action in the Pantry toolbar opened: "Expiry (soonest first)" checked, the default, and "Name (A–Z)" | #17 |
 | 18 | 18_sort_menu_dark.png | The sort menu in the dark theme | #17 |
+| 19 | 19_edit_ingredient_prefilled.png | The overflow's Edit on "Plain flour": the same form, titled "Edit ingredient", opened by an explicit Intent carrying the row's id in `IntentKeys.EXTRA_PANTRY_ITEM_ID` and prefilled from the database (1.5, kg, Oct 24, 2026); Save updates that row with the same id | #15 |
+| 19 | 19_edit_ingredient_prefilled_dark.png | The prefilled edit form in the dark theme | #15 |
