@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.btk.spm.R;
 import com.btk.spm.databinding.FragmentSuggestedRecipesBinding;
-import com.btk.spm.ui.LifecycleLoggingFragment;
+import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
 import com.btk.spm.ui.MainActivity;
 import com.btk.spm.ui.Tab;
@@ -47,9 +48,9 @@ import java.util.List;
  *
  * <p>The state lives in the ViewModel, so a rotation shows the same rows at once, with no second
  * match and no progress indicator. Its lifecycle callbacks are logged in debug builds
- * ({@link LifecycleLoggingFragment}), and so is every change the adapter makes ({@link ListChangeLog}).
+ * ({@link FragmentLifecycleLog}), and so is every change the adapter makes ({@link ListChangeLog}).
  */
-public class SuggestedRecipesFragment extends LifecycleLoggingFragment
+public class SuggestedRecipesFragment extends Fragment
         implements RecipeAdapter.OnRecipeClickListener {
 
     /** Names the suggestions in the debug log: {@code adb logcat -s ListChange}. */

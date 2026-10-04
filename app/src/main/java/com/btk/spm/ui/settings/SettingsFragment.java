@@ -7,17 +7,18 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.btk.spm.databinding.FragmentSettingsBinding;
-import com.btk.spm.ui.LifecycleLoggingFragment;
 
 /**
  * The Settings tab: expiring-soon alerts, units and the matching options.
  *
  * <p>A placeholder until Issue 28 fills it: it shows what the tab will hold, so the navigation shell
- * can be built, run and tested first. Its lifecycle callbacks are logged in debug builds.
+ * can be built, run and tested first. Its lifecycle callbacks are logged in debug builds
+ * ({@code FragmentLifecycleLog}).
  */
-public class SettingsFragment extends LifecycleLoggingFragment {
+public class SettingsFragment extends Fragment {
 
     @Nullable
     @Override

@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.btk.spm.R;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.databinding.FragmentPantryBinding;
-import com.btk.spm.ui.LifecycleLoggingFragment;
+import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
@@ -56,10 +57,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * the default, or by name. The choice goes to {@link PantryViewModel#setSortOrder}, which re-sorts the
  * list and remembers it; the menu checks whichever order is in use.
  *
- * <p>Its lifecycle callbacks are logged in debug builds ({@link LifecycleLoggingFragment}), and so
+ * <p>Its lifecycle callbacks are logged in debug builds ({@link FragmentLifecycleLog}), and so
  * is every change the adapter makes to the list ({@link ListChangeLog}).
  */
-public class PantryFragment extends LifecycleLoggingFragment implements PantryAdapter.Listener {
+public class PantryFragment extends Fragment implements PantryAdapter.Listener {
 
     /** Names this list in the debug log: {@code adb logcat -s ListChange}. */
     private static final String LIST_NAME = "Pantry";
