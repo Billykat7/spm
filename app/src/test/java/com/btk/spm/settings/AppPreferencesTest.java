@@ -1,6 +1,8 @@
 package com.btk.spm.settings;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.btk.spm.ui.pantry.SortOrder;
 
@@ -56,5 +58,24 @@ public class AppPreferencesTest {
 
         stored.edit().putInt(PrefKey.PANTRY_SORT.key(), 1).apply();
         assertEquals(AppPreferences.DEFAULT_PANTRY_SORT, preferences.getPantrySort());
+    }
+
+    @Test
+    public void nothingStored_leavesExpiredItemsOut() {
+        assertFalse(preferences.isCountExpiredItems());
+    }
+
+    @Test
+    public void aStoredCountExpiredChoice_isRead() {
+        stored.edit().putBoolean(PrefKey.COUNT_EXPIRED_ITEMS.key(), true).apply();
+
+        assertTrue(preferences.isCountExpiredItems());
+    }
+
+    @Test
+    public void aWronglyTypedCountExpiredChoice_fallsBackToTheDefault() {
+        stored.edit().putString(PrefKey.COUNT_EXPIRED_ITEMS.key(), "true").apply();
+
+        assertEquals(AppPreferences.DEFAULT_COUNT_EXPIRED_ITEMS, preferences.isCountExpiredItems());
     }
 }

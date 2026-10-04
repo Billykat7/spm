@@ -98,6 +98,8 @@ dependencies {
 
     testImplementation libs.junit
     testImplementation libs.org.json
+    // InstantTaskExecutorRule and ArchTaskExecutor, so the ViewModels' LiveData runs in JVM tests (Issue 23)
+    testImplementation libs.arch.core.testing
 
     // Declared here once (Issue 8) so the DAO tests of Issues 9 and 10 do not both edit this file
     androidTestImplementation libs.ext.junit

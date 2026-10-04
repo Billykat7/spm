@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Placeholder for a tab that a later issue fills in: the tab's icon, a title and one line saying
-    what the tab will hold. Text from strings.xml, colours from the theme, sizes from dimens.xml.
+    The Recipes tab (Issue 23): the recipes the pantry can make right now, the shared empty state shown
+    instead of them when there are none, and a progress indicator while the first match runs.
+    SuggestedRecipesFragment shows exactly one of the three, from the ViewModel's UiState. The empty
+    state and the indicator start hidden, so the first frame flashes neither; the indicator waits
+    before it appears (showDelay), so a match that finishes quickly shows no spinner at all.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.recipes.SuggestedRecipesFragment">
 
-    <ImageView
-        android:id="@+id/placeholder_icon"
-        android:layout_width="@dimen/placeholder_icon_size"
-        android:layout_height="@dimen/placeholder_icon_size"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_tab_recipes_outlined"
-        app:layout_constraintBottom_toTopOf="@id/placeholder_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:tint="?attr/colorPrimary" />
-
-    <TextView
-        android:id="@+id/placeholder_title"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recipe_list"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_m"
-        android:gravity="center"
-        android:text="@string/placeholder_recipes_title"
-        android:textAppearance="@style/TextAppearance.Spm.HeadlineSmall"
-        android:textColor="?attr/colorOnSurface"
-        app:layout_constraintBottom_toTopOf="@id/placeholder_body"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/placeholder_icon" />
-
-    <TextView
-        android:id="@+id/placeholder_body"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_s"
-        android:gravity="center"
-        android:text="@string/placeholder_recipes_body"
-        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/spacing_s"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/placeholder_title" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_recipe" />
+
+    <include
+        android:id="@+id/empty_state"
+        layout="@layout/view_empty_state"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/recipes_loading"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:minHideDelay="@integer/progress_min_hide_delay_ms"
+        app:showDelay="@integer/progress_show_delay_ms" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

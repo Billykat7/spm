@@ -19,6 +19,9 @@
     <!-- A list row with a title and a supporting line, as Material 3's two-line list item -->
     <dimen name="list_item_two_line_min_height">72dp</dimen>
 
+    <!-- A list row with a title and two supporting lines, as Material 3's three-line list item -->
+    <dimen name="list_item_three_line_min_height">88dp</dimen>
+
     <!-- Space under the last row of a list with a FAB: the FAB's 56 dp and its 16 dp margins -->
     <dimen name="list_bottom_space_for_fab">88dp</dimen>
 

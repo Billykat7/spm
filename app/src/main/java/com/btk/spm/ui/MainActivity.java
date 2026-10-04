@@ -24,7 +24,9 @@ import com.btk.spm.util.IntentKeys;
  * <p>A {@code BottomNavigationView} swaps the Pantry, Recipes and Settings Fragments in one
  * container through the {@link FragmentManager}, and the toolbar title follows the selected
  * {@link Tab}. The selected tab survives rotation, Back from another tab returns to Pantry, and
- * {@link #intentFor(Context, Tab)} opens the host on a chosen tab from another screen.
+ * {@link #intentFor(Context, Tab)} opens the host on a chosen tab from another screen. A tab's
+ * Fragment can replace its title with one that says more, such as the Recipes tab's count, through
+ * {@link #setToolbarTitle(Tab, CharSequence)}.
  *
  * <p>Each lifecycle callback is logged in debug builds ({@link LifecycleLog}), which is how the video
  * shows the Activity lifecycle: {@code adb logcat -s Lifecycle}.
@@ -103,7 +105,28 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         LifecycleLog.log(this, "onNewIntent");
         setIntent(intent);
-        selectTab(tabFrom(intent));
+        Tab requested = tabFrom(intent);
+        // The tab already shown stays as it is, with the title its Fragment gave it, such as the
+        // Recipes tab's count, instead of going back to the bare tab name
+        if (requested != selectedTab) {
+            selectTab(requested);
+        }
+    }
+
+    /**
+     * Sets the toolbar title for {@code tab}, if it is still the tab on screen. A tab's Fragment calls
+     * this when its title depends on its data ("Suggested recipes (2)", Issue 23). A title for a tab
+     * that is no longer selected is ignored: a result that reaches a Fragment on its way out cannot
+     * retitle the tab that replaced it.
+     *
+     * @param tab   the tab whose Fragment is asking
+     * @param title the title to show
+     */
+    public void setToolbarTitle(@NonNull Tab tab, @NonNull CharSequence title) {
+        if (tab == selectedTab) {
+            // Through the Activity, as showTab does, so Android does not put the old title back
+            setTitle(title);
+        }
     }
 
     @Override
