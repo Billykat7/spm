@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.preference.PreferenceManager;
 
 import com.btk.spm.domain.UnitsSystem;
+import com.btk.spm.domain.validation.Validators;
 import com.btk.spm.ui.pantry.SortOrder;
 
 import java.util.Objects;
@@ -47,11 +48,11 @@ public final class AppPreferences {
     /** Days ahead that still count as expiring soon when the user has chosen none (decision 6). */
     public static final int DEFAULT_EXPIRY_THRESHOLD_DAYS = 3;
 
-    /** The shortest threshold the Settings screen's seek bar offers: tomorrow. */
-    public static final int MIN_EXPIRY_THRESHOLD_DAYS = 1;
+    /** The shortest threshold the Settings screen's seek bar offers: tomorrow ({@link Validators}). */
+    public static final int MIN_EXPIRY_THRESHOLD_DAYS = Validators.MIN_THRESHOLD_DAYS;
 
-    /** The longest threshold the seek bar offers: two weeks. */
-    public static final int MAX_EXPIRY_THRESHOLD_DAYS = 14;
+    /** The longest threshold the seek bar offers: two weeks ({@link Validators}). */
+    public static final int MAX_EXPIRY_THRESHOLD_DAYS = Validators.MAX_THRESHOLD_DAYS;
 
     /** Amounts are shown in grams, kilograms, millilitres and litres until the user chooses imperial. */
     public static final UnitsSystem DEFAULT_UNITS_SYSTEM = UnitsSystem.METRIC;
@@ -225,13 +226,14 @@ public final class AppPreferences {
 
     /**
      * Reads a whole-number setting, or its default when none is stored, the stored value is another
-     * type, or it is outside the range the seek bar allows.
+     * type, or {@link Validators#validateThresholdDays} refuses it: a value written by anything but the
+     * seek bar, such as {@code 99}, reads as the default rather than badging the whole pantry.
      */
     private int readInt(@NonNull PrefKey key) {
         int fallback = intDefault(key);
         try {
             int stored = preferences.getInt(key.key(), fallback);
-            return stored >= MIN_EXPIRY_THRESHOLD_DAYS && stored <= MAX_EXPIRY_THRESHOLD_DAYS ? stored : fallback;
+            return Validators.validateThresholdDays(stored).isOk() ? stored : fallback;
         } catch (ClassCastException storedAsAnotherType) {
             return fallback;
         }
