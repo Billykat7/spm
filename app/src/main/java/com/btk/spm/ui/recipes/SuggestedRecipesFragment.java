@@ -192,7 +192,8 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         /** Shows {@code split}, or clears every section when there is nothing to show. */
         void show(@Nullable RecipeSections.Sections split) {
             zeroMatchHeader.setShown(split != null && split.zeroMatchHeader());
-            suggested.submitList(split == null ? List.of() : split.suggested());
+            // SCRATCH, reverted in the next commit: the almost-there list handed to the suggestions
+            suggested.submitList(split == null ? List.of() : split.almostThere());
             almostThereHeader.setShown(split != null && split.almostThereHeader());
             almostThere.submitList(split == null ? List.of() : split.almostThere());
         }
