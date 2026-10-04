@@ -1,5 +1,7 @@
 package com.btk.spm.domain.matching;
 
+import com.btk.spm.domain.MatchStatus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,14 +55,28 @@ public final class MatchResults {
                             List<MatchResult> cannotMake) {
 
         /**
-         * Creates a partition, keeping unmodifiable copies of the three lists.
+         * Creates a partition, keeping unmodifiable copies of the three lists. Each list may only hold
+         * results of its own status, so a partition built by hand cannot put an almost-there recipe
+         * among the suggestions either.
          *
-         * @throws NullPointerException if a list is {@code null}
+         * @throws NullPointerException if a list or a result in it is {@code null}
+         * @throws IllegalArgumentException if a result is in the list of another status
          */
         public Partition {
-            canMake = Collections.unmodifiableList(new ArrayList<>(canMake));
-            almostThere = Collections.unmodifiableList(new ArrayList<>(almostThere));
-            cannotMake = Collections.unmodifiableList(new ArrayList<>(cannotMake));
+            canMake = only(MatchStatus.CAN_MAKE, canMake);
+            almostThere = only(MatchStatus.ALMOST_THERE, almostThere);
+            cannotMake = only(MatchStatus.CANNOT_MAKE, cannotMake);
+        }
+
+        private static List<MatchResult> only(MatchStatus status, List<MatchResult> results) {
+            List<MatchResult> copy = new ArrayList<>(Objects.requireNonNull(results, "results"));
+            for (MatchResult result : copy) {
+                if (Objects.requireNonNull(result, "result").status() != status) {
+                    throw new IllegalArgumentException("Recipe " + result.recipeId() + " is "
+                            + result.status() + ", not " + status);
+                }
+            }
+            return Collections.unmodifiableList(copy);
         }
     }
 }
