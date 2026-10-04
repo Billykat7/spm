@@ -403,7 +403,8 @@ deleted, and waits on the matcher through an `IdlingResource`. The "count expire
 observed live (`AppPreferences.observeBoolean`), so changing it runs the matcher again, and
 [`docs/DEMO/MATCH_PROOF_STEPS.md`](docs/DEMO/MATCH_PROOF_STEPS.md) holds the steps to film.
 
-Issue 27 closes the milestone with the brief's bonus on screen, kept clearly apart: below the
+Issue 27, in pull request [#70](https://github.com/Billykat7/spm/pull/70), closes the milestone with
+the brief's bonus on screen, kept clearly apart: below the
 suggestions, under a divider and the heading "Almost there (missing one ingredient)", outlined cards
 name each recipe's one missing or short ingredient ("Short: need 50 g butter, have 40 g"). One
 `RecyclerView` over a `ConcatAdapter` holds both sections, each its own adapter, and each adapter
