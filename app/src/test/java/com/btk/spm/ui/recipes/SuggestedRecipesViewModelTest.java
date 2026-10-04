@@ -86,14 +86,14 @@ public class SuggestedRecipesViewModelTest {
     private final QueuedExecutor jobs = new QueuedExecutor();
     private final List<UiState> states = new ArrayList<>();
 
-    private boolean countExpired;
+    private final MutableLiveData<Boolean> countExpired = new MutableLiveData<>(false);
     private LocalDate today = TODAY;
     private SuggestedRecipesViewModel viewModel;
 
     @Before
     public void createTheViewModel() {
-        viewModel = new SuggestedRecipesViewModel(pantry, recipes, () -> MATCHER,
-                () -> countExpired, () -> today, jobs);
+        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, () -> MATCHER,
+                () -> today, jobs);
         viewModel.getState().observeForever(states::add);
     }
 
@@ -139,7 +139,7 @@ public class SuggestedRecipesViewModelTest {
 
         deliver(noGarlic, SEED);
 
-        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_MATCH, emptyReason());
     }
 
     @Test
@@ -186,12 +186,12 @@ public class SuggestedRecipesViewModelTest {
     public void anExpiredIngredient_isLeftOut_byDefault() {
         deliver(expired(pantryFor("Tomato pasta"), "tomato"), SEED);
 
-        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_MATCH, emptyReason());
     }
 
     @Test
     public void anExpiredIngredient_counts_whenTheSettingSaysSo() {
-        countExpired = true;
+        countExpired.setValue(true);
 
         deliver(expired(pantryFor("Tomato pasta"), "tomato"), SEED);
 
@@ -210,7 +210,7 @@ public class SuggestedRecipesViewModelTest {
         today = TODAY.plusDays(1);
         pantry.setValue(items);
         jobs.runAll();
-        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_MATCH, emptyReason());
     }
 
     @Test
@@ -229,7 +229,7 @@ public class SuggestedRecipesViewModelTest {
     @Test
     public void aRecipeChange_runsTheMatchAgain() {
         deliver(pantryFor("Tomato pasta"), List.of());
-        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_RECIPES, emptyReason());
 
         recipes.setValue(SEED);
         jobs.runAll();
@@ -247,7 +247,7 @@ public class SuggestedRecipesViewModelTest {
         jobs.runNewestFirst(); // job 2 finishes, then the stale job 1
 
         assertEquals(List.of("Tomato pasta"), names(content().canMake()));
-        assertFalse("The stale result was posted", states.contains(new UiState.Empty(EmptyReason.NO_MATCH)));
+        assertFalse("The stale result was posted", states.stream().anyMatch(s -> s instanceof UiState.Empty));
     }
 
     @Test
@@ -265,21 +265,21 @@ public class SuggestedRecipesViewModelTest {
     public void anEmptyPantry_isPantryEmpty() {
         deliver(List.of(), SEED);
 
-        assertEquals(new UiState.Empty(EmptyReason.PANTRY_EMPTY), viewModel.getState().getValue());
+        assertEquals(EmptyReason.PANTRY_EMPTY, emptyReason());
     }
 
     @Test
     public void noRecipes_isNoRecipes_evenWhenThePantryIsEmptyToo() {
         deliver(List.of(), List.of());
 
-        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_RECIPES, emptyReason());
     }
 
     @Test
     public void noRecipes_isNoRecipes_withAFullPantry() {
         deliver(pantryFor("Tomato pasta"), List.of());
 
-        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_RECIPES, emptyReason());
     }
 
     @Test
@@ -292,7 +292,7 @@ public class SuggestedRecipesViewModelTest {
         pantry.setValue(plusRice);
         jobs.runAll();
 
-        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
+        assertEquals(EmptyReason.NO_MATCH, emptyReason());
     }
 
     @Test
@@ -307,11 +307,10 @@ public class SuggestedRecipesViewModelTest {
 
         assertEquals(1, states.stream().filter(s -> s instanceof UiState.Loading).count());
         assertSame("Loading is first", UiState.Loading.INSTANCE, states.get(0));
-        assertEquals(List.of(UiState.Loading.INSTANCE,
-                new UiState.Empty(EmptyReason.NO_MATCH),
-                states.get(2),
-                new UiState.Empty(EmptyReason.PANTRY_EMPTY)), states);
+        assertEquals(4, states.size());
+        assertEquals(EmptyReason.NO_MATCH, ((UiState.Empty) states.get(1)).reason());
         assertTrue(states.get(2) instanceof UiState.Content);
+        assertEquals(EmptyReason.PANTRY_EMPTY, ((UiState.Empty) states.get(3)).reason());
     }
 
     @Test
@@ -322,6 +321,18 @@ public class SuggestedRecipesViewModelTest {
         pantry.setValue(List.of()); // the job is queued, not run
 
         assertSame(shown, viewModel.getState().getValue());
+    }
+
+    @Test
+    public void pendingMatches_countsJobsSubmittedAndNotFinished() {
+        recipes.setValue(SEED);
+        pantry.setValue(pantryFor("Tomato pasta"));
+        pantry.setValue(List.of());
+        assertEquals(2, viewModel.pendingMatches());
+
+        jobs.runNewestFirst(); // the stale one finishes too, and is counted off without posting
+
+        assertEquals(0, viewModel.pendingMatches());
     }
 
     /**
@@ -340,7 +351,7 @@ public class SuggestedRecipesViewModelTest {
         ThreadRecordingExecutor matchThread = new ThreadRecordingExecutor("spm-match-test");
         try {
             SuggestedRecipesViewModel threaded = new SuggestedRecipesViewModel(pantry, recipes,
-                    () -> recordingMatcher, () -> false, () -> TODAY, matchThread);
+                    new MutableLiveData<>(false), () -> recordingMatcher, () -> TODAY, matchThread);
             List<Thread> deliveredOn = new CopyOnWriteArrayList<>();
             List<UiState> seen = new CopyOnWriteArrayList<>();
             Observer<UiState> screen = state -> {
@@ -376,6 +387,12 @@ public class SuggestedRecipesViewModelTest {
         recipes.setValue(recipeList);
         pantry.setValue(items);
         jobs.runAll();
+    }
+
+    private EmptyReason emptyReason() {
+        UiState state = viewModel.getState().getValue();
+        assertTrue("Expected Empty, was " + state, state instanceof UiState.Empty);
+        return ((UiState.Empty) state).reason();
     }
 
     private UiState.Content content() {

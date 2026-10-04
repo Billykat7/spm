@@ -182,10 +182,10 @@ issues and its order of work.
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **66%** (25/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **68%** (26/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -391,9 +391,15 @@ screen, the app's second Activity opened by an explicit Intent:
 else, and an unknown id says so and closes. Each ingredient shows a check or a cross from the
 matcher's own verdict, through one additive engine change, `MatchResult.checks()`, so no screen
 compares a quantity. A pantry change made while the screen is open turns a cross into a check.
+Issue 26, in pull request [#69](https://github.com/Billykat7/spm/pull/69), pins down the moment the
+video depends on. A JVM test pushes four, then five, then four of
+Tomato pasta's ingredients and watches it move from "almost there" into the suggestions and back, one
+state per push; a device test keeps the Recipes tab open while the fifth ingredient is inserted and
+deleted, and waits on the matcher through an `IdlingResource`. The "count expired items" setting is now
+observed live (`AppPreferences.observeBoolean`), so changing it runs the matcher again, and
+[`docs/DEMO/MATCH_PROOF_STEPS.md`](docs/DEMO/MATCH_PROOF_STEPS.md) holds the steps to film.
 
-**What is next.** The rest of M5: the live re-evaluation proof (Issue 26) and the "Almost there"
-section (Issue 27).
+**What is next.** The last of M5: the "Almost there" section (Issue 27).
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),

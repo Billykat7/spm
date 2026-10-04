@@ -49,21 +49,36 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
 
     /**
      * Both sources have been read and nothing can be made now, for the {@link EmptyReason} it
-     * carries. The almost-there recipes are not carried, because the empty state is about the
-     * suggestions only.
+     * carries. It also carries the almost-there recipes, kept apart as in {@link Content}: a pantry
+     * four ingredients into a five-ingredient recipe has no suggestion, but the "Almost there" section
+     * (Issue 27) still has that recipe to show, and the live proof (Issue 26) watches it move from
+     * there into the suggestions and back.
      */
     public static final class Empty extends UiState {
 
         private final EmptyReason reason;
+        private final List<MatchedRecipe> almostThere;
 
         /**
-         * Creates the state.
+         * Creates the state with no almost-there recipes.
          *
          * @param reason why nothing can be suggested, which picks the message and the button
          * @throws NullPointerException if {@code reason} is {@code null}
          */
         public Empty(@NonNull EmptyReason reason) {
+            this(reason, List.of());
+        }
+
+        /**
+         * Creates the state, keeping an unmodifiable copy of the almost-there recipes.
+         *
+         * @param reason      why nothing can be suggested, which picks the message and the button
+         * @param almostThere the recipes one ingredient short, for Issue 27; may be empty
+         * @throws NullPointerException if {@code reason} or {@code almostThere} is {@code null}
+         */
+        public Empty(@NonNull EmptyReason reason, @NonNull List<MatchedRecipe> almostThere) {
             this.reason = Objects.requireNonNull(reason, "reason");
+            this.almostThere = Collections.unmodifiableList(new ArrayList<>(almostThere));
         }
 
         /**
@@ -76,20 +91,31 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
             return reason;
         }
 
+        /**
+         * Returns the recipes one ingredient short. Never shown as suggestions; Issue 27 gives them
+         * their own heading.
+         *
+         * @return the almost-there recipes, unmodifiable, possibly empty
+         */
+        @NonNull
+        public List<MatchedRecipe> almostThere() {
+            return almostThere;
+        }
+
         @Override
         public boolean equals(Object o) {
-            return o instanceof Empty other && reason == other.reason;
+            return o instanceof Empty other && reason == other.reason && almostThere.equals(other.almostThere);
         }
 
         @Override
         public int hashCode() {
-            return reason.hashCode();
+            return Objects.hash(reason, almostThere);
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "Empty(" + reason + ")";
+            return "Empty(" + reason + ", almostThere=" + almostThere.size() + ")";
         }
     }
 
