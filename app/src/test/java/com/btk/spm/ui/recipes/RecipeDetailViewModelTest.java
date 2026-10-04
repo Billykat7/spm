@@ -17,6 +17,7 @@ import com.btk.spm.domain.DisplayQuantity;
 import com.btk.spm.domain.DisplayUnit;
 import com.btk.spm.domain.MatchStatus;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.domain.matching.IngredientNormaliser;
 import com.btk.spm.domain.matching.StrictMatcher;
 import com.btk.spm.domain.matching.UnitConverter;
@@ -35,7 +36,8 @@ import java.util.concurrent.Executor;
 
 /**
  * {@link RecipeDetailViewModel} on the JVM with {@code MutableLiveData} in place of Room's two
- * queries, and an executor that holds each match until the test runs it, in any order.
+ * queries and the two settings, and an executor that holds each match until the test runs it, in
+ * any order.
  *
  * <p>The recipe is Garlic bread as the seed writes it: 4 pcs of bread, 50 g of butter and 3 pcs of
  * garlic. Every row's mark and amounts come from the matcher's checks.
@@ -62,12 +64,13 @@ public class RecipeDetailViewModelTest {
     private final QueuedExecutor jobs = new QueuedExecutor();
     private final List<DetailUiState> states = new ArrayList<>();
 
-    private boolean countExpired;
+    private final MutableLiveData<Boolean> countExpired = new MutableLiveData<>(false);
+    private final MutableLiveData<UnitsSystem> units = new MutableLiveData<>(UnitsSystem.METRIC);
     private RecipeDetailViewModel viewModel;
 
     @Before
     public void createTheViewModel() {
-        viewModel = new RecipeDetailViewModel(recipe, pantry, () -> MATCHER, () -> countExpired, () -> TODAY, jobs);
+        viewModel = new RecipeDetailViewModel(recipe, pantry, countExpired, units, () -> MATCHER, () -> TODAY, jobs);
         viewModel.getState().observeForever(states::add);
     }
 
@@ -158,10 +161,29 @@ public class RecipeDetailViewModelTest {
         deliver(List.of(oldGarlic));
         assertFalse(loaded().rows().get(2).have());
 
-        countExpired = true;
-        pantry.setValue(List.of(oldGarlic));
+        // The setting alone runs the match again: no pantry change, and the screen stays open
+        countExpired.setValue(true);
         jobs.runAll();
         assertTrue(loaded().rows().get(2).have());
+
+        countExpired.setValue(false);
+        jobs.runAll();
+        assertFalse(loaded().rows().get(2).have());
+    }
+
+    @Test
+    public void switchingToImperial_redrawsTheAmounts_andChangesNoMark() {
+        deliver(List.of(item("butter", 1500, Unit.G)));
+        IngredientRow metric = loaded().rows().get(1);
+        assertEquals(new DisplayQuantity(1.5, DisplayUnit.KG), metric.available());
+
+        units.setValue(UnitsSystem.IMPERIAL);
+        jobs.runAll();
+
+        IngredientRow imperial = loaded().rows().get(1);
+        assertEquals(new DisplayQuantity(52.9, DisplayUnit.OZ), imperial.available());
+        assertEquals(new DisplayQuantity(1.76, DisplayUnit.OZ), imperial.required());
+        assertEquals(metric.have(), imperial.have());
     }
 
     @Test
