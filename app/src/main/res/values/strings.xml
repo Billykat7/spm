@@ -29,6 +29,7 @@
 
     <!-- The add and edit ingredient screen (Issues 13 to 15) -->
     <string name="title_add_ingredient">Add ingredient</string>
+    <string name="action_save">Save</string>
 
     <!--
         Why an ingredient cannot be saved (domain/validation/Validators, Issue 14). Each says what to
