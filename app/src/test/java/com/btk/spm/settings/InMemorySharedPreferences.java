@@ -2,19 +2,24 @@ package com.btk.spm.settings;
 
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * A {@link SharedPreferences} held in a map, so {@link AppPreferences} runs on the JVM. Reads cast the
  * stored value the way Android's implementation does, so a value of the wrong type throws
- * {@link ClassCastException} here too. Listeners are not supported; nothing under test uses them.
+ * {@link ClassCastException} here too. Change listeners are called for each key a commit touches, as
+ * Android calls them, but held strongly; Android holds them weakly, which is why the code under test
+ * keeps its own reference.
  */
 final class InMemorySharedPreferences implements SharedPreferences {
 
     private final Map<String, Object> values = new HashMap<>();
+    private final Set<OnSharedPreferenceChangeListener> listeners = new LinkedHashSet<>();
 
     @Override
     public Map<String, ?> getAll() {
@@ -64,12 +69,21 @@ final class InMemorySharedPreferences implements SharedPreferences {
 
     @Override
     public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        throw new UnsupportedOperationException();
+        listeners.add(listener);
     }
 
     @Override
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-        throw new UnsupportedOperationException();
+        listeners.remove(listener);
+    }
+
+    /**
+     * Says how many listeners are registered, so a test can check one is removed when nobody observes.
+     *
+     * @return the number of registered listeners
+     */
+    int listenerCount() {
+        return listeners.size();
     }
 
     /** Collects changes and applies them on {@code apply()} or {@code commit()}, as Android does. */
@@ -136,6 +150,13 @@ final class InMemorySharedPreferences implements SharedPreferences {
                 values.remove(key);
             }
             values.putAll(pending);
+            Set<String> changed = new LinkedHashSet<>(removed);
+            changed.addAll(pending.keySet());
+            for (OnSharedPreferenceChangeListener listener : new ArrayList<>(listeners)) {
+                for (String key : changed) {
+                    listener.onSharedPreferenceChanged(InMemorySharedPreferences.this, key);
+                }
+            }
             return true;
         }
 
