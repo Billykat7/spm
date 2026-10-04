@@ -329,8 +329,8 @@ tag `v0.5.0`:
     }
 ```
 
-The receiving side, `RecipeDetailActivity.java` lines 65 to 69, copied at commit `2e225d5`, to be
-tagged `v0.6.0` (the comment on line 68 changed after `v0.5.0`):
+The receiving side, `RecipeDetailActivity.java` lines 65 to 69, copied from tag `v0.6.0`
+(the comment on line 68 changed after `v0.5.0`):
 
 ```java
     @Override
