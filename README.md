@@ -181,11 +181,11 @@ issues and its order of work.
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **68%** (26/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **71%** (27/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -237,8 +237,9 @@ listed again whenever the pantry changes, with the count in the toolbar: put the
 Tomato pasta in the pantry and it reads "Suggested recipes (1)" (Issue 23). When nothing can be
 made it says why, in the brief's words for four of five ingredients ("No recipes match your pantry
 yet, add more ingredients"), with a button back to the Pantry tab (Issue 24). Tapping a recipe opens it in full: every ingredient
-with a check or a cross, "need 250 g, have 1 kg", and the numbered method (Issue 25). Settings still
-shows a placeholder.
+with a check or a cross, "need 250 g, have 1 kg", and the numbered method (Issue 25). Below the
+suggestions, under their own heading, recipes one ingredient away say which one, "Missing: 50 g
+cheese", and are never counted as suggestions (Issue 27). Settings still shows a placeholder.
 
 **Before every push**, the same gate CI runs:
 
@@ -265,8 +266,11 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestones 1, 2 and 3 done and released as `v0.1.0`, `v0.2.0` and `v0.3.0`, the last with the full create, read, update and delete cycle on the pantry; Milestone 4, the strict-matching engine, done (M4, `v0.4.0` to cut); Milestone 5 under way, with the
-Suggested Recipes tab on the live pantry. The brief has been broken into seven milestones and
+**Where the project is.** Milestones 1 to 4 done and released as `v0.1.0`, `v0.2.0`, `v0.3.0` and
+`v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
+the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
+screen and the "Almost there" section, done (M5, `v0.5.0` to cut). The brief has been broken into
+seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -399,14 +403,25 @@ deleted, and waits on the matcher through an `IdlingResource`. The "count expire
 observed live (`AppPreferences.observeBoolean`), so changing it runs the matcher again, and
 [`docs/DEMO/MATCH_PROOF_STEPS.md`](docs/DEMO/MATCH_PROOF_STEPS.md) holds the steps to film.
 
-**What is next.** The last of M5: the "Almost there" section (Issue 27).
+Issue 27 closes the milestone with the brief's bonus on screen, kept clearly apart: below the
+suggestions, under a divider and the heading "Almost there (missing one ingredient)", outlined cards
+name each recipe's one missing or short ingredient ("Short: need 50 g butter, have 40 g"). One
+`RecyclerView` over a `ConcatAdapter` holds both sections, each its own adapter, and each adapter
+refuses a recipe of the other status. They are never counted in "Suggested recipes (N)". It also
+writes the `v0.5.0` release note.
+
+**What is next.** Tagging `v0.5.0` once this pull request merges, then M6 in week 6: the Settings
+screen (alerts, units, counting expired items), expiring-soon notifications, the UX pass and the
+Espresso suite.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
-[`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2) and
-[`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) (M3), each with its APK on its
-release; `v0.4.0` is cut when Issue 22 merges (M4, `v0.4.0` to cut), with its note in
-[`RELEASE_v0_4_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_4_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
+[`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2),
+[`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) (M3),
+[`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) (M4) and its patch
+[`v0.4.1`](https://github.com/Billykat7/spm/releases/tag/v0.4.1), each with its APK on its release;
+`v0.5.0` is cut when Issue 27 merges (M5, `v0.5.0` to cut), with its note in
+[`RELEASE_v0_5_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_5_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
 in [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence
