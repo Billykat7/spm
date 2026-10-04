@@ -116,6 +116,8 @@ dependencies {
     androidTestImplementation libs.arch.core.testing
     androidTestImplementation libs.room.testing
     androidTestImplementation libs.espresso.core
+    // The Accessibility Test Framework, the checks Accessibility Scanner runs, on every Espresso action (Issue 30)
+    androidTestImplementation libs.espresso.accessibility
     // WorkManagerTestInitHelper, TestWorkerBuilder and TestDriver: the worker runs in the test, now
     androidTestImplementation libs.work.testing
 }
