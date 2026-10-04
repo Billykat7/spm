@@ -103,6 +103,35 @@ public class PantryViewModelTest {
         assertEquals(List.of("apple"), names(getOrAwaitValue(viewModel.getItems())));
     }
 
+    @Test
+    public void deleteThenUndo_bringsTheSameRowBack_inItsSortedPlace() throws InterruptedException {
+        repository.insert(item("apple", null, 1));
+        repository.insert(item("banana", TODAY, 2));
+        repository.insert(item("cherry", null, 3));
+        List<PantryItem> before = getOrAwaitValue(viewModel.getItems());
+        PantryItem banana = before.get(1);
+
+        viewModel.delete(banana);
+        assertEquals(List.of("apple", "cherry"), names(getOrAwaitValue(viewModel.getItems())));
+
+        viewModel.undoDelete(banana);
+        List<PantryItem> after = getOrAwaitValue(viewModel.getItems());
+        assertEquals(before, after);
+        assertEquals(banana.getId(), after.get(1).getId());
+    }
+
+    @Test
+    public void deletingTheLastItem_emptiesTheList_andUndoRefillsIt() throws InterruptedException {
+        repository.insert(item("rice", null, 1));
+        PantryItem rice = getOrAwaitValue(viewModel.getItems()).get(0);
+
+        viewModel.delete(rice);
+        assertTrue(getOrAwaitValue(viewModel.getItems()).isEmpty());
+
+        viewModel.undoDelete(rice);
+        assertEquals(List.of(rice), getOrAwaitValue(viewModel.getItems()));
+    }
+
     private static PantryItem item(String name, LocalDate expiry, long createdAt) {
         return new PantryItem(name, 1, Unit.PCS, expiry, createdAt);
     }
