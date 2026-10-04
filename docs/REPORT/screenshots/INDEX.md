@@ -1,8 +1,8 @@
 # Screenshots index
 
 Real screenshots of the running app, taken on the emulator, one per screen and core function (brief
-section 6). `NN_<slug>.png`, two-digit order; `_dark` for the dark-theme variants. Issue 33 re-takes
-the final set after the UI pass, so earlier rows are working copies.
+section 6). `NN_<slug>.png`, two-digit order; `_dark` for the dark-theme variants. Issue 33 picks the
+report set from them; every row under *Working copies* stays as it was taken.
 
 ## Report set
 
