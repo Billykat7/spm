@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.btk.spm.SpmApplication;
 import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.settings.AppPreferences;
+import com.btk.spm.settings.PrefKey;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,7 +22,8 @@ import java.util.List;
  *
  * <p>This is where the real sources are wired in: the pantry and recipe queries from
  * {@link SpmApplication}'s repositories, its shared matcher and matching thread, the
- * {@code COUNT_EXPIRED_ITEMS} setting through {@link AppPreferences}, and the clock as
+ * {@code COUNT_EXPIRED_ITEMS} setting observed live through {@link AppPreferences#observeBoolean}, and
+ * the clock as
  * {@code LocalDate::now}. The clock is read here, at the edge of the app, and nowhere in
  * {@code domain/}: the engine is told the day.
  *
@@ -61,8 +63,8 @@ public final class SuggestedRecipesViewModelFactory implements ViewModelProvider
         return modelClass.cast(new SuggestedRecipesViewModel(
                 app.getPantryRepository().observeAll(),
                 seededRecipes,
+                preferences.observeBoolean(PrefKey.COUNT_EXPIRED_ITEMS),
                 app::getStrictMatcher,
-                preferences::isCountExpiredItems,
                 LocalDate::now,
                 app.getMatchExecutor()));
     }

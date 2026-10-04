@@ -86,14 +86,14 @@ public class SuggestedRecipesViewModelTest {
     private final QueuedExecutor jobs = new QueuedExecutor();
     private final List<UiState> states = new ArrayList<>();
 
-    private boolean countExpired;
+    private final MutableLiveData<Boolean> countExpired = new MutableLiveData<>(false);
     private LocalDate today = TODAY;
     private SuggestedRecipesViewModel viewModel;
 
     @Before
     public void createTheViewModel() {
-        viewModel = new SuggestedRecipesViewModel(pantry, recipes, () -> MATCHER,
-                () -> countExpired, () -> today, jobs);
+        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, () -> MATCHER,
+                () -> today, jobs);
         viewModel.getState().observeForever(states::add);
     }
 
@@ -191,7 +191,7 @@ public class SuggestedRecipesViewModelTest {
 
     @Test
     public void anExpiredIngredient_counts_whenTheSettingSaysSo() {
-        countExpired = true;
+        countExpired.setValue(true);
 
         deliver(expired(pantryFor("Tomato pasta"), "tomato"), SEED);
 
@@ -340,7 +340,7 @@ public class SuggestedRecipesViewModelTest {
         ThreadRecordingExecutor matchThread = new ThreadRecordingExecutor("spm-match-test");
         try {
             SuggestedRecipesViewModel threaded = new SuggestedRecipesViewModel(pantry, recipes,
-                    () -> recordingMatcher, () -> false, () -> TODAY, matchThread);
+                    new MutableLiveData<>(false), () -> recordingMatcher, () -> TODAY, matchThread);
             List<Thread> deliveredOn = new CopyOnWriteArrayList<>();
             List<UiState> seen = new CopyOnWriteArrayList<>();
             Observer<UiState> screen = state -> {
