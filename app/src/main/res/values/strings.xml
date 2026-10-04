@@ -28,6 +28,20 @@
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>
 
+    <!--
+        The expiry badge on a pantry row (Issue 17), from ui/pantry/ExpiryBadgeFormatter. Labels, so
+        no full stop. Counts go through plurals: "Expires in 1 day", never "1 days".
+    -->
+    <plurals name="expiry_badge_expires_in">
+        <item quantity="one">Expires in %1$d day</item>
+        <item quantity="other">Expires in %1$d days</item>
+    </plurals>
+    <string name="expiry_badge_expires_today">Expires today</string>
+    <plurals name="expiry_badge_expired_ago">
+        <item quantity="one">Expired %1$d day ago</item>
+        <item quantity="other">Expired %1$d days ago</item>
+    </plurals>
+
     <!-- Deleting an ingredient (Issue 16): the confirmation, then the Snackbar that can undo it -->
     <string name="delete_confirm_title">Delete %1$s?</string>
     <string name="delete_confirm_message">This removes it from your pantry.</string>
