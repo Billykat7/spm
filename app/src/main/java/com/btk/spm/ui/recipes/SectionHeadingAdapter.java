@@ -1,6 +1,7 @@
 package com.btk.spm.ui.recipes;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -11,25 +12,38 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.btk.spm.databinding.ItemSectionHeadingBinding;
 
 /**
- * A heading inside a {@code ConcatAdapter}, such as "Method" between a recipe's ingredients and its
- * steps. It holds no item until {@link #setShown(boolean)} shows it, so the heading never appears
- * above a list that has not loaded.
+ * A heading inside a {@code ConcatAdapter}: "Method" between a recipe's ingredients and its steps
+ * (Issue 25), or "Almost there (missing one ingredient)" with a divider above it, between the
+ * suggestions and the recipes one ingredient short (Issue 27). It holds no item until
+ * {@link #setShown(boolean)} shows it, so a heading never appears above a list with nothing in it.
  */
 public class SectionHeadingAdapter extends RecyclerView.Adapter<SectionHeadingAdapter.ViewHolder> {
 
     @StringRes
     private final int textRes;
+    private final boolean dividerAbove;
     private boolean shown;
 
     /**
-     * Creates a hidden heading.
+     * Creates a hidden heading with no divider.
      *
      * @param textRes the heading's text
      */
     public SectionHeadingAdapter(@StringRes int textRes) {
+        this(textRes, false);
+    }
+
+    /**
+     * Creates a hidden heading.
+     *
+     * @param textRes      the heading's text
+     * @param dividerAbove whether a divider line is drawn above it, to mark a break between sections
+     */
+    public SectionHeadingAdapter(@StringRes int textRes, boolean dividerAbove) {
         this.textRes = textRes;
-        // Like the other adapters: hold a saved scroll position until the screen has content
-        setStateRestorationPolicy(StateRestorationPolicy.PREVENT_WHEN_EMPTY);
+        this.dividerAbove = dividerAbove;
+        // No PREVENT_WHEN_EMPTY: hidden is a normal state for a heading, and inside a ConcatAdapter an
+        // empty child with that policy would block the saved scroll position for good
     }
 
     /**
@@ -63,6 +77,7 @@ public class SectionHeadingAdapter extends RecyclerView.Adapter<SectionHeadingAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.binding.heading.setText(textRes);
+        holder.binding.divider.setVisibility(dividerAbove ? View.VISIBLE : View.GONE);
     }
 
     /** Holds the heading's one view. */

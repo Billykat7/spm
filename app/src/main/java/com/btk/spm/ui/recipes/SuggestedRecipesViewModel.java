@@ -180,10 +180,9 @@ public class SuggestedRecipesViewModel extends ViewModel {
         for (RecipeWithIngredients recipe : recipesNow) {
             byId.put(recipe.getRecipe().getId(), recipe);
         }
-        if (groups.canMake().isEmpty()) {
-            // The engine has already said no; the reason only chooses the words and the button
-            return new UiState.Empty(EmptyReason.of(recipesNow.isEmpty(), pantryNow.isEmpty()),
-                    pair(groups.almostThere(), byId));
+        if (groups.canMake().isEmpty() && groups.almostThere().isEmpty()) {
+            // The engine has already said no to every recipe; the reason only chooses the words and the button
+            return new UiState.Empty(EmptyReason.of(recipesNow.isEmpty(), pantryNow.isEmpty()));
         }
         return new UiState.Content(pair(groups.canMake(), byId), pair(groups.almostThere(), byId));
     }

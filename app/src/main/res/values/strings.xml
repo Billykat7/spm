@@ -71,6 +71,14 @@
     <string name="recipes_empty_action">Add ingredients</string>
 
     <!--
+        The "Almost there" section (Issue 27), kept apart from the suggestions: its heading, and the one
+        line each row gives from MatchResult.missingOne(). Quantity first, then the name: "2 pcs egg".
+    -->
+    <string name="almost_there_heading">Almost there (missing one ingredient)</string>
+    <string name="almost_missing">Missing: %1$s %2$s</string>
+    <string name="almost_short">Short: need %1$s %2$s, have %3$s</string>
+
+    <!--
         The recipe detail screen (Issue 25). The status line and each ingredient's mark come from the
         matcher's result; "need ..., have ..." puts the recipe's amount first and the pantry's second.
     -->

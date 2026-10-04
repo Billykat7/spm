@@ -1,5 +1,6 @@
 package com.btk.spm.ui.recipes;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,23 +21,29 @@ import com.btk.spm.ui.MainActivity;
 import com.btk.spm.ui.Tab;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 
+import java.util.List;
+
 /**
- * The Recipes tab: the recipes the pantry can make right now, and only those.
+ * The Recipes tab: the recipes the pantry can make right now, then, clearly apart, the ones one
+ * ingredient short.
  *
  * <p>It does what a screen does and nothing else: it inflates its binding, observes
  * {@link SuggestedRecipesViewModel#getState()} and forwards taps. Each {@link UiState} goes through
  * {@link RecipesRender}, which decides which one of the progress indicator, the list and the empty
- * state is shown; this class only applies it. The list is {@link UiState.Content#canMake()} exactly as
- * the ViewModel built it from the matcher's partition; this screen never filters it, and the
- * almost-there recipes it also carries wait for their own section (Issue 27). The toolbar reads
- * "Suggested recipes (N)", N being the length of that same list.
+ * state is shown; this class only applies it. The list is one {@code RecyclerView} over a
+ * {@link ConcatAdapter} of four sections, from {@link RecipeSections#split}: the brief's zero-match
+ * sentence when nothing can be made, the suggestions ({@link RecipeAdapter}, exactly the matcher's
+ * {@code canMake}), the "Almost there (missing one ingredient)" heading with a divider, and the
+ * almost-there cards ({@link AlmostThereAdapter}). The brief allows that last list for bonus credit only
+ * if it is "clearly separated from the strict suggestions" (§2.3): it has its own adapter, its own row
+ * and its own heading, is never counted in "Suggested recipes (N)", and is absent when it is empty.
  *
- * <p>When nothing can be made, the shared empty state says why ({@link EmptyReason}): the brief's
- * "No recipes match your pantry yet, add more ingredients", an empty pantry, or recipes that did not
- * load. For the first two its "Add ingredients" button goes to the Pantry tab of the same
+ * <p>When there is nothing to show at all, the shared empty state says why ({@link EmptyReason}): the
+ * brief's "No recipes match your pantry yet, add more ingredients", an empty pantry, or recipes that
+ * did not load. For the first two its "Add ingredients" button goes to the Pantry tab of the same
  * {@link MainActivity}, through {@link MainActivity#intentFor}, so no second host is opened. The
  * progress indicator is shown only before the first result: a later match leaves the current rows or
- * message on screen until its result replaces them.
+ * message on screen until its result replaces them. A tap on any recipe opens it in full.
  *
  * <p>The state lives in the ViewModel, so a rotation shows the same rows at once, with no second
  * match and no progress indicator. Its lifecycle callbacks are logged in debug builds
@@ -44,8 +52,11 @@ import com.google.android.material.divider.MaterialDividerItemDecoration;
 public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         implements RecipeAdapter.OnRecipeClickListener {
 
-    /** Names this list in the debug log: {@code adb logcat -s ListChange}. */
+    /** Names the suggestions in the debug log: {@code adb logcat -s ListChange}. */
     private static final String LIST_NAME = "Recipes";
+
+    /** Names the "Almost there" section in the debug log. */
+    private static final String ALMOST_LIST_NAME = "Almost there";
 
     @Nullable
     private FragmentSuggestedRecipesBinding binding;
@@ -67,16 +78,20 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
                 new SuggestedRecipesViewModelFactory(requireActivity().getApplication()))
                 .get(SuggestedRecipesViewModel.class);
 
-        RecipeAdapter adapter = new RecipeAdapter(this);
-        // Hold the saved scroll position until the first list arrives, so a rotation lands on the
-        // same rows instead of the top of an adapter that is still empty
-        adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
-        ListChangeLog.attach(adapter, LIST_NAME);
-        views.recipeList.setAdapter(adapter);
-        MaterialDividerItemDecoration divider =
-                new MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL);
-        divider.setLastItemDecorated(false);
-        views.recipeList.addItemDecoration(divider);
+        // One RecyclerView, four adapters in screen order: the sections are separate adapters, so the
+        // suggestions and the almost-there recipes are kept apart by structure, not by a sort order,
+        // and the screen still has one scroll position and recycles its rows (Issue 27). No adapter
+        // holds back the saved position when empty: inside a ConcatAdapter an empty child with that
+        // policy would block it for good, and an empty section is normal here. The ViewModel outlives
+        // a rotation, so the rows are back before the position is restored.
+        Sections sections = new Sections(new ZeroMatchHeaderAdapter(), new RecipeAdapter(this),
+                new SectionHeadingAdapter(R.string.almost_there_heading, true), new AlmostThereAdapter(this));
+        ListChangeLog.attach(sections.suggested, LIST_NAME);
+        ListChangeLog.attach(sections.almostThere, ALMOST_LIST_NAME);
+        ConcatAdapter all = new ConcatAdapter(sections.zeroMatchHeader, sections.suggested,
+                sections.almostThereHeader, sections.almostThere);
+        views.recipeList.setAdapter(all);
+        views.recipeList.addItemDecoration(new SuggestedRowDividers(requireContext(), all, sections.suggested));
 
         // The included empty state has no words of its own: the message follows the reason, and the
         // button always says the same thing and goes to the pantry
@@ -87,7 +102,7 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         views.emptyState.emptyStateTitle.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does
-        viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, adapter));
+        viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, sections));
     }
 
     @Override
@@ -106,8 +121,12 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
         startActivity(RecipeDetailActivity.intentFor(requireContext(), recipeId));
     }
 
-    /** Applies {@link RecipesRender}: exactly one of the progress indicator, the list and the empty state. */
-    private void render(@NonNull UiState state, @NonNull RecipeAdapter adapter) {
+    /**
+     * Applies {@link RecipesRender}, exactly one of the progress indicator, the list and the empty
+     * state, and hands each section its part from {@link RecipeSections#split}. Nothing here decides
+     * which recipe goes where; the adapters refuse a recipe of the wrong status.
+     */
+    private void render(@NonNull UiState state, @NonNull Sections sections) {
         FragmentSuggestedRecipesBinding views = requireBinding();
         RecipesRender render = RecipesRender.of(state);
         // show() and hide() rather than visibility: the indicator waits before it appears, so a first
@@ -116,7 +135,8 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
             views.loading.show();
         } else {
             views.loading.hide();
-            adapter.submitList(render.rows());
+            sections.show(state instanceof UiState.Content content ? RecipeSections.split(content) : null);
+            // Only the suggestions are counted, never the almost-there recipes
             showCount(render.count());
         }
         views.recipeList.setVisibility(render.list() ? View.VISIBLE : View.GONE);
@@ -151,5 +171,58 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
             throw new IllegalStateException("SuggestedRecipesFragment's view is not created");
         }
         return binding;
+    }
+
+    /** The four adapters of the list, in screen order, and how one split is handed to them. */
+    private static final class Sections {
+
+        final ZeroMatchHeaderAdapter zeroMatchHeader;
+        final RecipeAdapter suggested;
+        final SectionHeadingAdapter almostThereHeader;
+        final AlmostThereAdapter almostThere;
+
+        Sections(@NonNull ZeroMatchHeaderAdapter zeroMatchHeader, @NonNull RecipeAdapter suggested,
+                 @NonNull SectionHeadingAdapter almostThereHeader, @NonNull AlmostThereAdapter almostThere) {
+            this.zeroMatchHeader = zeroMatchHeader;
+            this.suggested = suggested;
+            this.almostThereHeader = almostThereHeader;
+            this.almostThere = almostThere;
+        }
+
+        /** Shows {@code split}, or clears every section when there is nothing to show. */
+        void show(@Nullable RecipeSections.Sections split) {
+            zeroMatchHeader.setShown(split != null && split.zeroMatchHeader());
+            suggested.submitList(split == null ? List.of() : split.suggested());
+            almostThereHeader.setShown(split != null && split.almostThereHeader());
+            almostThere.submitList(split == null ? List.of() : split.almostThere());
+        }
+    }
+
+    /**
+     * Draws the list divider between two suggested rows only. The headers and the outlined
+     * almost-there cards bring their own separation, and a line through them would blur the break
+     * between the sections.
+     */
+    private static final class SuggestedRowDividers extends MaterialDividerItemDecoration {
+
+        private final ConcatAdapter all;
+        private final RecipeAdapter suggested;
+
+        SuggestedRowDividers(@NonNull Context context, @NonNull ConcatAdapter all, @NonNull RecipeAdapter suggested) {
+            super(context, LinearLayoutManager.VERTICAL);
+            this.all = all;
+            this.suggested = suggested;
+            setLastItemDecorated(false);
+        }
+
+        @Override
+        protected boolean shouldDrawDivider(int position, @Nullable RecyclerView.Adapter<?> adapter) {
+            return isSuggestedRow(position) && isSuggestedRow(position + 1);
+        }
+
+        private boolean isSuggestedRow(int position) {
+            return position >= 0 && position < all.getItemCount()
+                    && all.getWrappedAdapterAndPosition(position).first == suggested;
+        }
     }
 }

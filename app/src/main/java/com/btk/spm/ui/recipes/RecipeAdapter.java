@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +16,7 @@ import com.btk.spm.data.model.Recipe;
 import com.btk.spm.databinding.ItemRecipeBinding;
 import com.btk.spm.domain.matching.MatchResult;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,7 +31,9 @@ import java.util.Objects;
  *
  * <p>It only renders. Every row it is given is a recipe the matcher said can be made, and the count
  * it shows is the matcher's {@link MatchResult#needCount()}: the adapter never filters, sorts or
- * decides. A tap goes to the {@link OnRecipeClickListener} the Fragment implements.
+ * decides. {@link #submitList} checks that, through {@link RecipeSections#requireCanMake}: a list
+ * holding an almost-there recipe throws instead of being drawn as a suggestion (non-negotiable 3). A
+ * tap goes to the {@link OnRecipeClickListener} the Fragment implements.
  */
 public class RecipeAdapter extends ListAdapter<MatchedRecipe, RecipeAdapter.ViewHolder> {
 
@@ -54,6 +58,27 @@ public class RecipeAdapter extends ListAdapter<MatchedRecipe, RecipeAdapter.View
     public RecipeAdapter(@NonNull OnRecipeClickListener listener) {
         super(new ItemDiff());
         this.listener = listener;
+    }
+
+    /**
+     * Shows {@code list} as the suggestions.
+     *
+     * @param list recipes that can be made, or {@code null} to clear the list
+     * @throws IllegalArgumentException if any recipe in it is not {@code CAN_MAKE}
+     */
+    @Override
+    public void submitList(@Nullable List<MatchedRecipe> list) {
+        super.submitList(RecipeSections.requireCanMake(list));
+    }
+
+    /**
+     * Shows {@code list} as the suggestions, then runs {@code commitCallback}.
+     *
+     * @throws IllegalArgumentException if any recipe in {@code list} is not {@code CAN_MAKE}
+     */
+    @Override
+    public void submitList(@Nullable List<MatchedRecipe> list, @Nullable Runnable commitCallback) {
+        super.submitList(RecipeSections.requireCanMake(list), commitCallback);
     }
 
     @NonNull

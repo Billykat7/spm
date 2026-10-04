@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The first row of the Recipes tab when nothing can be made but something is one ingredient away
+    (ZeroMatchHeaderAdapter, Issue 27): the brief's zero-match sentence (2.2) from Issue 24, above the
+    "Almost there" section, so the user is told there is no suggestion before seeing what is close.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/message"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingHorizontal="@dimen/spacing_l"
+    android:paddingVertical="@dimen/spacing_l"
+    android:text="@string/recipes_empty_no_match"
+    android:textAppearance="@style/TextAppearance.Spm.TitleMedium"
+    android:textColor="?attr/colorOnSurface" />

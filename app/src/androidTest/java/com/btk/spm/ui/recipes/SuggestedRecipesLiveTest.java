@@ -3,6 +3,7 @@ package com.btk.spm.ui.recipes;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -11,11 +12,14 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
+import android.os.SystemClock;
+import android.view.View;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -33,7 +37,9 @@ import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.testing.MatcherIdlingResource;
 import com.btk.spm.ui.MainActivity;
 import com.btk.spm.ui.Tab;
+import com.btk.spm.util.QuantityFormatter;
 
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +54,10 @@ import java.util.function.Predicate;
 
 /**
  * The video's part 2 clip on a device (brief §5.1, Issue 26): with the Recipes tab on screen the whole
- * time, the fifth ingredient of Tomato pasta, inserted through {@code PantryRepository}, makes its row
- * appear, and deleting it makes the row go, with no navigation and no restart.
+ * time, the fifth ingredient of Tomato pasta, inserted through {@code PantryRepository}, moves it from
+ * the "Almost there" section into the suggestions, and deleting it moves it back, with no navigation
+ * and no restart. Since Issue 27 the four-of-five state shows the brief's zero-match sentence, the
+ * heading and the recipe's card saying what is missing; with the fifth, the heading is gone.
  *
  * <p>The pantry is emptied in {@link #emptyThePantry()} and what was in it is put back afterwards, ids
  * and all. Three waits, none of them a sleep: Espresso waits for the matcher through a
@@ -65,6 +73,9 @@ import java.util.function.Predicate;
 public class SuggestedRecipesLiveTest {
 
     private static final long TIMEOUT_S = 5;
+
+    /** The longest a row may take to leave the screen once its list has dropped it. */
+    private static final long GONE_WITHIN_MS = 2_000;
     private static final String RECIPE = "Tomato pasta";
 
     /** Marks the rows this test inserts. */
@@ -119,27 +130,50 @@ public class SuggestedRecipesLiveTest {
 
             List<RecipeIngredient> lines = tomatoPasta.getIngredients();
             RecipeIngredient fifth = lines.get(lines.size() - 1);
+            String heading = app.getString(R.string.almost_there_heading);
+            String sentence = app.getString(R.string.recipes_empty_no_match);
+            String missingFifth = app.getString(R.string.almost_missing,
+                    QuantityFormatter.format(app, fifth.getQuantity(), fifth.getUnit()), fifth.getName());
+
+            // Four of five: nothing suggested, the brief's sentence, then Tomato pasta under the heading
+            CountDownLatch cardIn = onNextChange(scenario, AlmostThereAdapter.class);
             for (RecipeIngredient line : lines.subList(0, lines.size() - 1)) {
                 insert(line);
             }
-            // Four of five: almost there, not suggested
-            awaitState(viewModel, state -> state instanceof UiState.Empty empty
-                    && empty.almostThere().stream().anyMatch(this::isTomatoPasta));
-            onView(allOf(withText(RECIPE), isDisplayed())).check(doesNotExist());
+            awaitState(viewModel, state -> state instanceof UiState.Content content
+                    && content.canMake().isEmpty() && content.almostThere().stream().anyMatch(this::isTomatoPasta));
+            assertTrue("The almost-there card was not added", cardIn.await(TIMEOUT_S, TimeUnit.SECONDS));
+            onView(withText(sentence)).check(matches(isDisplayed()));
+            onView(withText(heading)).check(matches(isDisplayed()));
+            onView(withText(RECIPE)).check(matches(isDisplayed()));
+            onView(withText(missingFifth)).check(matches(isDisplayed()));
 
-            CountDownLatch rowIn = onNextListChange(scenario);
+            // The fifth: Tomato pasta is a suggestion, and the heading and its card are gone
+            String haveAll = app.getResources().getQuantityString(R.plurals.recipe_have_all_ingredients,
+                    lines.size(), lines.size());
+            CountDownLatch rowIn = onNextChange(scenario, RecipeAdapter.class);
+            CountDownLatch cardOut = onNextChange(scenario, AlmostThereAdapter.class);
             insert(fifth);
             awaitState(viewModel, state -> state instanceof UiState.Content content
                     && content.canMake().stream().anyMatch(this::isTomatoPasta));
-            assertTrue("The row was not added to the list", rowIn.await(TIMEOUT_S, TimeUnit.SECONDS));
-            onView(withText(RECIPE)).check(matches(isDisplayed()));
+            // Each section diffs on its own, so wait for both: the row in, and the card out
+            assertTrue("The row was not added to the suggestions", rowIn.await(TIMEOUT_S, TimeUnit.SECONDS));
+            assertTrue("The card was not removed from Almost there", cardOut.await(TIMEOUT_S, TimeUnit.SECONDS));
+            onView(allOf(withText(RECIPE), hasSibling(withText(haveAll)))).check(matches(isDisplayed()));
+            awaitGone(withText(heading));
+            awaitGone(withText(missingFifth));
 
-            CountDownLatch rowOut = onNextListChange(scenario);
+            // The fifth deleted: out of the suggestions, back under the heading
+            CountDownLatch rowOut = onNextChange(scenario, RecipeAdapter.class);
+            CountDownLatch cardBack = onNextChange(scenario, AlmostThereAdapter.class);
             deleteTheTestRow(fifth);
-            awaitState(viewModel, state -> state instanceof UiState.Empty empty
-                    && empty.almostThere().stream().anyMatch(this::isTomatoPasta));
-            assertTrue("The row was not removed from the list", rowOut.await(TIMEOUT_S, TimeUnit.SECONDS));
-            onView(allOf(withText(RECIPE), isDisplayed())).check(doesNotExist());
+            awaitState(viewModel, state -> state instanceof UiState.Content content
+                    && content.canMake().isEmpty() && content.almostThere().stream().anyMatch(this::isTomatoPasta));
+            assertTrue("The row was not removed from the suggestions", rowOut.await(TIMEOUT_S, TimeUnit.SECONDS));
+            assertTrue("The card did not come back", cardBack.await(TIMEOUT_S, TimeUnit.SECONDS));
+            awaitGone(withText(haveAll));
+            onView(withText(heading)).check(matches(isDisplayed()));
+            onView(withText(missingFifth)).check(matches(isDisplayed()));
 
             scenario.onActivity(activity -> assertSame("The screen was opened again", host.get(), activity));
         }
@@ -177,12 +211,22 @@ public class SuggestedRecipesLiveTest {
         return viewModel.get();
     }
 
-    /** A latch released the next time the suggestions list adds, removes or changes a row. */
-    private static CountDownLatch onNextListChange(ActivityScenario<MainActivity> scenario) {
+    /**
+     * A latch released the next time the section adapter of {@code type} inside the list's
+     * {@code ConcatAdapter} adds, removes or changes a row. One section, not the whole list: the header
+     * rows change at once, while a section's rows arrive after {@code ListAdapter}'s background diff.
+     */
+    private static CountDownLatch onNextChange(ActivityScenario<MainActivity> scenario,
+                                               Class<? extends RecyclerView.Adapter<?>> type) {
         CountDownLatch changed = new CountDownLatch(1);
         scenario.onActivity(activity -> {
             RecyclerView list = activity.findViewById(R.id.recipe_list);
-            list.getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            ConcatAdapter all = (ConcatAdapter) list.getAdapter();
+            RecyclerView.Adapter<?> section = all.getAdapters().stream()
+                    .filter(type::isInstance)
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("No " + type.getSimpleName() + " in the list"));
+            section.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                 @Override
                 public void onChanged() {
                     changed.countDown();
@@ -200,6 +244,27 @@ public class SuggestedRecipesLiveTest {
             });
         });
         return changed;
+    }
+
+    /**
+     * Waits, at most {@link #GONE_WITHIN_MS}, until no displayed view matches {@code view}. A removed
+     * row is animated out after the list has been told, and Espresso does not wait for item
+     * animations, so this is the bounded poll the issue allows as the fallback; every attempt first
+     * waits for the main thread to be idle, so it never spins.
+     */
+    private static void awaitGone(Matcher<View> view) {
+        long deadline = SystemClock.uptimeMillis() + GONE_WITHIN_MS;
+        while (true) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            try {
+                onView(allOf(view, isDisplayed())).check(doesNotExist());
+                return;
+            } catch (AssertionError stillShown) {
+                if (SystemClock.uptimeMillis() > deadline) {
+                    throw stillShown;
+                }
+            }
+        }
     }
 
     private static void awaitState(SuggestedRecipesViewModel viewModel, Predicate<UiState> test)

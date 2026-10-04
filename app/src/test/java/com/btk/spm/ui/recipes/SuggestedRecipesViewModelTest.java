@@ -139,7 +139,7 @@ public class SuggestedRecipesViewModelTest {
 
         deliver(noGarlic, SEED);
 
-        assertEquals(EmptyReason.NO_MATCH, emptyReason());
+        assertNothingSuggested_tomatoPastaAlmostThere();
     }
 
     @Test
@@ -186,7 +186,7 @@ public class SuggestedRecipesViewModelTest {
     public void anExpiredIngredient_isLeftOut_byDefault() {
         deliver(expired(pantryFor("Tomato pasta"), "tomato"), SEED);
 
-        assertEquals(EmptyReason.NO_MATCH, emptyReason());
+        assertNothingSuggested_tomatoPastaAlmostThere();
     }
 
     @Test
@@ -210,7 +210,7 @@ public class SuggestedRecipesViewModelTest {
         today = TODAY.plusDays(1);
         pantry.setValue(items);
         jobs.runAll();
-        assertEquals(EmptyReason.NO_MATCH, emptyReason());
+        assertNothingSuggested_tomatoPastaAlmostThere();
     }
 
     @Test
@@ -247,7 +247,8 @@ public class SuggestedRecipesViewModelTest {
         jobs.runNewestFirst(); // job 2 finishes, then the stale job 1
 
         assertEquals(List.of("Tomato pasta"), names(content().canMake()));
-        assertFalse("The stale result was posted", states.stream().anyMatch(s -> s instanceof UiState.Empty));
+        assertFalse("The stale result was posted", states.stream()
+                .anyMatch(s -> s instanceof UiState.Content c && c.canMake().isEmpty()));
     }
 
     @Test
@@ -259,6 +260,14 @@ public class SuggestedRecipesViewModelTest {
         jobs.runAll();
 
         assertEquals(List.of(UiState.Loading.INSTANCE), states);
+    }
+
+    @Test
+    public void aPantryCloseToNothing_isTheFullScreenNoMatch() {
+        // Rice alone: every seed recipe that needs it is two or more short, so nothing is almost there
+        deliver(List.of(new PantryItem(0, "rice", 1, Unit.KG, null, CREATED)), SEED);
+
+        assertEquals(EmptyReason.NO_MATCH, emptyReason());
     }
 
     @Test
@@ -292,7 +301,7 @@ public class SuggestedRecipesViewModelTest {
         pantry.setValue(plusRice);
         jobs.runAll();
 
-        assertEquals(EmptyReason.NO_MATCH, emptyReason());
+        assertNothingSuggested_tomatoPastaAlmostThere();
     }
 
     @Test
@@ -308,7 +317,7 @@ public class SuggestedRecipesViewModelTest {
         assertEquals(1, states.stream().filter(s -> s instanceof UiState.Loading).count());
         assertSame("Loading is first", UiState.Loading.INSTANCE, states.get(0));
         assertEquals(4, states.size());
-        assertEquals(EmptyReason.NO_MATCH, ((UiState.Empty) states.get(1)).reason());
+        assertTrue(((UiState.Content) states.get(1)).canMake().isEmpty());
         assertTrue(states.get(2) instanceof UiState.Content);
         assertEquals(EmptyReason.PANTRY_EMPTY, ((UiState.Empty) states.get(3)).reason());
     }
@@ -387,6 +396,15 @@ public class SuggestedRecipesViewModelTest {
         recipes.setValue(recipeList);
         pantry.setValue(items);
         jobs.runAll();
+    }
+
+    /**
+     * Four of Tomato pasta's five: since Issue 27 that is {@code Content} with no suggestion and the
+     * recipe almost there, not {@code Empty}; the full-screen empty state is for nothing at all.
+     */
+    private void assertNothingSuggested_tomatoPastaAlmostThere() {
+        assertTrue("Nothing may be suggested", content().canMake().isEmpty());
+        assertEquals(List.of("Tomato pasta"), names(content().almostThere()));
     }
 
     private EmptyReason emptyReason() {
