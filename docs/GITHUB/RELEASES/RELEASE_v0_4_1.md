@@ -9,12 +9,13 @@ Nothing on screen changes: the engine still has no screen until Milestone 5.
 
 ## What shipped
 
-- **Plurals of words whose singular ends in -ie or -i** (Issue 18 follow-up). The `-ies → -y` rule
-  is right for berries, cherries and anchovies, but nothing in the spelling tells those apart from
-  cookies, so `IngredientNormaliser` now keeps a short list, `SINGULAR_WORDS_ENDING_IN_IE_OR_I`:
-  brownie, chili, chilli and cookie. A word ending in `-ies` that is one of these without its `s` or
-  `es` keeps that singular; every other `-ies` word still ends in `-y`. With the alias table's
-  existing `chili → chilli`, `chilli`, `chillies`, `chili` and `chilies` are now one ingredient.
+- **Plurals of words whose singular ends in -ie or -i** (Issue 18 follow-up, pull request #65). The
+  `-ies → -y` rule is right for berries, cherries and anchovies, but nothing in the spelling tells
+  those apart from cookies, so `IngredientNormaliser` now keeps a short list,
+  `SINGULAR_WORDS_ENDING_IN_IE_OR_I`: brownie, chili, chilli and cookie. A word ending in `-ies` that
+  is one of these without its `s` or `es` keeps that singular; every other `-ies` word still ends in
+  `-y`. With the alias table's existing `chili → chilli`, `chilli`, `chillies`, `chili` and `chilies`
+  are now one ingredient.
 - **Rows for each word.** Five new rows in `IngredientNormaliserTest` (cookies, brownies, chillies,
   chilies, chocolate chip cookies), written and failing before the fix; berries, cherries, anchovies
   and pies still pass unchanged. Three new rows in `scenarios.csv`: cookies cover a cookie, a brownie
