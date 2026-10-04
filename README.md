@@ -144,8 +144,8 @@ decision 1 of the plan, recorded in Issue 8.
 | Database | **Room 2.6** over SQLite, exported schema, idempotent JSON seed |
 | Background | **WorkManager** for the daily expiry check; a notification channel |
 | Engine | Pure Java under `domain/matching/`: `IngredientNormaliser`, `UnitConverter`, `StrictMatcher` |
-| Tests | JUnit 4 on the JVM (engine, validators, ViewModels); Room in-memory and Espresso under `androidTest` |
-| CI | GitHub Actions on every pull request (guards, lint, unit tests, debug build); a `v*` tag builds the APK and attaches it to the release |
+| Tests | JUnit 4 on the JVM (engine, validators, ViewModels), with JaCoCo holding `domain/matching/` at 100% of lines; Room in-memory and Espresso under `androidTest` |
+| CI | GitHub Actions on every pull request (guards, lint, unit tests, 100% line coverage of the engine, debug build); a `v*` tag builds the APK and attaches it to the release |
 
 ```text
 app/src/main/java/com/btk/spm/
@@ -238,7 +238,7 @@ Pantry tab and open the Recipes tab.
 **Before every push**, the same gate CI runs:
 
 ```bash
-./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, debug build
+./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 

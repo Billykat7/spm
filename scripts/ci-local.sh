@@ -7,19 +7,22 @@
 #   1. guards       scripts/check_guards.sh: no Kotlin, no maps, location or billing (brief 2.3, 3.1, 3.3)
 #   2. lint         ./gradlew lint                       (Android Lint; HardcodedText is an error)
 #   3. unit tests   ./gradlew testDebugUnitTest          (JUnit on the JVM)
-#   4. debug build  ./gradlew assembleDebug              (app/build/outputs/apk/debug/app-debug.apk)
-#   5. schema       git status --porcelain -- app/schemas/ (the build left the committed Room schema as it was)
-#   6. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
+#   4. coverage     ./gradlew jacocoTestReport jacocoMatchingCoverageVerification
+#                                                        (every line of domain/matching/ run by a test;
+#                                                        report in app/build/reports/jacoco/jacocoTestReport/)
+#   5. debug build  ./gradlew assembleDebug              (app/build/outputs/apk/debug/app-debug.apk)
+#   6. schema       git status --porcelain -- app/schemas/ (the build left the committed Room schema as it was)
+#   7. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
 #
-# Stage 6 does not trust Gradle's exit status alone. Gradle can print BUILD SUCCESSFUL when the APK
+# Stage 7 does not trust Gradle's exit status alone. Gradle can print BUILD SUCCESSFUL when the APK
 # would not install on one of the devices, which then runs no test at all. So the stage uninstalls
 # the app and its test APK from every target device first, and afterwards fails when the Gradle
 # output says "AndroidTestRunner failed on <serial>" or when a target device has no JUnit XML with at
 # least one test in it. It prints one line per device, which the summary repeats.
 #
 # Usage:
-#   ./scripts/ci-local.sh                  stages 1-5
-#   ./scripts/ci-local.sh --with-device    stages 1-6 on every attached device; ANDROID_SERIAL picks
+#   ./scripts/ci-local.sh                  stages 1-6
+#   ./scripts/ci-local.sh --with-device    stages 1-7 on every attached device; ANDROID_SERIAL picks
 #                                          one device, or several separated by commas
 #
 # Exit status: 0 when every stage passed, the failing stage's status otherwise, 2 on bad usage or a
@@ -52,7 +55,7 @@ if [[ -z "${ANDROID_HOME:-}${ANDROID_SDK_ROOT:-}" ]] && ! grep -qs '^sdk\.dir=' 
 fi
 
 gradle=(./gradlew --console=plain)
-total=$((with_device ? 6 : 5))
+total=$((with_device ? 7 : 6))
 stage_no=0
 results=()
 stage_notes=()
@@ -232,6 +235,7 @@ device_tests() {
 stage guards ./scripts/check_guards.sh
 stage lint "${gradle[@]}" lint
 stage "unit tests" "${gradle[@]}" testDebugUnitTest
+stage coverage "${gradle[@]}" jacocoTestReport jacocoMatchingCoverageVerification
 stage "debug build" "${gradle[@]}" assembleDebug
 stage schema schema_unchanged
 if [[ $with_device -eq 1 ]]; then
