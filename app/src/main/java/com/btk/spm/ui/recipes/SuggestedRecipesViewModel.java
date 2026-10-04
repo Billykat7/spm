@@ -127,9 +127,8 @@ public class SuggestedRecipesViewModel extends ViewModel {
             return; // still Loading: one source has not delivered
         }
         int job = generation.incrementAndGet();
-        // SCRATCH, reverted in the next commit: match on the main thread, post from the executor
-        UiState result = match(pantryNow, recipesNow);
         matchExecutor.execute(() -> {
+            UiState result = match(pantryNow, recipesNow);
             // A newer job was submitted while this one ran: its pantry is the current one
             if (job == generation.get()) {
                 state.postValue(result);
