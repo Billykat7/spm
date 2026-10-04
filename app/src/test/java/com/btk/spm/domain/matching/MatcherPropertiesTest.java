@@ -23,7 +23,7 @@ import java.util.List;
  * Two properties of the strict rule, checked for every one of the twenty seed recipes (Issue 21).
  * From a pantry that holds exactly what a recipe needs:
  * <ul>
- *   <li>taking away any one ingredient, or a little of it, breaks the match;</li>
+ *   <li>taking away any one ingredient, or a little of it, or letting it expire, breaks the match;</li>
  *   <li>adding anything at all keeps it: more of an ingredient, other ingredients, the same
  *       ingredient in another kind, expired rows.</li>
  * </ul>
@@ -77,6 +77,20 @@ public class MatcherPropertiesTest {
             pantry.set(i, new PantryEntry(line.name(), less, null));
 
             assertEquals("short of " + line.name(), line.name(), onlyShortfall(match(pantry)));
+        }
+    }
+
+    @Test
+    public void anyOneIngredientOnlyInAnExpiredRow_breaksTheMatch_unlessExpiredItemsCount() {
+        List<PantryEntry> exact = SeedFixture.exactPantryFor(recipe);
+        for (int i = 0; i < exact.size(); i++) {
+            List<PantryEntry> pantry = new ArrayList<>(exact);
+            PantryEntry line = pantry.get(i);
+            pantry.set(i, new PantryEntry(line.name(), line.quantity(), DAY.minusDays(1)));
+
+            assertEquals("expired " + line.name(), line.name(), onlyShortfall(match(pantry)));
+            assertTrue("expired " + line.name() + ", counted",
+                    SeedFixture.MATCHER.match(pantry, recipe, MatchOptions.on(DAY, true)).canMake());
         }
     }
 
