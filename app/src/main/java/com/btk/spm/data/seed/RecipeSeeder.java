@@ -11,11 +11,8 @@ import com.btk.spm.data.db.AppDatabase;
 import com.btk.spm.data.db.RecipeDao;
 import com.btk.spm.data.model.RecipeWithIngredients;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -116,19 +113,6 @@ public final class RecipeSeeder {
     }
 
     private static RecipeSource assetSource(AssetManager assets) {
-        return () -> {
-            try (InputStream in = assets.open(ASSET_NAME)) {
-                return RecipeJsonParser.parse(readUtf8(in));
-            }
-        };
-    }
-
-    private static String readUtf8(InputStream in) throws IOException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
-        for (int read; (read = in.read(buffer)) != -1; ) {
-            bytes.write(buffer, 0, read);
-        }
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+        return () -> RecipeJsonParser.parse(AssetText.read(assets, ASSET_NAME));
     }
 }
