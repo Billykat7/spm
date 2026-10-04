@@ -181,11 +181,11 @@ issues and its order of work.
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **55%** (21/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **58%** (22/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -260,7 +260,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestones 1, 2 and 3 done and released as `v0.1.0`, `v0.2.0` and `v0.3.0`, the last with the full create, read, update and delete cycle on the pantry; Milestone 4, the strict-matching engine, under way. The brief has been broken into seven milestones and
+**Where the project is.** Milestones 1, 2 and 3 done and released as `v0.1.0`, `v0.2.0` and `v0.3.0`, the last with the full create, read, update and delete cycle on the pantry; Milestone 4, the strict-matching engine, done (M4, `v0.4.0` to cut). The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -362,14 +362,16 @@ and properties that hold for every one of them: take away or expire any ingredie
 breaks, add anything and it holds. JaCoCo measures the unit tests, and the gate now fails when any
 line of the engine is run by no test; `domain/matching/` is at 100% of lines and branches.
 
-**What is next.** The last issue of M4: "almost there" (Issue 22), then `v0.4.0`. After it, M5 puts
-the engine on the Recipes tab.
+**What is next.** Tagging `v0.4.0` once this pull request merges, then M5 in week 5: the Suggested
+Recipes tab on the live pantry, built on `MatchResults.partition`, the recipe detail screen and the
+"Almost there" section.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
 [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2) and
 [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) (M3), each with its APK on its
-release. Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
+release; `v0.4.0` is cut when Issue 22 merges (M4, `v0.4.0` to cut), with its note in
+[`RELEASE_v0_4_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_4_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
 in [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence
