@@ -126,3 +126,28 @@ name, and `AliasesJsonTest` checks it.
 because a rule covers the next word too. That holds when the spelling carries the answer. When it
 does not, a named list with a row per word is the honest fix, and the next word like these is one
 more entry and one more row.
+
+## 2026-10-04 · Issue 26 · The deleted recipe was "still there" after it had gone
+
+**Problem:** the first run of `SuggestedRecipesLiveTest` on the API 35 emulator failed at the last
+step. Garlic was deleted, the ViewModel posted the zero-match state, the adapter announced the row
+removed, and yet Espresso said `View is present in the hierarchy: ... text=Tomato pasta`. On the
+screen there was no row, only the empty state.
+
+**Cause:** when the list empties, `SuggestedRecipesFragment` hides the `RecyclerView` and shows the
+empty state. A `GONE` view gets no layout pass, so the removed row's view stayed attached to the hidden
+list until the next layout, which only comes when the list is shown again. The test asked "is there a
+view with this text", not "can the user see one". A second thing showed up while writing the JVM test:
+`UiState.Empty` (Issue 23) did not carry the almost-there recipes, so four of Tomato pasta's five
+ingredients left nothing to watch move into the suggestions.
+
+**Fix:** the device test checks for a displayed view, `allOf(withText(...), isDisplayed())`, and waits
+for the adapter's own change notice, because `ListAdapter` diffs on a background thread no idling
+check covers (commit `Issue 26: prove on a device that inserting the fifth ingredient shows Tomato
+pasta on the open Recipes tab and deleting it hides it`). `UiState.Empty` now carries `almostThere`
+(commit `Issue 26: carry the almost-there recipes on UiState.Empty too, so a recipe four of five in
+stays visible to the next screen`), which Issue 27 needs as well.
+
+**Learned:** "not in the hierarchy" and "not on screen" are different questions, and a test should
+ask the one the user would. Writing the proof first also found a gap in a state class that every
+earlier test had passed over.
