@@ -181,11 +181,11 @@ issues and its order of work.
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **50%** (19/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **53%** (20/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -347,9 +347,16 @@ forgiving only rounding error. Kinds never cross, so `500 g` of flour does not c
 limit is written down for the report. Duplicate pantry rows of one kind are summed, and a mass is
 never added to a volume. The units preference for Issue 28 can show `1500 g` as `1.5 kg` or
 `52.9 oz`, through display-only types that nothing in matching accepts.
+Issue 20, in pull request [#62](https://github.com/Billykat7/spm/pull/62), puts the two together in
+the function the brief calls the most important: `StrictMatcher.match` says `CAN_MAKE` only when
+every ingredient a recipe requires is in the pantry, by normalised name, in at least the required
+canonical amount. Four of five is `CANNOT_MAKE`, with a shortfall naming the fifth. Same-kind pantry
+rows are summed, expired rows are left out unless counted, and the day is passed in, never read from
+the clock. The inputs are plain domain values, not Room entities, and `MatchingPurityTest` fails the
+build on an Android or data-layer import, a clock or a raw name comparison in the engine.
 
-**What is next.** The rest of M4 in week 4: `StrictMatcher` (Issue 20), its scenario table
-(Issue 21) and "almost there" (Issue 22). The engine is the critical path.
+**What is next.** The rest of M4 in week 4: the matcher's full scenario table (Issue 21) and
+"almost there" (Issue 22). The engine is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
