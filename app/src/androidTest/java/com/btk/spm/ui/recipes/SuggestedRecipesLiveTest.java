@@ -1,10 +1,10 @@
 package com.btk.spm.ui.recipes;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -14,7 +14,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
-import android.os.SystemClock;
 import android.view.View;
 
 import androidx.fragment.app.Fragment;
@@ -37,6 +36,7 @@ import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.model.RecipeIngredient;
 import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.testing.MatcherIdlingResource;
+import com.btk.spm.ui.ListWait;
 import com.btk.spm.ui.MainActivity;
 import com.btk.spm.ui.Tab;
 import com.btk.spm.util.QuantityFormatter;
@@ -77,7 +77,6 @@ public class SuggestedRecipesLiveTest {
     private static final long TIMEOUT_S = 5;
 
     /** The longest a row may take to leave the screen once its list has dropped it. */
-    private static final long GONE_WITHIN_MS = 2_000;
     private static final String RECIPE = "Tomato pasta";
 
     /** Marks the rows this test inserts. */
@@ -177,8 +176,8 @@ public class SuggestedRecipesLiveTest {
             assertTrue("The row was not removed from the suggestions", rowOut.await(TIMEOUT_S, TimeUnit.SECONDS));
             assertTrue("The card did not come back", cardBack.await(TIMEOUT_S, TimeUnit.SECONDS));
             awaitGone(withText(haveAll));
-            onView(withText(heading)).check(matches(isDisplayed()));
-            onView(withText(missingFifth)).check(matches(isDisplayed()));
+            onView(isRoot()).perform(ListWait.until(allOf(withText(heading), isDisplayed())));
+            onView(isRoot()).perform(ListWait.until(allOf(withText(missingFifth), isDisplayed())));
 
             scenario.onActivity(activity -> assertSame("The screen was opened again", host.get(), activity));
         }
@@ -252,24 +251,14 @@ public class SuggestedRecipesLiveTest {
     }
 
     /**
-     * Waits, at most {@link #GONE_WITHIN_MS}, until no displayed view matches {@code view}. A removed
-     * row is animated out after the list has been told, and Espresso does not wait for item
-     * animations, so this is the bounded poll the issue allows as the fallback; every attempt first
-     * waits for the main thread to be idle, so it never spins.
+     * Waits until no displayed view matches {@code view}. The section's adapter has already announced
+     * the removal when this is called, but the row is animated out and laid out afterwards, which
+     * Espresso does not wait for. {@link ListWait} lets the main thread run in short steps until the row
+     * has gone, for up to five seconds. A two-second poll here failed once in ten runs on a loaded
+     * emulator (Issue 32): the row went, later than the poll looked.
      */
     private static void awaitGone(Matcher<View> view) {
-        long deadline = SystemClock.uptimeMillis() + GONE_WITHIN_MS;
-        while (true) {
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-            try {
-                onView(allOf(view, isDisplayed())).check(doesNotExist());
-                return;
-            } catch (AssertionError stillShown) {
-                if (SystemClock.uptimeMillis() > deadline) {
-                    throw stillShown;
-                }
-            }
-        }
+        onView(isRoot()).perform(ListWait.untilGone(allOf(view, isDisplayed())));
     }
 
     private static void awaitState(SuggestedRecipesViewModel viewModel, Predicate<UiState> test)
