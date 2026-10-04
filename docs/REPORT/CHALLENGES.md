@@ -181,3 +181,31 @@ other half: `TestWorkerBuilder` runs `doWork()` on the test thread against an in
 
 **Learned:** a setting is a promise the code has to keep on every API level. The permission belongs
 where the user turns the feature on, and a "no" has to leave the screen telling the truth.
+
+## 2026-10-04 · Issue 32 · Espresso waits for the main thread, and the app's work is elsewhere
+
+**Problem:** the five Espresso flows tap a button and then check a list, but almost nothing between
+the two happens on the main thread. A save runs on the app's write thread; Room computes the new
+`LiveData` value on its own query thread; the Recipes tab matches on a third; and `ListAdapter` works
+out the changed rows on a fourth before posting them back. Espresso only waits for the main thread,
+so without help it checks too early. Earlier device tests got round it with latches and adapter
+observers in each test; five UI flows needed one answer. Then, demonstrating the new "no sleep" rule,
+a scratch commit put a `Thread.sleep(500)` in `CrudCycleTest`, and the unit tests still passed.
+
+**Cause:** for the waits, each thread has to be either visible to Espresso or waited on explicitly.
+For the sleep, `ConventionsTest` reads `src/androidTest/java` as text, but those files were not inputs
+of the `testDebugUnitTest` task, so Gradle found it up to date and did not run it at all.
+
+**Fix:** `FreshAppRule` swaps `IdlingThreadPoolExecutor`s registered with Espresso in for the write
+thread and the matching thread (through new `@VisibleForTesting` setters on `SpmApplication`) and,
+with `setQueryExecutor`, for Room's query thread, so Espresso waits for a save, a `LiveData` value and
+a match on its own (commit `Issue 32: add FreshAppRule: an in-memory seeded database, cleared
+preferences and idling executors for writes, Room queries and the matcher`). `ListAdapter`'s diff
+thread cannot be swapped from outside, so `ListWait` lets the main thread run in short steps until
+the row appears or goes, with a timeout, which is not a sleep (commit `Issue 32: add ListWait, ...`).
+The androidTest sources are now declared inputs of every unit-test task (commit `Issue 32: declare
+the instrumented test sources as unit-test inputs, so ConventionsTest runs again when one changes`),
+and the scratch commit then failed as it should.
+
+**Learned:** a test that waits must know which thread it is waiting for. And a check that reads files
+is only as good as Gradle's idea of its inputs: a green build can mean "not run".
