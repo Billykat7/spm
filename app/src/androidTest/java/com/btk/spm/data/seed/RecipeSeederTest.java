@@ -113,7 +113,7 @@ public class RecipeSeederTest {
             recipes.add(recipe("Recipe " + i, new RecipeIngredient("egg", 2, Unit.PCS)));
         }
         recipes.add(recipe("Recipe 7", new RecipeIngredient(null, 2, Unit.PCS)));
-        RecipeSeeder seeder = new RecipeSeeder(database, () -> recipes);
+        RecipeSeeder seeder = new RecipeSeeder(database, () -> new RecipeJsonParser.Report(recipes, List.of()));
 
         assertThrows(RuntimeException.class, seeder::seedIfEmpty);
 
@@ -122,10 +122,11 @@ public class RecipeSeederTest {
     }
 
     @Test
-    public void aSeedThatCannotParse_leavesNoRecipes_andTheNextStartSeeds() {
-        RecipeSeeder broken = new RecipeSeeder(database, () -> RecipeJsonParser.parse("[{\"name\": \"Half\"}]"));
+    public void aSeedWithNothingGoodToSeed_leavesNoRecipes_andTheNextStartSeeds() {
+        RecipeSeeder broken = new RecipeSeeder(database,
+                () -> RecipeJsonParser.parseSkippingBroken("[{\"name\": \"Half\"}]"));
 
-        assertThrows(IllegalArgumentException.class, broken::seedIfEmpty);
+        assertEquals(SeedResult.NOTHING_TO_SEED, broken.seedIfEmpty());
         assertEquals(0, dao.count());
 
         // The count check, not a once-only callback, is what lets the next start try again

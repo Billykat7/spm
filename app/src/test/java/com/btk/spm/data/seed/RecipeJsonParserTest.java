@@ -125,6 +125,45 @@ public class RecipeJsonParserTest {
         assertTrue(e.getMessage(), e.getMessage().contains("not a JSON array"));
     }
 
+    @Test
+    public void parseSkippingBroken_keepsTheGoodRecipes_andNamesEachBrokenOneByPosition() {
+        String noName = OMELETTE.replace("\"name\": \"Cheese omelette\", ", "");
+        String badUnit = OMELETTE.replace("Cheese omelette", "Pancakes").replace("\"pcs\"", "\"handful\"");
+        String noIngredients = OMELETTE.replace("Cheese omelette", "Toast")
+                .replaceAll("\"ingredients\": \\[[^\\]]*\\]", "\"ingredients\": []");
+
+        RecipeJsonParser.Report report = RecipeJsonParser.parseSkippingBroken(
+                "[" + OMELETTE + "," + noName + "," + badUnit + "," + noIngredients + "," + OMELETTE + "]");
+
+        assertEquals(1, report.recipes().size());
+        assertEquals("Cheese omelette", report.recipes().get(0).getRecipe().getName());
+        assertEquals(4, report.skipped().size());
+        assertTrue(report.skipped().get(0), report.skipped().get(0).contains("recipe 2:"));
+        assertTrue(report.skipped().get(1), report.skipped().get(1).contains("Pancakes"));
+        assertTrue(report.skipped().get(2), report.skipped().get(2).contains("Toast"));
+        assertTrue(report.skipped().get(3), report.skipped().get(3).contains("recipe 5"));
+        assertTrue(report.skipped().get(3), report.skipped().get(3).contains("duplicate"));
+    }
+
+    @Test
+    public void parseSkippingBroken_onTextThatIsNotAJsonArray_givesNoRecipesAndSaysWhy() {
+        RecipeJsonParser.Report report = RecipeJsonParser.parseSkippingBroken("{ not json");
+
+        assertTrue(report.recipes().isEmpty());
+        assertEquals(1, report.skipped().size());
+        assertTrue(report.skipped().get(0), report.skipped().get(0).contains("not a JSON array"));
+    }
+
+    @Test
+    public void parseSkippingBroken_onTheShippedFile_skipsNothing() throws Exception {
+        String json = new String(getClass().getResourceAsStream("/" + RecipeSeeder.ASSET_NAME).readAllBytes(),
+                java.nio.charset.StandardCharsets.UTF_8);
+        RecipeJsonParser.Report report = RecipeJsonParser.parseSkippingBroken(json);
+
+        assertEquals(RecipeJsonParser.parse(json), report.recipes());
+        assertTrue(report.skipped().isEmpty());
+    }
+
     /** Parses {@code [recipes]} and checks it throws with every one of {@code expected} in the message. */
     private static void assertRefused(String recipes, String... expected) {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
