@@ -42,8 +42,8 @@ public class SectionHeadingAdapter extends RecyclerView.Adapter<SectionHeadingAd
     public SectionHeadingAdapter(@StringRes int textRes, boolean dividerAbove) {
         this.textRes = textRes;
         this.dividerAbove = dividerAbove;
-        // Like the other adapters: hold a saved scroll position until the screen has content
-        setStateRestorationPolicy(StateRestorationPolicy.PREVENT_WHEN_EMPTY);
+        // No PREVENT_WHEN_EMPTY: hidden is a normal state for a heading, and inside a ConcatAdapter an
+        // empty child with that policy would block the saved scroll position for good
     }
 
     /**

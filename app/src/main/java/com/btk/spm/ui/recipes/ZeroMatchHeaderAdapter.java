@@ -18,11 +18,8 @@ public class ZeroMatchHeaderAdapter extends RecyclerView.Adapter<ZeroMatchHeader
 
     private boolean shown;
 
-    /** Creates the header hidden. */
-    public ZeroMatchHeaderAdapter() {
-        // Like the other adapters: hold a saved scroll position until the screen has content
-        setStateRestorationPolicy(StateRestorationPolicy.PREVENT_WHEN_EMPTY);
-    }
+    // No PREVENT_WHEN_EMPTY: hidden is this row's usual state, and inside a ConcatAdapter an empty
+    // child with that policy would block the saved scroll position for good
 
     /**
      * Shows or hides the sentence; does nothing when it is already in that state.
