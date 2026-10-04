@@ -214,8 +214,8 @@ public class UnitConverterTest {
     }
 
     /**
-     * The units preference never changes a match. The comparison below is the one the matcher makes
-     * (Issue 20): the pantry rows summed by kind, then {@code isAtLeast} the requirement. Each case
+     * The units preference never changes a match. The comparison below is the one {@link StrictMatcher}
+     * makes: the pantry rows summed by kind, then {@code isAtLeast} the requirement. Each case
      * is decided once per preference, after every quantity has been displayed in it, and the
      * decision must be the same and right every time.
      */
@@ -262,7 +262,8 @@ public class UnitConverterTest {
         @Test
         public void nothingThatMatches_acceptsADisplayValueOrAPreference() {
             List<String> offenders = new ArrayList<>();
-            for (Class<?> type : List.of(CanonicalQuantity.class, UnitConverter.class)) {
+            for (Class<?> type : List.of(CanonicalQuantity.class, UnitConverter.class, StrictMatcher.class,
+                    MatchOptions.class, PantryEntry.class, RecipeSpec.class, MatchResult.class)) {
                 for (Method method : type.getMethods()) {
                     if (method.getName().equals("toPreferredDisplay")) {
                         continue;
