@@ -91,7 +91,7 @@ public class RecipesEmptyStateTest {
             Espresso.onIdle();
             scenario.onActivity(activity -> {
                 TextView message = activity.findViewById(R.id.state_headline);
-                assertEquals(activity.getString(R.string.recipes_empty_no_recipes), message.getText().toString());
+                assertEquals(activity.getString(R.string.recipes_error_title), message.getText().toString());
                 assertEquals(View.VISIBLE, activity.findViewById(R.id.state_message).getVisibility());
                 assertEquals(View.GONE, activity.findViewById(R.id.state_action).getVisibility());
                 assertEquals(View.GONE, activity.findViewById(R.id.recipe_list).getVisibility());

@@ -19,10 +19,12 @@ import java.util.Objects;
  * @param list           whether the list is shown ({@link UiState.Content} only)
  * @param empty          whether the empty view is shown ({@link UiState.Empty} only)
  * @param emptyMessage   the empty view's message, or {@code 0} when it is hidden
+ * @param emptyBody      the empty view's second sentence, or {@code 0} for none
  * @param addIngredients whether the empty view shows the "Add ingredients" button
  * @param rows           the rows to hand the adapter: {@code canMake}, or empty
  */
 public record RecipesRender(boolean progress, boolean list, boolean empty, @StringRes int emptyMessage,
+                            @StringRes int emptyBody,
                             boolean addIngredients, @NonNull List<MatchedRecipe> rows) {
 
     /**
@@ -36,14 +38,15 @@ public record RecipesRender(boolean progress, boolean list, boolean empty, @Stri
     public static RecipesRender of(@NonNull UiState state) {
         Objects.requireNonNull(state, "state");
         if (state instanceof UiState.Content content) {
-            return new RecipesRender(false, true, false, 0, false, content.canMake());
+            return new RecipesRender(false, true, false, 0, 0, false, content.canMake());
         }
         if (state instanceof UiState.Empty emptyState) {
             EmptyReason reason = emptyState.reason();
-            return new RecipesRender(false, false, true, reason.messageRes(), reason.offersAddIngredients(), List.of());
+            return new RecipesRender(false, false, true, reason.messageRes(), reason.bodyRes(),
+                    reason.offersAddIngredients(), List.of());
         }
         // The sealed class has three kinds, so what is left is Loading
-        return new RecipesRender(true, false, false, 0, false, List.of());
+        return new RecipesRender(true, false, false, 0, 0, false, List.of());
     }
 
     /**

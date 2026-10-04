@@ -133,7 +133,9 @@
     -->
     <string name="recipes_empty_no_match">No recipes match your pantry yet, add more ingredients</string>
     <string name="recipes_empty_pantry_empty">Your pantry is empty, add some ingredients to see what you can cook</string>
-    <string name="recipes_empty_no_recipes">The recipe collection did not load, reinstall the app to restore it</string>
+    <!-- The error state when no recipe could be loaded (Issue 31): a headline, then what to do -->
+    <string name="recipes_error_title">Recipes could not be loaded</string>
+    <string name="recipes_error_body">Reinstall the app to restore the recipe collection.</string>
     <string name="recipes_empty_action">Add ingredients</string>
 
     <!--

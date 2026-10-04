@@ -97,7 +97,8 @@ public class RecipesRenderTest {
     public void noRecipes_saysTheSeedDidNotLoad_withNoButton() {
         RecipesRender render = RecipesRender.of(new UiState.Empty(EmptyReason.NO_RECIPES));
 
-        assertEquals(R.string.recipes_empty_no_recipes, render.emptyMessage());
+        assertEquals(R.string.recipes_error_title, render.emptyMessage());
+        assertEquals(R.string.recipes_error_body, render.emptyBody());
         assertFalse(render.addIngredients());
     }
 

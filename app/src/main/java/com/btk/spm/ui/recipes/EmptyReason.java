@@ -15,37 +15,51 @@ import com.btk.spm.R;
 public enum EmptyReason {
 
     /**
-     * The recipe table is empty, so the first-run seed did not load (Issue 11). Checked first: adding
-     * ingredients would not help, so there is no button, only what to do instead.
+     * The recipe table is empty, so the first-run seed did not load (Issue 11): an error state, "Recipes
+     * could not be loaded" (Issue 31). Checked first: adding ingredients would not help, so there is
+     * no button, only what to do instead.
      */
-    NO_RECIPES(R.string.recipes_empty_no_recipes, false),
+    NO_RECIPES(R.string.recipes_error_title, R.string.recipes_error_body, false),
 
     /** Nothing is in the pantry yet, as on a first launch. The button goes to the Pantry tab. */
-    PANTRY_EMPTY(R.string.recipes_empty_pantry_empty, true),
+    PANTRY_EMPTY(R.string.recipes_empty_pantry_empty, 0, true),
 
     /**
      * The pantry has items but no recipe has every ingredient in enough quantity: the case the brief
      * tests with four of five ingredients. The button goes to the Pantry tab.
      */
-    NO_MATCH(R.string.recipes_empty_no_match, true);
+    NO_MATCH(R.string.recipes_empty_no_match, 0, true);
 
     @StringRes
     private final int messageRes;
+    @StringRes
+    private final int bodyRes;
     private final boolean offersAddIngredients;
 
-    EmptyReason(@StringRes int messageRes, boolean offersAddIngredients) {
+    EmptyReason(@StringRes int messageRes, @StringRes int bodyRes, boolean offersAddIngredients) {
         this.messageRes = messageRes;
+        this.bodyRes = bodyRes;
         this.offersAddIngredients = offersAddIngredients;
     }
 
     /**
      * Returns what the empty state says for this reason.
      *
-     * @return a {@code R.string.recipes_empty_*} id
+     * @return a {@code R.string.recipes_empty_*} or {@code recipes_error_title} id
      */
     @StringRes
     public int messageRes() {
         return messageRes;
+    }
+
+    /**
+     * Returns the second sentence under the message, which only the error state has.
+     *
+     * @return a string id, or {@code 0} for no second sentence
+     */
+    @StringRes
+    public int bodyRes() {
+        return bodyRes;
     }
 
     /**
