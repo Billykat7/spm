@@ -20,7 +20,10 @@ public enum PrefKey {
     UNITS_SYSTEM("units_system"),
 
     /** Whether expired items still count when matching recipes (decision 6, default off). */
-    COUNT_EXPIRED_ITEMS("count_expired_items");
+    COUNT_EXPIRED_ITEMS("count_expired_items"),
+
+    /** The pantry list's order, a {@code SortOrder} stored by its name (Issue 17, default soonest expiry first). */
+    PANTRY_SORT("pantry_sort");
 
     private final String key;
 
