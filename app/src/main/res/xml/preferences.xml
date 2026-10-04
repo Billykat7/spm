@@ -63,6 +63,15 @@
         android:title="@string/settings_category_matching"
         app:iconSpaceReserved="false">
 
+        <!-- Read by the Recipes tab and the detail screen as MatchOptions.includeExpired, decision 6 -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="count_expired_items"
+            android:summaryOff="@string/settings_count_expired_off"
+            android:summaryOn="@string/settings_count_expired_on"
+            android:title="@string/settings_count_expired_title"
+            android:widgetLayout="@layout/preference_widget_material_switch"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
