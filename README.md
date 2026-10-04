@@ -180,12 +180,12 @@ issues and its order of work.
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **42%** (16/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **45%** (17/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -230,7 +230,8 @@ system setting. The Pantry tab lists what is in the database, live, and says so 
 and an optional expiry date, and refuses anything invalid with an error under the field (Issue 14).
 A row's overflow menu deletes it after a confirmation, with Undo on offer for a few seconds (Issue 16).
 Each row with a date carries a badge, "Expires in 2 days" or "Expired 1 day ago", and the list puts
-the soonest-expiring first, or sorts by name from the toolbar (Issue 17).
+the soonest-expiring first, or sorts by name from the toolbar (Issue 17). Tapping a row opens the
+same form prefilled to edit it, and Save changes that row (Issue 15).
 Recipes and Settings still show a placeholder. Once the matcher is in, add a few ingredients on the
 Pantry tab and open the Recipes tab.
 
@@ -259,7 +260,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 4 of its 5 issues closed. The brief has been broken into seven milestones and
+**Where the project is.** Milestones 1 and 2 done and released as `v0.1.0` and `v0.2.0`; Milestone 3 done (`v0.3.0` to cut), the full create, read, update and delete cycle on the pantry. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -327,15 +328,23 @@ original id, in its sorted place. Issue 17, in pull request
 says whether an item is expired, expiring soon or fine for a given day and threshold, with "today"
 passed in, so the badge on each row, and later the matcher and the alert, cannot disagree. The badge
 takes its colours from theme roles, the list sorts soonest-expiring first with undated rows last, and
-a toolbar menu switches to name order, remembered across restarts in `SharedPreferences`.
+a toolbar menu switches to name order, remembered across restarts in `SharedPreferences`. Issue 15,
+in pull request [#56](https://github.com/Billykat7/spm/pull/56), closes the milestone with the Update:
+a tap on a row starts the same form with `intentForEdit`, whose only extra is the row's id under
+`IntentKeys.EXTRA_PANTRY_ITEM_ID`. The form decides add or edit once from that extra, loads the row,
+prefills it (`4`, not `4.0`) and saves through the same validator, then updates the row with the same
+id. An id with no row behind it says "Ingredient not found" and closes. It also writes the `v0.3.0`
+release note.
 
-**What is next.** Tagging `v0.2.0`, then the rest of M3 in week 3: editing an item through the
-same form (Issue 15), which closes the milestone. In week 4 the matching engine, which is the critical path.
+**What is next.** Tagging `v0.3.0` once this pull request merges, then M4 in week 4: the
+strict-matching engine (name normalisation, unit conversion, the matcher and its table-driven
+tests), which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
-**Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1), with
-`spm-v0.1.0.apk` on its release; `v0.2.0` is cut when Issue 12 merges (M2, `v0.2.0` to cut), with
-its note in [`RELEASE_v0_2_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_2_0.md). Pushing
+**Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1) and
+[`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2), each with its APK on its
+release; `v0.3.0` is cut when Issue 15 merges (M3, `v0.3.0` to cut), with its note in
+[`RELEASE_v0_3_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_3_0.md). Pushing
 a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are in
 [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
