@@ -4,6 +4,34 @@ Real screenshots of the running app, taken on the emulator, one per screen and c
 section 6). `NN_<slug>.png`, two-digit order; `_dark` for the dark-theme variants. Issue 33 re-takes
 the final set after the UI pass, so earlier rows are working copies.
 
+## Report set
+
+These 16 are the report's screenshots, in the order the written report (#35) embeds them, chosen from
+the working copies below. Each was taken on the API 35 emulator from the debug build of the issue
+named in its row (builds from Issue 17 to Issue 31), in the light theme with the demo-mode status bar.
+The full re-take on one build was cut from scope.
+
+| NN | File | Caption | Issue |
+|----|------|---------|-------|
+| 01 | 33_ux_pantry_list_light.png | The Pantry tab with ten items, soonest expiry first, each with its amount and the expiry badge under it, "Expired 1 day ago" on the error colours | #30 |
+| 02 | 33_ux_add_form_light.png | The empty add form: name with its 0/60 counter, quantity, the unit dropdown and the optional expiry date, Save in the toolbar | #30 |
+| 03 | 34_validation_all_errors.png | Save on an empty name, a quantity of 0 and yesterday's date: all three errors from `Validators` at once, and nothing written | #31 |
+| 04 | 33_ux_edit_form_light.png | The overflow's Edit on "Plain flour": the same form, titled "Edit ingredient", prefilled from the database (1.5, kg, Nov 3, 2026) | #30 |
+| 05 | 33_ux_delete_dialog_light.png | The overflow's Delete on "milk": a DialogFragment, "Delete milk?", with Cancel and Delete; nothing is removed until Delete is tapped | #30 |
+| 06 | 33_ux_undo_snackbar_light.png | Delete confirmed: the row gone from the list and "Deleted milk" with Undo in a Snackbar above the FAB | #30 |
+| 07 | 17_expiry_badges.png | Expiry badges from `ExpiryRules` with the 3-day threshold: expired on the error colours, expiring soon on the tertiary container, later neutral, none for an undated item | #17 |
+| 08 | 24_match_four_ingredients.png | Four of Tomato pasta's five ingredients in the pantry, exactly as the seed needs them: "No recipes match your pantry yet, add more ingredients", (0) | #26 |
+| 09 | 24_match_five_ingredients.png | The fifth, Garlic, 2 pcs, added: Tomato pasta is listed, "You have all 5 ingredients", "Suggested recipes (1)", with no refresh | #26 |
+| 10 | 33_ux_recipes_no_match_light.png | The zero-match sentence, "Suggested recipes (0)", over the almost-there cards for Grilled cheese sandwich and Tomato pasta | #30 |
+| 11 | 25_almost_there.png | The bonus "Almost there (missing one ingredient)" section under the one suggestion, each card naming what is short or missing, none of them counted | #27 |
+| 12 | 33_ux_recipe_detail_light.png | Tomato pasta in full: "You can make this", a check and "need, have" on each of the five ingredients from the matcher, then the numbered method | #30 |
+| 13 | 33_ux_settings_light.png | The Settings tab: Alerts (the expiring-soon switch, the 3-day threshold, the test alert), Display (Units: Metric), Matching (Count expired items: off) and About | #30 |
+| 14 | 28_settings_count_expired.png | Count expired items turned on: the garlic expired yesterday counts again, so Tomato pasta becomes a suggestion, "Suggested recipes (1)" | #28 |
+| 15 | 29_permission_prompt.png | Android 13+ only: turning on expiring-soon alerts without `POST_NOTIFICATIONS` shows the system prompt | #29 |
+| 16 | 32_expiry_notification.png | "Send a test alert now": one notification, "2 items expiring soon", "tomato (tomorrow), milk (in 3 days)"; tapping it opens the Pantry tab | #29 |
+
+## Working copies
+
 | NN | File | Caption | Issue |
 |----|------|---------|-------|
 | 01 | 01_scaffold_main_activity_api35.png | The scaffolded app's single screen, `MainActivity` showing the app name, on the API 35 (Android 15) emulator | #1 |
