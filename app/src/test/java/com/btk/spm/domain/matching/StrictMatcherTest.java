@@ -30,7 +30,8 @@ import java.util.Map;
 
 /**
  * {@link StrictMatcher} on the JVM (Issue 20): the core cases that make the strict rule believable.
- * Issue 21 adds the full table of the marker's cases.
+ * Issue 21 adds the full table of the marker's cases. Since Issue 22, a recipe with exactly one
+ * shortfall is {@code ALMOST_THERE}: still not suggested, but no longer {@code CANNOT_MAKE}.
  *
  * <p>The five-ingredient recipe is the seed's Tomato pasta: 200 g pasta, 4 tomatoes, 2 garlic cloves,
  * 2 tbsp olive oil and 2 g salt. The day is fixed, never read from the clock.
@@ -60,7 +61,7 @@ public class StrictMatcherTest {
                 have("garlic", 5, Unit.PCS),
                 have("olive oil", 500, Unit.ML)), TOMATO_PASTA, OPTIONS);
 
-        assertSame(MatchStatus.CANNOT_MAKE, result.status());
+        assertSame(MatchStatus.ALMOST_THERE, result.status());
         assertFalse(result.canMake());
         assertEquals(1, result.shortfalls().size());
         assertEquals("salt", result.shortfalls().get(0).required().name());
@@ -102,7 +103,7 @@ public class StrictMatcherTest {
         MatchResult result = MATCHER.match(pantry(have("flour", 200, Unit.G)),
                 recipe(1, need("flour", 250, Unit.G)), OPTIONS);
 
-        assertSame(MatchStatus.CANNOT_MAKE, result.status());
+        assertSame(MatchStatus.ALMOST_THERE, result.status());
         Shortfall shortfall = result.shortfalls().get(0);
         assertFalse(shortfall.isMissing());
         assertEquals(new CanonicalQuantity(200, UnitKind.MASS), shortfall.available());
@@ -165,7 +166,7 @@ public class StrictMatcherTest {
         MatchResult result = MATCHER.match(pantry(have("flour", 500, Unit.G)),
                 recipe(1, need("flour", 2, Unit.CUP)), OPTIONS);
 
-        assertSame(MatchStatus.CANNOT_MAKE, result.status());
+        assertSame(MatchStatus.ALMOST_THERE, result.status());
         assertNull(result.shortfalls().get(0).available());
     }
 
@@ -175,7 +176,7 @@ public class StrictMatcherTest {
 
         MatchResult result = MATCHER.match(pantry, recipe(1, need("rice", 250, Unit.G)), OPTIONS);
 
-        assertSame(MatchStatus.CANNOT_MAKE, result.status());
+        assertSame(MatchStatus.ALMOST_THERE, result.status());
         assertEquals(new CanonicalQuantity(200, UnitKind.MASS), result.shortfalls().get(0).available());
     }
 
@@ -186,7 +187,7 @@ public class StrictMatcherTest {
         MatchResult result = MATCHER.match(pantry(have("milk", 1, Unit.L, TODAY.minusDays(1))),
                 recipe(1, need("milk", 300, Unit.ML)), MatchOptions.on(TODAY));
 
-        assertSame(MatchStatus.CANNOT_MAKE, result.status());
+        assertSame(MatchStatus.ALMOST_THERE, result.status());
         assertTrue(result.shortfalls().get(0).isMissing());
     }
 
