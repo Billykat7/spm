@@ -28,6 +28,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,9 +38,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The navigation shell on a device (Issue 3): each tab shows its Fragment and title, the tab
  * survives the Activity being re-created, Back returns to Pantry, and
  * {@link MainActivity#intentFor} lands on the tab it names.
+ *
+ * <p>Since Issue 23 the Recipes tab replaces its title with "Suggested recipes (N)" once its first
+ * match is posted, from a background thread these tests do not wait for, so either title is the
+ * Recipes tab's.
  */
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
+
+    /** How many recipes the seed holds, so the most the Recipes title can count (Issue 11). */
+    private static final int SEEDED_RECIPES = 20;
 
     private final Context context = ApplicationProvider.getApplicationContext();
 
@@ -146,9 +155,21 @@ public class MainActivityTest {
             Fragment shown = activity.getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
             assertEquals("selected item", tab.menuItemId(), nav.getSelectedItemId());
-            assertEquals("toolbar title", activity.getString(tab.titleRes()), String.valueOf(toolbar.getTitle()));
+            String title = String.valueOf(toolbar.getTitle());
+            assertTrue("toolbar title " + title, titlesOf(activity, tab).contains(title));
             assertTrue("expected " + fragmentClass.getSimpleName() + " but found " + shown,
                     fragmentClass.isInstance(shown));
         });
+    }
+
+    /** The titles {@code tab} can show: its name, and for Recipes also its count once matched. */
+    private static List<String> titlesOf(Context context, Tab tab) {
+        List<String> titles = new ArrayList<>(List.of(context.getString(tab.titleRes())));
+        if (tab == Tab.RECIPES) {
+            for (int n = 0; n <= SEEDED_RECIPES; n++) {
+                titles.add(context.getResources().getQuantityString(R.plurals.suggested_recipes_title, n, n));
+            }
+        }
+        return titles;
     }
 }
