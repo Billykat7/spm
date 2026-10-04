@@ -1,9 +1,10 @@
 # CI: the local gate, run by GitHub (Issue 4).
 #
 # Runs ./scripts/ci-local.sh, the same script every contributor runs before pushing: the scope
-# guards (no Kotlin, no maps, location or billing), Android Lint, the JVM unit tests and the debug
-# build. Its job, "gate", is the status check the "Protect main" ruleset requires before a pull
-# request can merge. Instrumented tests need an emulator and run locally with --with-device.
+# guards (no Kotlin, no maps, location or billing), Android Lint, the JVM unit tests, their coverage
+# of the matching engine and the debug build. Its job, "gate", is the status check the "Protect main"
+# ruleset requires before a pull request can merge. Instrumented tests need an emulator and run
+# locally with --with-device.
 name: CI
 
 on:
@@ -57,5 +58,15 @@ jobs:
           path: |
             app/build/reports/lint-results-debug.html
             app/build/reports/lint-results-debug.xml
+          if-no-files-found: warn
+          retention-days: 30
+
+      # The unit tests' coverage, so the 100% line check on domain/matching/ can be read from the run page.
+      - name: Upload the coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: app/build/reports/jacoco/jacocoTestReport/
           if-no-files-found: warn
           retention-days: 30

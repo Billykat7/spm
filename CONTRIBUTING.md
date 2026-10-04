@@ -39,7 +39,7 @@ git switch -c Issue/<N>/<short-slug>          # e.g. Issue/20/strict-matcher: 2 
 ### 4. Run the gate
 
 ```bash
-./scripts/ci-local.sh                  # guards, lint, unit tests, debug build, schema
+./scripts/ci-local.sh                  # guards, lint, unit tests, coverage, debug build, schema
 ./scripts/ci-local.sh --with-device    # the same, then the instrumented tests on an emulator
 ```
 
@@ -98,6 +98,7 @@ script, so a stage that passes on a laptop passes on GitHub.
 | guards | `scripts/check_guards.sh` | a scope guard below is broken |
 | lint | `./gradlew lint` | Lint reports an error, such as a typed string in a layout (`HardcodedText`) or in `setText()` (`SetTextI18n`) |
 | unit tests | `./gradlew testDebugUnitTest` | a JVM test fails, such as `LayoutStyleConventionsTest` on a raw hex colour or `DaoBoundaryTest` on a DAO reached from outside `data/` |
+| coverage | `./gradlew jacocoTestReport jacocoMatchingCoverageVerification` | a line under `domain/matching/` is run by no unit test (strict-matching rule 8); the message names the class. The report is `app/build/reports/jacoco/jacocoTestReport/html/index.html`, and CI uploads it as `coverage-report` |
 | debug build | `./gradlew assembleDebug` | the app does not compile or package |
 | schema | `git status --porcelain -- app/schemas/` | the build changed the committed Room schema: an entity changed and the `@Database` version did not. Bump it, add the migration and commit the new `<N>.json` |
 | device tests | `./gradlew connectedDebugAndroidTest` | an instrumented test fails, no device is attached, or a target device ran no tests even though Gradle passed (`--with-device` only; see *Device tests*) |

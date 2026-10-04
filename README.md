@@ -144,8 +144,8 @@ decision 1 of the plan, recorded in Issue 8.
 | Database | **Room 2.6** over SQLite, exported schema, idempotent JSON seed |
 | Background | **WorkManager** for the daily expiry check; a notification channel |
 | Engine | Pure Java under `domain/matching/`: `IngredientNormaliser`, `UnitConverter`, `StrictMatcher` |
-| Tests | JUnit 4 on the JVM (engine, validators, ViewModels); Room in-memory and Espresso under `androidTest` |
-| CI | GitHub Actions on every pull request (guards, lint, unit tests, debug build); a `v*` tag builds the APK and attaches it to the release |
+| Tests | JUnit 4 on the JVM (engine, validators, ViewModels), with JaCoCo holding `domain/matching/` at 100% of lines; Room in-memory and Espresso under `androidTest` |
+| CI | GitHub Actions on every pull request (guards, lint, unit tests, 100% line coverage of the engine, debug build); a `v*` tag builds the APK and attaches it to the release |
 
 ```text
 app/src/main/java/com/btk/spm/
@@ -181,11 +181,11 @@ issues and its order of work.
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
+| 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **53%** (20/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **55%** (21/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -238,7 +238,7 @@ Pantry tab and open the Recipes tab.
 **Before every push**, the same gate CI runs:
 
 ```bash
-./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, debug build
+./scripts/ci-local.sh                 # guards (no Kotlin, no maps/location), lint, unit tests, coverage, debug build
 ./scripts/ci-local.sh --with-device   # plus Room and Espresso tests on the attached emulator
 ```
 
@@ -354,9 +354,16 @@ canonical amount. Four of five is `CANNOT_MAKE`, with a shortfall naming the fif
 rows are summed, expired rows are left out unless counted, and the day is passed in, never read from
 the clock. The inputs are plain domain values, not Room entities, and `MatchingPurityTest` fails the
 build on an Android or data-layer import, a clock or a raw name comparison in the engine.
+Issue 21, in pull request [#63](https://github.com/Billykat7/spm/pull/63), checks the matcher a
+second time, from the brief rather than from its own tests: 56 named scenarios in `scenarios.csv`
+(four of five, short by a tenth of a gram, plurals both ways, aliases, kilograms against grams,
+cups against litres, kinds that never cross, duplicate rows, expiry), the twenty real seed recipes,
+and properties that hold for every one of them: take away or expire any ingredient and the match
+breaks, add anything and it holds. JaCoCo measures the unit tests, and the gate now fails when any
+line of the engine is run by no test; `domain/matching/` is at 100% of lines and branches.
 
-**What is next.** The rest of M4 in week 4: the matcher's full scenario table (Issue 21) and
-"almost there" (Issue 22). The engine is the critical path.
+**What is next.** The last issue of M4: "almost there" (Issue 22), then `v0.4.0`. After it, M5 puts
+the engine on the Recipes tab.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
