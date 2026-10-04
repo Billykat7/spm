@@ -1,11 +1,8 @@
 package com.btk.spm.notifications;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,7 +10,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -100,7 +96,7 @@ public class ExpiryCheckWorker extends Worker {
             log("nothing expires within " + threshold + " days");
             return Result.success();
         }
-        if (!mayPost(context)) {
+        if (!NotificationAccess.canPost(context)) {
             log("skipped: notifications are not allowed");
             return Result.success();
         }
@@ -111,20 +107,7 @@ public class ExpiryCheckWorker extends Worker {
     }
 
     /**
-     * Says whether a notification would be shown: on Android 13 and later the runtime permission must
-     * be granted, and on any version the user must not have blocked the app's notifications.
-     */
-    static boolean mayPost(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-        return NotificationManagerCompat.from(context).areNotificationsEnabled();
-    }
-
-    /**
-     * Posts the alert on its channel, replacing any earlier one. Called only after {@link #mayPost},
+     * Posts the alert on its channel, replacing any earlier one. Called only after {@link NotificationAccess#canPost},
      * but the user can still revoke the permission in between, so a refusal is caught, not thrown.
      *
      * @return whether the system took the notification
