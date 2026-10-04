@@ -51,3 +51,30 @@ silently dropped (1,5 became 15)`).
 
 **Learned:** a rule tested on the JVM is only half the proof; the field can change the input before
 the rule runs. I now type the boundary cases into the running form as well as into the test table.
+
+## 2026-10-04 · Issue 18 · "olives" became "olif"
+
+**Problem:** the first run of `IngredientNormaliserTest`, 59 rows, had six red rows. The first plural
+the rules got wrong was `olives`, which came out as `olif`; `cloves` became `clof` and `chives` became
+`chif`. A pantry holding "garlic cloves" could never have matched a recipe that needs a clove. The
+same run showed `pies` → `py`, `watercress` → `watercres`, and `lemongrass` losing its last `s` when
+normalised a second time.
+
+**Cause:** I had written the plural rules as the plan listed them, and `-ves → -f` is the textbook
+rule (loaves → loaf, halves → half). But most `-ves` words in a kitchen are an `-ve` word plus `s`:
+olive, clove, chive, endive. Only `-lves`, `-eaves` and `-oaves` come from an `-f` word. The other two
+failures were the same mistake, a suffix rule applied without looking at what came before it: `-ies`
+on a four-letter word is `-ie` plus `s`, and a word ending in `ss` is not a plural at all.
+
+**Fix:** I narrowed `-ves → -f` to `-lves`, `-eaves` and `-oaves` and let every other `-ves` word
+just lose its `s` (commit `27f75ee`, `Issue 18: keep olives, cloves and chives whole: only -lves,
+-eaves and -oaves become -f`). Two more commits left `-ss` words alone (`6e3875f`) and read `-ies` on
+four-letter words as `-ie` plus `s` (`ed632ba`). The failing table is its own commit (`8c8a402`), so
+the history shows the rows going red and then green. I did not add those words to the exceptions
+set: they follow a pattern, so a rule covers the next one too. The exceptions set stays for words
+that are truly singular, such as `asparagus` and `hummus`.
+
+**Learned:** a suffix rule is only as good as the words I test it on. The rows I wrote from the
+plan's own examples (loaves, halves) all passed; the bug only showed when I added ingredients from
+an ordinary shopping list. Each row also normalises its own result a second time, which is how the
+`lemongrass` bug showed up even though its first pass was right.
