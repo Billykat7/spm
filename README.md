@@ -340,6 +340,13 @@ and `TOMATO.` into `tomato`, and `Cilantro` into `coriander`, so the matcher nev
 name. It is a fixed list of rules (case, spaces, punctuation, the plural of the last word) plus an
 alias table in `assets/aliases.json`, with no stemming and no fuzzy matching. A 61-row parameterised
 test, which went red on `olives` → `olif` before the rules were fixed, defines it.
+Issue 19, in pull request [#61](https://github.com/Billykat7/spm/pull/61), adds the other half of
+"normalise before you compare": `UnitConverter` turns every quantity into grams, millilitres or
+pieces by the fixed factors of decision 5, and `CanonicalQuantity.isAtLeast` compares within a kind,
+forgiving only rounding error. Kinds never cross, so `500 g` of flour does not cover `2 cups`; that
+limit is written down for the report. Duplicate pantry rows of one kind are summed, and a mass is
+never added to a volume. The units preference for Issue 28 can show `1500 g` as `1.5 kg` or
+`52.9 oz`, through display-only types that nothing in matching accepts.
 
 **What is next.** The rest of M4 in week 4: `StrictMatcher` (Issue 20), its scenario table
 (Issue 21) and "almost there" (Issue 22). The engine is the critical path.
