@@ -103,3 +103,26 @@ shows with the seed. A user who stores flour in cups and cooks a gram recipe wil
 cook, but it is never wrongly "yes", and under the brief a wrong "can make" is the worse mistake.
 With more time I would add a small density table for the few ingredients that people really measure
 both ways (flour, sugar, rice, butter), with a row in the scenario table for each.
+
+## 2026-10-04 · Issue 18 · "chillies" did not cover "chilli"
+
+**Problem:** after Issue 18 merged, I tried a few more shopping-list plurals against the normaliser.
+`cookies` came out as `cooky`, `brownies` as `browny` and `chillies` as `chilly`. Both sides of a
+match go through the same rules, so `cookies` still matched `cookies`, but a pantry holding chillies
+never covered a recipe that needs a chilli. The `v0.4.0` release note lists it as a known issue.
+
+**Cause:** the `-ies → -y` rule is right for berries, cherries and anchovies, whose singular ends in
+`-y`. Cookie and brownie end in `-ie`, and chilli ends in `-i`, so their plurals end in `-ies` too.
+Unlike `olives` against `loaves`, nothing in the letters before `-ies` tells the two groups apart:
+`cookies` and `berries` look the same to a suffix rule.
+
+**Fix:** a short list, `SINGULAR_WORDS_ENDING_IN_IE_OR_I` (brownie, chili, chilli, cookie). Before
+the `-ies → -y` rule, the normaliser checks whether the word without its `s`, or without its `es`, is
+on the list. The failing rows went in first (commit `1d84f59`), then the fix (`0b59799`). The alias
+table already joined `chili` to `chilli`, so all four spellings, singular and plural, now reach one
+name, and `AliasesJsonTest` checks it.
+
+**Learned:** in Issue 18 I wrote that the exceptions set was only for words that are truly singular,
+because a rule covers the next word too. That holds when the spelling carries the answer. When it
+does not, a named list with a row per word is the honest fix, and the next word like these is one
+more entry and one more row.

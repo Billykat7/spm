@@ -30,7 +30,9 @@ import java.util.regex.Pattern;
  *       than nothing, so {@code "salt,pepper"} does not become one word. A curly apostrophe counts as
  *       a straight one.</li>
  *   <li><b>Plurals.</b> The last word is made singular by suffix, longest suffix first:
- *       {@code -ies → -y} (berries, but pies is pie), {@code -oes → -o} (tomatoes); {@code -ches},
+ *       {@code -ies → -y} (berries, but pies is pie, and a word in
+ *       {@link #SINGULAR_WORDS_ENDING_IN_IE_OR_I} loses only its {@code s} or {@code es}, so cookies
+ *       is cookie and chillies is chilli), {@code -oes → -o} (tomatoes); {@code -ches},
  *       {@code -shes}, {@code -sses} and {@code -xes} lose {@code es} (peaches, radishes);
  *       {@code -lves}, {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves,
  *       loaves); otherwise a final {@code s} goes (eggs, and olives, not "olif"). Left alone: words
@@ -60,6 +62,14 @@ public final class IngredientNormaliser {
     /** Words that end in {@code s} but are already singular, so the plural rules skip them. */
     static final Set<String> SINGULAR_WORDS_ENDING_IN_S = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList("asparagus", "couscous", "hummus", "molasses", "oats")));
+
+    /**
+     * Words whose singular ends in {@code -ie} or {@code -i}, so their plural ends in {@code -ies}
+     * like berries does. Nothing in the spelling tells cookies from berries, so these are listed:
+     * without the list, cookies became "cooky" and a pantry's chillies never covered a recipe's chilli.
+     */
+    static final Set<String> SINGULAR_WORDS_ENDING_IN_IE_OR_I = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("brownie", "chili", "chilli", "cookie")));
 
     /** A word this short is never treated as a plural: {@code "gas"} is not the plural of {@code "ga"}. */
     private static final int SHORTEST_PLURAL = 4;
@@ -156,7 +166,7 @@ public final class IngredientNormaliser {
         }
         // With one letter before it, -ies is -ie plus s: "pies" is pie, not "py"
         if (word.endsWith("ies") && word.length() > SHORTEST_PLURAL) {
-            return drop(word, 3) + "y";
+            return singularOfIes(word);
         }
         if (word.endsWith("oes")) {
             return drop(word, 2);
@@ -173,6 +183,19 @@ public final class IngredientNormaliser {
             return drop(word, 1);
         }
         return word;
+    }
+
+    /** The singular of a word ending in {@code -ies}: cookie and chilli if listed, otherwise berry. */
+    private static String singularOfIes(String word) {
+        String ie = drop(word, 1);
+        if (SINGULAR_WORDS_ENDING_IN_IE_OR_I.contains(ie)) {
+            return ie;
+        }
+        String i = drop(word, 2);
+        if (SINGULAR_WORDS_ENDING_IN_IE_OR_I.contains(i)) {
+            return i;
+        }
+        return drop(word, 3) + "y";
     }
 
     private static String drop(String word, int letters) {
