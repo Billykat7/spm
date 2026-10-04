@@ -176,13 +176,14 @@ public class SuggestedRecipesViewModel extends ViewModel {
         List<MatchResult> results = matcher.get().matchAll(PantryEntryMapper.toEntries(pantryNow),
                 RecipeSpecMapper.toSpecs(recipesNow), options);
         MatchResults.Partition groups = MatchResults.partition(results);
-        if (groups.canMake().isEmpty()) {
-            // The engine has already said no; the reason only chooses the words and the button
-            return new UiState.Empty(EmptyReason.of(recipesNow.isEmpty(), pantryNow.isEmpty()));
-        }
         Map<Long, RecipeWithIngredients> byId = new HashMap<>();
         for (RecipeWithIngredients recipe : recipesNow) {
             byId.put(recipe.getRecipe().getId(), recipe);
+        }
+        if (groups.canMake().isEmpty()) {
+            // The engine has already said no; the reason only chooses the words and the button
+            return new UiState.Empty(EmptyReason.of(recipesNow.isEmpty(), pantryNow.isEmpty()),
+                    pair(groups.almostThere(), byId));
         }
         return new UiState.Content(pair(groups.canMake(), byId), pair(groups.almostThere(), byId));
     }
