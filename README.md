@@ -347,6 +347,13 @@ forgiving only rounding error. Kinds never cross, so `500 g` of flour does not c
 limit is written down for the report. Duplicate pantry rows of one kind are summed, and a mass is
 never added to a volume. The units preference for Issue 28 can show `1500 g` as `1.5 kg` or
 `52.9 oz`, through display-only types that nothing in matching accepts.
+Issue 20, in pull request [#62](https://github.com/Billykat7/spm/pull/62), puts the two together in
+the function the brief calls the most important: `StrictMatcher.match` says `CAN_MAKE` only when
+every ingredient a recipe requires is in the pantry, by normalised name, in at least the required
+canonical amount. Four of five is `CANNOT_MAKE`, with a shortfall naming the fifth. Same-kind pantry
+rows are summed, expired rows are left out unless counted, and the day is passed in, never read from
+the clock. The inputs are plain domain values, not Room entities, and `MatchingPurityTest` fails the
+build on an Android or data-layer import, a clock or a raw name comparison in the engine.
 
 **What is next.** The rest of M4 in week 4: the matcher's full scenario table (Issue 21) and
 "almost there" (Issue 22). The engine is the critical path.
