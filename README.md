@@ -180,12 +180,12 @@ issues and its order of work.
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩🟩🟩⬜⬜ **60%** (3/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **37%** (14/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **39%** (15/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -228,6 +228,7 @@ Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or
 system setting. The Pantry tab lists what is in the database, live, and says so when it is empty
 (Issue 13). Its add button opens the add ingredient form, which saves a name, a quantity, a unit
 and an optional expiry date, and refuses anything invalid with an error under the field (Issue 14).
+A row's overflow menu deletes it after a confirmation, with Undo on offer for a few seconds (Issue 16).
 Recipes and Settings still show a placeholder. Once the matcher is in, add a few ingredients on the
 Pantry tab and open the Recipes tab.
 
@@ -256,7 +257,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 2 of its 5 issues closed. The brief has been broken into seven milestones and
+**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 3 of its 5 issues closed. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -315,10 +316,14 @@ a form for name, quantity, unit and an optional expiry date, started for a resul
 `ActivityResultLauncher`. One pure class, `Validators`, decides what may be saved (a name of at most
 60 characters, a quantity above 0 and at most 100000 with a full stop or a comma, a unit, no date in
 the past), a parameterised JVM test covers every rule and boundary, and the screen only shows the
-errors, all at once, and writes nothing until they are gone.
+errors, all at once, and writes nothing until they are gone. Issue 16, in pull request
+[#54](https://github.com/Billykat7/spm/pull/54), adds the Delete of the CRUD cycle: the row's Delete
+asks first, in a dialog naming the item, removes the row through the repository and offers Undo in a
+Snackbar above the FAB. Undo inserts the very object that was deleted, so the row returns with its
+original id, in its sorted place.
 
 **What is next.** Tagging `v0.2.0`, then the rest of M3 in week 3: editing an item through the
-same form (Issue 15), delete with undo (Issue 16) and expiry badges with the sort menu (Issue 17). In week 4 the matching engine, which is the critical path.
+same form (Issue 15) and expiry badges with the sort menu (Issue 17). In week 4 the matching engine, which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1), with

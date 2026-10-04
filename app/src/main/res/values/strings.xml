@@ -26,6 +26,13 @@
     <string name="pantry_item_options_for">More options for %1$s</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+
+    <!-- Deleting an ingredient (Issue 16): the confirmation, then the Snackbar that can undo it -->
+    <string name="delete_confirm_title">Delete %1$s?</string>
+    <string name="delete_confirm_message">This removes it from your pantry.</string>
+    <string name="deleted_item">Deleted %1$s</string>
+    <string name="action_undo">Undo</string>
 
     <!-- The add and edit ingredient screen (Issues 13 to 15) -->
     <string name="title_add_ingredient">Add ingredient</string>
