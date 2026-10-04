@@ -43,7 +43,9 @@ You add ingredients as you buy or find them (name, quantity, unit, an optional e
 seeds twenty recipes on first run. The **Suggested Recipes** tab runs the strict-matching rule
 against your pantry every time it changes: a recipe appears the moment the last missing ingredient
 goes in, and disappears the moment it comes out. Tap a recipe for its full ingredient list and method.
-A settings screen controls expiring-soon alerts and whether expired items still count.
+A Settings screen holds the choices that change what the app does: the expiring-soon alert and how
+many days count as "soon", metric or imperial amounts, and whether expired items still count when
+recipes are matched.
 
 ```mermaid
 flowchart LR
@@ -100,6 +102,7 @@ heading, never in the suggested list. The rule and its guards are written down i
 | 🔍 | **Honest when there is nothing:** "No recipes match your pantry yet, add more ingredients", with a button to the pantry |
 | 📖 | **Recipe detail:** every ingredient marked have or need with the quantities, then the method |
 | ⏰ | **Expiring-soon alerts:** a daily check and a notification naming what to use first, with a threshold you set |
+| ⚙️ | **Settings that do something:** the expiring-soon threshold re-badges the pantry, imperial shows `1500 g` as `52.9 oz`, and *Count expired items* puts a recipe back in the list, each while the screen is open |
 | 🌗 | **Light and dark**, large-font safe, every icon described for a screen reader |
 
 ### For the marker
@@ -182,10 +185,10 @@ issues and its order of work.
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩⬜⬜⬜⬜ **20%** (1/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **71%** (27/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **74%** (28/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -239,7 +242,10 @@ made it says why, in the brief's words for four of five ingredients ("No recipes
 yet, add more ingredients"), with a button back to the Pantry tab (Issue 24). Tapping a recipe opens it in full: every ingredient
 with a check or a cross, "need 250 g, have 1 kg", and the numbered method (Issue 25). Below the
 suggestions, under their own heading, recipes one ingredient away say which one, "Missing: 50 g
-cheese", and are never counted as suggestions (Issue 27). Settings still shows a placeholder.
+cheese", and are never counted as suggestions (Issue 27). The Settings tab sets the expiring-soon
+threshold (1–14 days) that the badges use, metric or imperial amounts on the pantry list and the
+detail screen, and whether expired items count when matching; each change reaches an open screen at
+once, and the About entries give the version and a link to this repository (Issue 28).
 
 **Before every push**, the same gate CI runs:
 
@@ -269,7 +275,8 @@ The bars above are the status. What they cannot say:
 **Where the project is.** Milestones 1 to 4 done and released as `v0.1.0`, `v0.2.0`, `v0.3.0` and
 `v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
-screen and the "Almost there" section, done (M5, `v0.5.0` to cut). The brief has been broken into
+screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6 is under way with
+the Settings screen. The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -411,18 +418,27 @@ name each recipe's one missing or short ingredient ("Short: need 50 g butter, ha
 refuses a recipe of the other status. They are never counted in "Suggested recipes (N)". It also
 writes the `v0.5.0` release note.
 
-**What is next.** Tagging `v0.5.0` once this pull request merges, then M6 in week 6: the Settings
-screen (alerts, units, counting expired items), expiring-soon notifications, the UX pass and the
-Espresso suite.
+Issue 28, in pull request [#71](https://github.com/Billykat7/spm/pull/71), opens Milestone 6 with
+the fifth screen the brief asks for. The Settings tab is a `PreferenceFragmentCompat` over
+`preferences.xml`, whose keys are `PrefKey` strings, and `PreferencesXmlTest` fails the build on a
+key no `PrefKey` names, a user-facing key missing from the screen, or a default that differs from the
+one `AppPreferences` reads back to. Each setting has a reader: the expiring-soon threshold (1–14
+days) re-badges the open pantry list, Imperial shows `1500 g` as `52.9 oz` on the pantry and the
+detail screen without changing what is stored or what matches, and *Count expired items* runs the
+matcher again on the Recipes tab and the open detail screen. The alerts switch waits for the worker of
+Issue 29, and About shows the version name and links this repository.
+
+**What is next.** The rest of M6: the expiring-soon notification, the UX and accessibility pass,
+hardened validation and the Espresso suite, then `v0.6.0`.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
 [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) (M2),
 [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) (M3),
 [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) (M4) and its patch
-[`v0.4.1`](https://github.com/Billykat7/spm/releases/tag/v0.4.1), each with its APK on its release;
-`v0.5.0` is cut when Issue 27 merges (M5, `v0.5.0` to cut), with its note in
-[`RELEASE_v0_5_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_5_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
+[`v0.4.1`](https://github.com/Billykat7/spm/releases/tag/v0.4.1), and
+[`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) (M5), each with its APK on its
+release; `v0.6.0` is cut when M6's last issue merges (M6, `v0.6.0` to cut). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
 in [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence

@@ -25,31 +25,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
  * The state behind the recipe detail screen: one recipe, and the matcher's verdict on each of its
  * ingredients against the pantry as it is now.
  *
- * <p>{@link #getState()} is a {@link MediatorLiveData} over Room's query for this one recipe and the
- * pantry's query, the same pattern as {@code SuggestedRecipesViewModel}. When the pantry changes while
- * the screen is open, the match runs again and a cross can turn into a check without the screen being
- * opened again. An id Room has no recipe for gives {@link DetailUiState.NotFound}.
+ * <p>{@link #getState()} is a {@link MediatorLiveData} over Room's query for this one recipe, the
+ * pantry's query and two settings, the same pattern as {@code SuggestedRecipesViewModel}. When the
+ * pantry changes while the screen is open, the match runs again and a cross can turn into a check
+ * without the screen being opened again; so does turning <i>Count expired items</i> on or off, and
+ * switching the units redraws the amounts (Issue 28). An id Room has no recipe for gives
+ * {@link DetailUiState.NotFound}.
  *
  * <p>The match runs on the executor it was given, never the main thread: map the entities, call
  * {@link StrictMatcher#match} for this recipe with today and the {@code COUNT_EXPIRED_ITEMS} setting,
  * and turn each {@link IngredientCheck} of the result into an {@link IngredientRow}. Whether a line is
  * covered, and how much the pantry has of it, is the matcher's answer; this class only converts the
- * amounts to display units ({@link UnitsSystem#METRIC} until Issue 28 adds the preference). A
- * generation counter drops a result that a newer pantry has overtaken.
+ * amounts to the display units the user chose. A generation counter drops a result that a newer
+ * pantry has overtaken.
  */
 public class RecipeDetailViewModel extends ViewModel {
 
     private final MediatorLiveData<DetailUiState> state = new MediatorLiveData<>(DetailUiState.Loading.INSTANCE);
 
     private final Supplier<StrictMatcher> matcher;
-    private final BooleanSupplier countExpiredItems;
     private final Supplier<LocalDate> today;
     private final Executor matchExecutor;
     private final UnitConverter display = new UnitConverter();
@@ -65,25 +65,34 @@ public class RecipeDetailViewModel extends ViewModel {
     @Nullable
     private List<PantryItem> pantry;
 
+    /** Whether expired items count, as the setting last said, or {@code null} before it said. Main thread only. */
+    @Nullable
+    private Boolean countExpiredItems;
+
+    /** The units amounts are shown in, as the setting last said, or {@code null} before it said. Main thread only. */
+    @Nullable
+    private UnitsSystem unitsSystem;
+
     /**
      * Creates the ViewModel over its sources. {@link RecipeDetailViewModelFactory} passes the
      * repositories' queries for the recipe's id; a test passes {@code MutableLiveData}.
      *
      * @param recipeSource      the recipe as Room emits it; {@code null} when no recipe has the id
      * @param pantrySource      the pantry as Room emits it
+     * @param countExpiredItems whether expired items count (decision 6), as the setting changes
+     * @param unitsSystem       the units amounts are shown in (decision 5), as the setting changes
      * @param matcher           gives the matcher; called on the executor
-     * @param countExpiredItems whether expired items count (decision 6); read on the executor
      * @param today             the day to match on; read on the executor, once per job
      * @param matchExecutor     where every match runs; never the main thread in the app
      */
     RecipeDetailViewModel(@NonNull LiveData<RecipeWithIngredients> recipeSource,
                           @NonNull LiveData<List<PantryItem>> pantrySource,
+                          @NonNull LiveData<Boolean> countExpiredItems,
+                          @NonNull LiveData<UnitsSystem> unitsSystem,
                           @NonNull Supplier<StrictMatcher> matcher,
-                          @NonNull BooleanSupplier countExpiredItems,
                           @NonNull Supplier<LocalDate> today,
                           @NonNull Executor matchExecutor) {
         this.matcher = matcher;
-        this.countExpiredItems = countExpiredItems;
         this.today = today;
         this.matchExecutor = matchExecutor;
         state.addSource(recipeSource, read -> {
@@ -100,11 +109,19 @@ public class RecipeDetailViewModel extends ViewModel {
             pantry = items;
             recompute();
         });
+        state.addSource(countExpiredItems, count -> {
+            this.countExpiredItems = count;
+            recompute();
+        });
+        state.addSource(unitsSystem, units -> {
+            this.unitsSystem = units;
+            recompute();
+        });
     }
 
     /**
      * Returns what the screen shows: {@link DetailUiState.Loading} first, then
-     * {@link DetailUiState.Loaded} after every change to the recipe or the pantry, or
+     * {@link DetailUiState.Loaded} after every change to the recipe, the pantry or either setting, or
      * {@link DetailUiState.NotFound}.
      *
      * @return the observed state; it always has a value
@@ -114,17 +131,20 @@ public class RecipeDetailViewModel extends ViewModel {
         return state;
     }
 
-    /** Submits a match of the recipe against the latest pantry, once both have been read. */
+    /** Submits a match of the recipe against the latest pantry, once all four sources have been read. */
     @MainThread
     private void recompute() {
         RecipeWithIngredients recipeNow = recipe;
         List<PantryItem> pantryNow = pantry;
-        if (recipeNow == null || pantryNow == null || state.getValue() instanceof DetailUiState.NotFound) {
+        Boolean countExpiredNow = countExpiredItems;
+        UnitsSystem unitsNow = unitsSystem;
+        if (recipeNow == null || pantryNow == null || countExpiredNow == null || unitsNow == null
+                || state.getValue() instanceof DetailUiState.NotFound) {
             return;
         }
         int job = generation.incrementAndGet();
         matchExecutor.execute(() -> {
-            DetailUiState result = match(recipeNow, pantryNow);
+            DetailUiState result = match(recipeNow, pantryNow, countExpiredNow, unitsNow);
             if (job == generation.get()) {
                 state.postValue(result);
             }
@@ -134,8 +154,9 @@ public class RecipeDetailViewModel extends ViewModel {
     /** Matches this one recipe and builds a row from each check; runs on the matching executor. */
     @WorkerThread
     @NonNull
-    private DetailUiState match(@NonNull RecipeWithIngredients recipeNow, @NonNull List<PantryItem> pantryNow) {
-        MatchOptions options = MatchOptions.on(today.get(), countExpiredItems.getAsBoolean());
+    private DetailUiState match(@NonNull RecipeWithIngredients recipeNow, @NonNull List<PantryItem> pantryNow,
+                                boolean countExpiredNow, @NonNull UnitsSystem unitsNow) {
+        MatchOptions options = MatchOptions.on(today.get(), countExpiredNow);
         MatchResult result = matcher.get().match(PantryEntryMapper.toEntries(pantryNow),
                 RecipeSpecMapper.toSpec(recipeNow), options);
         List<RecipeIngredient> lines = recipeNow.getIngredients();
@@ -144,8 +165,8 @@ public class RecipeDetailViewModel extends ViewModel {
         for (int i = 0; i < lines.size(); i++) {
             IngredientCheck check = result.checks().get(i);
             rows.add(new IngredientRow(lines.get(i).getId(), check.required().name(),
-                    display.toPreferredDisplay(check.required().quantity(), UnitsSystem.METRIC),
-                    check.available() == null ? null : display.toPreferredDisplay(check.available(), UnitsSystem.METRIC),
+                    display.toPreferredDisplay(check.required().quantity(), unitsNow),
+                    check.available() == null ? null : display.toPreferredDisplay(check.available(), unitsNow),
                     check.satisfied()));
         }
         return new DetailUiState.Loaded(recipeNow, result, rows);

@@ -28,8 +28,9 @@ import com.btk.spm.util.IntentKeys;
  * Fragment can replace its title with one that says more, such as the Recipes tab's count, through
  * {@link #setToolbarTitle(Tab, CharSequence)}.
  *
- * <p>Each lifecycle callback is logged in debug builds ({@link LifecycleLog}), which is how the video
- * shows the Activity lifecycle: {@code adb logcat -s Lifecycle}.
+ * <p>Each lifecycle callback is logged in debug builds ({@link LifecycleLog}), its own and those of
+ * the tab Fragments it hosts ({@link FragmentLifecycleLog}), which is how the video shows the
+ * Activity and Fragment lifecycles: {@code adb logcat -s Lifecycle}.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -67,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Before super.onCreate, which re-creates the Fragments of a restored state: their callbacks
+        // are logged too
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentLifecycleLog(), false);
         super.onCreate(savedInstanceState);
         LifecycleLog.log(this, "onCreate", savedInstanceState == null ? "new" : "restored");
         EdgeToEdge.enable(this);

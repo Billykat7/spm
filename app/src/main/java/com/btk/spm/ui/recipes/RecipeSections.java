@@ -98,19 +98,20 @@ public final class RecipeSections {
 
     /**
      * Returns the one thing an almost-there recipe lacks, from {@code MatchResult.missingOne()}, with
-     * both amounts in display units (metric until the units preference, Issue 28).
+     * both amounts in the display units the user chose (Issue 28).
      *
-     * @param row an almost-there row
+     * @param row   an almost-there row
+     * @param units the units preference; display only, the row's status does not depend on it
      * @return the missing or short ingredient; {@link MissingLine#have()} is {@code null} when it is missing
      * @throws IllegalArgumentException if the row is not {@code ALMOST_THERE}
      */
     @NonNull
-    public static MissingLine missingLine(@NonNull MatchedRecipe row) {
+    public static MissingLine missingLine(@NonNull MatchedRecipe row, @NonNull UnitsSystem units) {
         Shortfall shortfall = row.result().missingOne().orElseThrow(() -> new IllegalArgumentException(
                 "Recipe " + row.recipeId() + " is " + row.result().status() + ", not one ingredient short"));
         return new MissingLine(shortfall.required().name(),
-                DISPLAY.toPreferredDisplay(shortfall.required().quantity(), UnitsSystem.METRIC),
-                shortfall.isMissing() ? null : DISPLAY.toPreferredDisplay(shortfall.available(), UnitsSystem.METRIC));
+                DISPLAY.toPreferredDisplay(shortfall.required().quantity(), units),
+                shortfall.isMissing() ? null : DISPLAY.toPreferredDisplay(shortfall.available(), units));
     }
 
     private static List<MatchedRecipe> requireStatus(@Nullable List<MatchedRecipe> rows, @NonNull MatchStatus status) {

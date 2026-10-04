@@ -11,13 +11,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.btk.spm.SpmApplication;
 import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.settings.AppPreferences;
+import com.btk.spm.settings.PrefKey;
 
 import java.time.LocalDate;
 
 /**
  * Builds {@link RecipeDetailViewModel} for one recipe id from the app's single instances: that
- * recipe's query and the pantry's, the shared matcher and its thread, the {@code COUNT_EXPIRED_ITEMS}
- * setting and the clock. As in {@code SuggestedRecipesViewModelFactory}, {@code LocalDate::now} is
+ * recipe's query and the pantry's, the {@code COUNT_EXPIRED_ITEMS} and {@code UNITS_SYSTEM} settings
+ * observed live through {@link AppPreferences}, the shared matcher and its thread, and the clock. As in {@code SuggestedRecipesViewModelFactory}, {@code LocalDate::now} is
  * read here and never inside the engine.
  *
  * <p>The recipe's query is passed on only once the first-run seed has finished, as the Recipes tab's
@@ -58,8 +59,9 @@ public final class RecipeDetailViewModelFactory implements ViewModelProvider.Fac
         return modelClass.cast(new RecipeDetailViewModel(
                 seededRecipe,
                 app.getPantryRepository().observeAll(),
+                preferences.observeBoolean(PrefKey.COUNT_EXPIRED_ITEMS),
+                preferences.observeUnitsSystem(),
                 app::getStrictMatcher,
-                preferences::isCountExpiredItems,
                 LocalDate::now,
                 app.getMatchExecutor()));
     }

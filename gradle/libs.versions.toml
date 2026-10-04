@@ -11,6 +11,8 @@ constraintlayout = "2.2.2"
 fragment = "1.9.1"
 # Declared, not left to Material's transitive 1.2.1: the pantry list (Issue 13) is built on ListAdapter
 recyclerview = "1.4.0"
+# The Settings screen (Issue 28): PreferenceFragmentCompat, the Java artifact, not preference-ktx
+preference = "1.2.1"
 # Room 2.6, as the plan pins it (decision 1); its compiler runs as a plain Java annotation processor
 room = "2.6.1"
 # 2.10.0 is what Material 1.14 and fragment 1.9 resolve to. Not 2.11.0: its LiveData carries Kotlin 2.1
@@ -35,6 +37,7 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }

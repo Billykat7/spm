@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.btk.spm.R;
 import com.btk.spm.databinding.ItemRecipeAlmostBinding;
+import com.btk.spm.domain.UnitsSystem;
+import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.util.QuantityFormatter;
 
 import java.util.List;
@@ -31,6 +33,10 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
 
     private final RecipeAdapter.OnRecipeClickListener listener;
 
+    /** The units the missing amounts are shown in, from the Settings tab (Issue 28). */
+    @NonNull
+    private UnitsSystem unitsSystem = AppPreferences.DEFAULT_UNITS_SYSTEM;
+
     /**
      * Creates an empty section; rows appear when a list is submitted.
      *
@@ -39,6 +45,19 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
     public AlmostThereAdapter(@NonNull RecipeAdapter.OnRecipeClickListener listener) {
         super(new ItemDiff());
         this.listener = listener;
+    }
+
+    /**
+     * Shows every card's amounts in {@code units} from now on, redrawing them when it differs from the
+     * system in use. Which recipes are almost there does not change (decision 5).
+     *
+     * @param units the units preference
+     */
+    public void setUnitsSystem(@NonNull UnitsSystem units) {
+        if (units != unitsSystem) {
+            unitsSystem = units;
+            notifyItemRangeChanged(0, getItemCount());
+        }
     }
 
     /**
@@ -80,7 +99,7 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(getItem(position));
+        holder.bind(getItem(position), unitsSystem);
     }
 
     /** Holds one card's views, bound through {@link ItemRecipeAlmostBinding}. */
@@ -93,11 +112,11 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
             this.binding = binding;
         }
 
-        /** Shows the recipe's name and its one missing or short ingredient. */
-        void bind(@NonNull MatchedRecipe row) {
+        /** Shows the recipe's name and its one missing or short ingredient, in {@code units}. */
+        void bind(@NonNull MatchedRecipe row, @NonNull UnitsSystem units) {
             Context context = binding.getRoot().getContext();
             binding.name.setText(row.recipe().getRecipe().getName());
-            RecipeSections.MissingLine line = RecipeSections.missingLine(row);
+            RecipeSections.MissingLine line = RecipeSections.missingLine(row, units);
             String need = QuantityFormatter.format(context, line.need());
             binding.missing.setText(line.have() == null
                     ? context.getString(R.string.almost_missing, need, line.name())

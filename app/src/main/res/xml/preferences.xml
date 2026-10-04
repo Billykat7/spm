@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Settings screen (Issue 28), inflated by ui/settings/SettingsFragment.
+
+    Every android:key is a settings.PrefKey key string and every android:defaultValue is the default
+    settings.AppPreferences declares: PreferencesXmlTest reads this file on the JVM and fails on a key
+    that is not a PrefKey, on a user-facing PrefKey missing from here, and on a default that differs.
+    Nothing is on this screen unless code reads it.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/settings_category_alerts"
+        app:iconSpaceReserved="false">
+
+        <!-- Read by the daily expiring-soon check (Issue 29) -->
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="expiry_alerts_enabled"
+            android:summaryOff="@string/settings_expiry_alerts_off"
+            android:summaryOn="@string/settings_expiry_alerts_on"
+            android:title="@string/settings_expiry_alerts_title"
+            android:widgetLayout="@layout/preference_widget_material_switch"
+            app:iconSpaceReserved="false" />
+
+        <!-- Read by the pantry badges (Issue 17) and the alert (Issue 29); 1–14 days, decision 6 -->
+        <SeekBarPreference
+            android:defaultValue="3"
+            android:key="expiry_threshold_days"
+            android:max="14"
+            android:title="@string/settings_threshold_title"
+            app:iconSpaceReserved="false"
+            app:min="1"
+            app:seekBarIncrement="1"
+            app:showSeekBarValue="true" />
+
+        <!-- An action, stored nowhere; Issue 29 enables it -->
+        <Preference
+            android:enabled="false"
+            android:key="send_test_alert"
+            android:summary="@string/settings_send_test_alert_unavailable"
+            android:title="@string/settings_send_test_alert_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_display"
+        app:iconSpaceReserved="false">
+
+        <!-- Read by the pantry list and the recipe detail screen; display only, decision 5 -->
+        <ListPreference
+            android:defaultValue="METRIC"
+            android:entries="@array/units_system_entries"
+            android:entryValues="@array/units_system_values"
+            android:key="units_system"
+            android:title="@string/settings_units_title"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_matching"
+        app:iconSpaceReserved="false">
+
+        <!-- Read by the Recipes tab and the detail screen as MatchOptions.includeExpired, decision 6 -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="count_expired_items"
+            android:summaryOff="@string/settings_count_expired_off"
+            android:summaryOn="@string/settings_count_expired_on"
+            android:title="@string/settings_count_expired_title"
+            android:widgetLayout="@layout/preference_widget_material_switch"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_about"
+        app:iconSpaceReserved="false">
+
+        <!-- Its summary is BuildConfig.VERSION_NAME, set by SettingsFragment -->
+        <Preference
+            android:key="about_version"
+            android:selectable="false"
+            android:title="@string/settings_version_title"
+            app:iconSpaceReserved="false" />
+
+        <!-- Opens @string/repository_url in a browser, from SettingsFragment -->
+        <Preference
+            android:key="about_repository"
+            android:summary="@string/settings_repository_summary"
+            android:title="@string/settings_repository_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

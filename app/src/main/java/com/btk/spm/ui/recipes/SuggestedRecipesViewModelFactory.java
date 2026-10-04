@@ -64,6 +64,7 @@ public final class SuggestedRecipesViewModelFactory implements ViewModelProvider
                 app.getPantryRepository().observeAll(),
                 seededRecipes,
                 preferences.observeBoolean(PrefKey.COUNT_EXPIRED_ITEMS),
+                preferences.observeUnitsSystem(),
                 app::getStrictMatcher,
                 LocalDate::now,
                 app.getMatchExecutor()));
