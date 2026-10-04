@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One step of a recipe's method (RecipeStepAdapter): its number, "1.", and the step as the seed
+    writes it. The steps are stored unnumbered (Issue 8), so the number is the row's position.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/spacing_m"
+    android:paddingVertical="@dimen/spacing_s">
+
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="@dimen/step_number_width"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
+        android:textColor="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.Spm.BodyLarge"
+        android:textColor="?attr/colorOnSurface" />
+
+</LinearLayout>

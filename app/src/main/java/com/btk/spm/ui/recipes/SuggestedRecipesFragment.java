@@ -1,7 +1,6 @@
 package com.btk.spm.ui.recipes;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.btk.spm.BuildConfig;
 import com.btk.spm.R;
 import com.btk.spm.databinding.FragmentSuggestedRecipesBinding;
 import com.btk.spm.ui.LifecycleLoggingFragment;
@@ -48,9 +46,6 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
 
     /** Names this list in the debug log: {@code adb logcat -s ListChange}. */
     private static final String LIST_NAME = "Recipes";
-
-    /** The logcat tag of a row tap, until the detail screen exists: {@code adb logcat -s Recipes}. */
-    private static final String LOG_TAG = "Recipes";
 
     @Nullable
     private FragmentSuggestedRecipesBinding binding;
@@ -103,15 +98,12 @@ public class SuggestedRecipesFragment extends LifecycleLoggingFragment
     }
 
     /**
-     * A row was tapped. Issue 25 opens {@code RecipeDetailActivity.intentFor(context, recipeId)}
-     * here; until then a debug build logs the id, which is all a tap has to carry.
+     * A row was tapped: open that recipe in full, through the Intent only
+     * {@link RecipeDetailActivity#intentFor} builds.
      */
     @Override
     public void onRecipeClick(long recipeId) {
-        // TODO(Issue 25): startActivity(RecipeDetailActivity.intentFor(requireContext(), recipeId))
-        if (BuildConfig.DEBUG) {
-            Log.d(LOG_TAG, "Recipe tapped: id " + recipeId);
-        }
+        startActivity(RecipeDetailActivity.intentFor(requireContext(), recipeId));
     }
 
     /** Applies {@link RecipesRender}: exactly one of the progress indicator, the list and the empty state. */

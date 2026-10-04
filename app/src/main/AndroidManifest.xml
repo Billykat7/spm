@@ -33,6 +33,15 @@
             android:label="@string/title_add_ingredient"
             android:parentActivityName=".ui.MainActivity"
             android:windowSoftInputMode="adjustResize" />
+        <!--
+            Opened only by RecipeDetailActivity.intentFor, an explicit Intent carrying the recipe's id,
+            so not exported. Up and Back both close it, back to the Recipes tab it was opened from.
+        -->
+        <activity
+            android:name=".ui.recipes.RecipeDetailActivity"
+            android:exported="false"
+            android:label="@string/title_recipe_detail"
+            android:parentActivityName=".ui.MainActivity" />
     </application>
 
 </manifest>

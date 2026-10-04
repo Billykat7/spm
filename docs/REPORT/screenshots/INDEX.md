@@ -44,3 +44,5 @@ the final set after the UI pass, so earlier rows are working copies.
 | 21 | 21_recipes_no_match_dark.png | The same zero-match state in the dark theme | #24 |
 | 22 | 22_recipes_pantry_empty.png | A fresh install, nothing in the pantry: "Your pantry is empty, add some ingredients to see what you can cook" and the same button, which switches the running host to the Pantry tab | #24 |
 | 22 | 22_recipes_pantry_empty_dark.png | The empty-pantry state in the dark theme | #24 |
+| 23 | 23_recipe_detail.png | Tomato pasta opened by an explicit Intent carrying `IntentKeys.EXTRA_RECIPE_ID`, against a pantry with one garlic clove: "Missing 1 ingredient", a check on pasta ("need 200 g, have 500 g"), tomato, olive oil ("need 2 tbsp, have 500 ml") and salt ("need 2 g, have 1 kg"), a cross on garlic ("need 2 pcs, have 1 pcs"), then the numbered method. Every mark is the matcher's `MatchResult.checks()` | #25 |
+| 23 | 23_recipe_detail_dark.png | The same detail screen in the dark theme: the check and the cross take colorPrimary and colorError | #25 |

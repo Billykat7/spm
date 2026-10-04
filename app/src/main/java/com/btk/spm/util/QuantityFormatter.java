@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.btk.spm.R;
+import com.btk.spm.domain.DisplayQuantity;
 import com.btk.spm.domain.Unit;
 
 import java.math.RoundingMode;
@@ -68,5 +69,21 @@ public final class QuantityFormatter {
         Locale locale = context.getResources().getConfiguration().getLocales().get(0);
         return context.getString(R.string.quantity_with_unit,
                 formatAmount(amount, locale), context.getString(unit.symbolRes()));
+    }
+
+    /**
+     * Formats an amount already chosen for display, such as {@code 1.5 kg} from a canonical
+     * {@code 1500 g} (Issue 25), the same way as a stored quantity: at most two decimals, the locale's
+     * separator, a non-breaking space and the unit's symbol resource.
+     *
+     * @param context  any context, for the resources and the current locale
+     * @param quantity the amount and its display unit
+     * @return the amount, a non-breaking space and the unit's display symbol
+     */
+    @NonNull
+    public static String format(@NonNull Context context, @NonNull DisplayQuantity quantity) {
+        Locale locale = context.getResources().getConfiguration().getLocales().get(0);
+        return context.getString(R.string.quantity_with_unit,
+                formatAmount(quantity.amount(), locale), context.getString(quantity.unit().symbolRes()));
     }
 }
