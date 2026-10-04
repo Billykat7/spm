@@ -28,6 +28,12 @@
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>
 
+    <!-- The Pantry tab's sort menu (Issue 17); the en dash in A–Z marks a range -->
+    <string name="sort_by">Sort by</string>
+    <string name="cd_sort_pantry">Sort the pantry</string>
+    <string name="sort_expiry_soonest">Expiry (soonest first)</string>
+    <string name="sort_name">Name (A–Z)</string>
+
     <!--
         The expiry badge on a pantry row (Issue 17), from ui/pantry/ExpiryBadgeFormatter. Labels, so
         no full stop. Counts go through plurals: "Expires in 1 day", never "1 days".

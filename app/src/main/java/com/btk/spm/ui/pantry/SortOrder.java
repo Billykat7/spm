@@ -1,6 +1,10 @@
 package com.btk.spm.ui.pantry;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.btk.spm.R;
 
 import com.btk.spm.data.model.PantryItem;
 
@@ -27,17 +31,47 @@ public enum SortOrder {
      * What to use first: the earliest expiry date at the top, items that never expire at the bottom,
      * and items with the same date by name.
      */
-    EXPIRY_SOONEST(Comparator.comparing(PantryItem::getExpiryDate,
+    EXPIRY_SOONEST(R.id.sort_expiry, Comparator.comparing(PantryItem::getExpiryDate,
                     Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(byName())),
 
     /** Alphabetical by name, ignoring letter case, so "eggs" sits between "Butter" and "Flour". */
-    NAME(byName());
+    NAME(R.id.sort_name, byName());
 
+    @IdRes
+    private final int menuItemId;
     private final Comparator<PantryItem> comparator;
 
-    SortOrder(Comparator<PantryItem> comparator) {
+    SortOrder(@IdRes int menuItemId, Comparator<PantryItem> comparator) {
+        this.menuItemId = menuItemId;
         this.comparator = comparator;
+    }
+
+    /**
+     * Returns the item of the Pantry tab's sort menu ({@code menu/pantry_sort.xml}) that picks this
+     * order, so the menu can check the one in use.
+     *
+     * @return a {@code R.id.sort_*} id
+     */
+    @IdRes
+    public int menuItemId() {
+        return menuItemId;
+    }
+
+    /**
+     * Returns the order a sort menu item picks.
+     *
+     * @param menuItemId the id of the menu item that was chosen
+     * @return its order, or {@code null} when the item is not one of the sort choices
+     */
+    @Nullable
+    public static SortOrder fromMenuItemId(@IdRes int menuItemId) {
+        for (SortOrder order : values()) {
+            if (order.menuItemId == menuItemId) {
+                return order;
+            }
+        }
+        return null;
     }
 
     /**
