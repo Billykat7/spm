@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A heading between two parts of a list, such as "Method" between a recipe's ingredients and its
+    steps (Issue 25). Its text is set by SectionHeadingAdapter; marked as a heading for TalkBack.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/heading"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/spacing_m"
+    android:paddingTop="@dimen/spacing_l"
+    android:paddingBottom="@dimen/spacing_s"
+    android:textAppearance="@style/TextAppearance.Spm.TitleMedium"
+    android:textColor="?attr/colorPrimary" />

@@ -25,6 +25,12 @@
     <!-- Space under the last row of a list with a FAB: the FAB's 56 dp and its 16 dp margins -->
     <dimen name="list_bottom_space_for_fab">88dp</dimen>
 
+    <!-- A list row's leading icon, such as the have or need mark on a recipe ingredient -->
+    <dimen name="icon_size">24dp</dimen>
+
+    <!-- The column a recipe step's number sits in, wide enough for "20." -->
+    <dimen name="step_number_width">40dp</dimen>
+
     <!-- The smallest tappable area, from the Android accessibility guidelines -->
     <dimen name="touch_target_min">48dp</dimen>
 

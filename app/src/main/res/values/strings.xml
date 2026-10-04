@@ -63,6 +63,25 @@
     <!-- Issue 24 gives the zero-match state its final words and a button to the pantry -->
     <string name="suggested_empty_title">No recipes can be made with what is in your pantry yet.</string>
 
+    <!--
+        The recipe detail screen (Issue 25). The status line and each ingredient's mark come from the
+        matcher's result; "need ..., have ..." puts the recipe's amount first and the pantry's second.
+    -->
+    <string name="title_recipe_detail">Recipe</string>
+    <string name="recipe_not_found">Recipe not found</string>
+    <string name="recipe_can_make">You can make this</string>
+    <plurals name="recipe_missing_ingredients">
+        <item quantity="one">Missing %1$d ingredient</item>
+        <item quantity="other">Missing %1$d ingredients</item>
+    </plurals>
+    <string name="ingredient_have">You have this</string>
+    <string name="ingredient_need">You need this</string>
+    <string name="ingredient_need_have">need %1$s, have %2$s</string>
+    <string name="ingredient_need_have_none">need %1$s, have none</string>
+    <string name="recipe_method">Method</string>
+    <!-- A step's number in the method: 1., 2., 3. -->
+    <string name="recipe_step_number">%1$d.</string>
+
     <!-- Deleting an ingredient (Issue 16): the confirmation, then the Snackbar that can undo it -->
     <string name="delete_confirm_title">Delete %1$s?</string>
     <string name="delete_confirm_message">This removes it from your pantry.</string>
