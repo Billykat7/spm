@@ -369,7 +369,8 @@ the brief's bonus, kept apart by type: a recipe with exactly one ingredient miss
 `MatchStatus.ALMOST_THERE`, never `CAN_MAKE`, and `MatchResults.partition` hands the screens the
 suggestions and the almost-there recipes as separate lists. A property test over the twenty recipes
 and 200 random pantries checks that the two never meet. It also writes the `v0.4.0` release note.
-Issue 23 starts Milestone 5 with the Suggested Recipes tab. `SuggestedRecipesViewModel` observes
+Issue 23, in pull request [#66](https://github.com/Billykat7/spm/pull/66), starts Milestone 5 with
+the Suggested Recipes tab. `SuggestedRecipesViewModel` observes
 the pantry and the recipes through Room's `LiveData`, maps the entities to the engine's values in
 `data/mapping/`, runs `StrictMatcher.matchAll` on a matching thread of its own, never the main
 thread, and lists `MatchResults.partition(...).canMake` and nothing else, with "Suggested recipes
