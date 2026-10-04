@@ -100,7 +100,7 @@ public final class AppPreferences {
             case UNITS_SYSTEM -> DEFAULT_UNITS_SYSTEM.name();
             case COUNT_EXPIRED_ITEMS -> DEFAULT_COUNT_EXPIRED_ITEMS;
             case PANTRY_SORT -> DEFAULT_PANTRY_SORT.name();
-            case SEND_TEST_ALERT, ABOUT_VERSION, ABOUT_REPOSITORY -> null;
+            case SEND_TEST_ALERT, NOTIFICATION_SETTINGS, ABOUT_VERSION, ABOUT_REPOSITORY -> null;
         };
     }
 
