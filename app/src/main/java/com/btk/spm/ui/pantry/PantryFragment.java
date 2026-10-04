@@ -87,7 +87,8 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         super.onViewCreated(view, savedInstanceState);
         FragmentPantryBinding views = requireBinding();
 
-        PantryAdapter adapter = new PantryAdapter(this);
+        viewModel = new ViewModelProvider(this).get(PantryViewModel.class);
+        PantryAdapter adapter = new PantryAdapter(this, viewModel.getExpiryThresholdDays());
         // Hold the saved scroll position until the first list arrives, so a rotation lands on the
         // same rows instead of the top of an adapter that is still empty
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
@@ -104,7 +105,6 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         views.emptyState.emptyStateAction.setOnClickListener(v -> openAddIngredient());
         views.addIngredient.setOnClickListener(v -> openAddIngredient());
 
-        viewModel = new ViewModelProvider(this).get(PantryViewModel.class);
         // The view's lifecycle, not the Fragment's: the observer goes when the view does, so a list
         // can never be delivered to a destroyed RecyclerView
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {

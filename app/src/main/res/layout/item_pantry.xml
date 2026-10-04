@@ -43,7 +43,11 @@
             android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
-    <!-- The expiry badge: kept out of sight until Issue 17 gives it its text and colours -->
+    <!--
+        The expiry badge (Issue 17): its words and its fill come from the adapter, through
+        ExpiryBadgeFormatter, and it is gone for an item with no date. A label, not a control: it
+        takes no touch, has no outline and no 48 dp touch padding, so the row stays one target.
+    -->
     <com.google.android.material.chip.Chip
         android:id="@+id/expiry_badge"
         style="@style/Widget.Material3.Chip.Assist"
@@ -52,7 +56,10 @@
         android:layout_marginStart="@dimen/spacing_s"
         android:clickable="false"
         android:focusable="false"
+        android:textAppearance="@style/TextAppearance.Spm.LabelMedium"
         android:visibility="gone"
+        app:chipStrokeWidth="0dp"
+        app:ensureMinTouchTargetSize="false"
         tools:visibility="visible" />
 
     <!-- The adapter replaces the description with one that names the item: "More options for Eggs" -->
