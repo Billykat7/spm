@@ -150,7 +150,7 @@ decision 1 of the plan, recorded in Issue 8.
 ```text
 app/src/main/java/com/btk/spm/
 ├── ui/              MainActivity, Tab; pantry/, recipes/, settings/ (Fragments, Activities, adapters, ViewModels)
-├── data/            db/ (AppDatabase, DAOs), model/ (entities), repo/ (repositories), seed/ (recipes.json and aliases.json loaders)
+├── data/            db/ (AppDatabase, DAOs), model/ (entities), repo/ (repositories), seed/ (recipes.json and aliases.json loaders), mapping/ (entities to engine values)
 ├── domain/          Unit, UnitKind, Quantity, MatchStatus; matching/ (the engine); validation/ (Validators)
 ├── settings/        AppPreferences, PrefKey
 ├── notifications/   ExpiryCheckWorker, NotificationChannels
@@ -182,10 +182,10 @@ issues and its order of work.
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | [`v0.2.0`](https://github.com/Billykat7/spm/releases/tag/v0.2.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
+| 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | 🟩⬜⬜⬜⬜ **20%** (1/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **58%** (22/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **61%** (23/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -232,8 +232,10 @@ A row's overflow menu deletes it after a confirmation, with Undo on offer for a 
 Each row with a date carries a badge, "Expires in 2 days" or "Expired 1 day ago", and the list puts
 the soonest-expiring first, or sorts by name from the toolbar (Issue 17). Tapping a row opens the
 same form prefilled to edit it, and Save changes that row (Issue 15).
-Recipes and Settings still show a placeholder. Once the matcher is in, add a few ingredients on the
-Pantry tab and open the Recipes tab.
+The Recipes tab lists the recipes the pantry can make right now, matched on a background thread and
+listed again whenever the pantry changes, with the count in the toolbar: put the five ingredients of
+Tomato pasta in the pantry and it reads "Suggested recipes (1)" (Issue 23). Settings still shows a
+placeholder.
 
 **Before every push**, the same gate CI runs:
 
@@ -260,7 +262,8 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestones 1, 2 and 3 done and released as `v0.1.0`, `v0.2.0` and `v0.3.0`, the last with the full create, read, update and delete cycle on the pantry; Milestone 4, the strict-matching engine, done (M4, `v0.4.0` to cut). The brief has been broken into seven milestones and
+**Where the project is.** Milestones 1, 2 and 3 done and released as `v0.1.0`, `v0.2.0` and `v0.3.0`, the last with the full create, read, update and delete cycle on the pantry; Milestone 4, the strict-matching engine, done (M4, `v0.4.0` to cut); Milestone 5 under way, with the
+Suggested Recipes tab on the live pantry. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -366,10 +369,16 @@ the brief's bonus, kept apart by type: a recipe with exactly one ingredient miss
 `MatchStatus.ALMOST_THERE`, never `CAN_MAKE`, and `MatchResults.partition` hands the screens the
 suggestions and the almost-there recipes as separate lists. A property test over the twenty recipes
 and 200 random pantries checks that the two never meet. It also writes the `v0.4.0` release note.
+Issue 23 starts Milestone 5 with the Suggested Recipes tab. `SuggestedRecipesViewModel` observes
+the pantry and the recipes through Room's `LiveData`, maps the entities to the engine's values in
+`data/mapping/`, runs `StrictMatcher.matchAll` on a matching thread of its own, never the main
+thread, and lists `MatchResults.partition(...).canMake` and nothing else, with "Suggested recipes
+(N)" in the toolbar. A pantry change made on another tab is already in the list when the user comes
+back, and a match of an older pantry that finishes late is thrown away.
 
-**What is next.** Tagging `v0.4.0` once this pull request merges, then M5 in week 5: the Suggested
-Recipes tab on the live pantry, built on `MatchResults.partition`, the recipe detail screen and the
-"Almost there" section.
+**What is next.** The rest of M5: the zero-match state with a button to the pantry (Issue 24), the
+recipe detail screen the rows open (Issue 25), the live re-evaluation proof (Issue 26) and the
+"Almost there" section (Issue 27).
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
