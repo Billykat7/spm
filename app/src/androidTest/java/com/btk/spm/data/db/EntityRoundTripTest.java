@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -17,6 +18,7 @@ import com.btk.spm.domain.Unit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,12 +37,21 @@ public class EntityRoundTripTest {
 
     private static final long CREATED = 1_790_000_000_000L;
 
+    // Room computes a LiveData and refreshes it after a write on a background thread. Without this
+    // rule, a refresh started by a write could still be running when @After closed the database,
+    // and its "connection pool has been closed" exception killed the whole test process. The rule
+    // runs that work on the calling thread, so it has finished before the database closes.
+    @Rule
+    public final InstantTaskExecutorRule instantTasks = new InstantTaskExecutorRule();
+
     private AppDatabase database;
 
     @Before
     public void openInMemoryDatabase() {
         Context context = ApplicationProvider.getApplicationContext();
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).build();
+        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class)
+                .allowMainThreadQueries()
+                .build();
     }
 
     @After
