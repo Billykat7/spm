@@ -3,8 +3,9 @@
     The recipe detail screen (Issue 25): a toolbar with the up arrow over one RecyclerView. The list is
     a ConcatAdapter of the header (name, servings, whether it can be made), the ingredients with their
     have or need marks, the "Method" heading and the numbered steps, so the whole screen scrolls as one
-    and its position survives a rotation through the layout manager. The root is padded for the system
-    bars in RecipeDetailActivity.
+    and its position survives a rotation through the layout manager. Until the recipe is matched, the
+    shared state layout (Issue 30) shows its progress indicator in the list's place. The root is padded
+    for the system bars in RecipeDetailActivity.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -28,6 +29,17 @@
         android:clipToPadding="false"
         android:paddingBottom="@dimen/spacing_l"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <include
+        android:id="@+id/state_message"
+        layout="@layout/view_state_message"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

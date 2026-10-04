@@ -147,6 +147,7 @@
     -->
     <string name="title_recipe_detail">Recipe</string>
     <string name="recipe_not_found">Recipe not found</string>
+    <string name="recipe_loading">Loading the recipe</string>
     <string name="recipe_can_make">You can make this</string>
     <plurals name="recipe_missing_ingredients">
         <item quantity="one">Missing %1$d ingredient</item>
