@@ -354,6 +354,13 @@ canonical amount. Four of five is `CANNOT_MAKE`, with a shortfall naming the fif
 rows are summed, expired rows are left out unless counted, and the day is passed in, never read from
 the clock. The inputs are plain domain values, not Room entities, and `MatchingPurityTest` fails the
 build on an Android or data-layer import, a clock or a raw name comparison in the engine.
+Issue 21, in pull request [#63](https://github.com/Billykat7/spm/pull/63), checks the matcher a
+second time, from the brief rather than from its own tests: 56 named scenarios in `scenarios.csv`
+(four of five, short by a tenth of a gram, plurals both ways, aliases, kilograms against grams,
+cups against litres, kinds that never cross, duplicate rows, expiry), the twenty real seed recipes,
+and properties that hold for every one of them: take away or expire any ingredient and the match
+breaks, add anything and it holds. JaCoCo measures the unit tests, and the gate now fails when any
+line of the engine is run by no test; `domain/matching/` is at 100% of lines and branches.
 
 **What is next.** The last issue of M4: "almost there" (Issue 22), then `v0.4.0`. After it, M5 puts
 the engine on the Recipes tab.
