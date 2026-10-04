@@ -214,6 +214,40 @@ public class SpmApplication extends Application {
     }
 
     /**
+     * Puts {@code replacement} in place of the write thread, for an Espresso test that must wait for
+     * every write: an {@code IdlingThreadPoolExecutor} tells Espresso when it is busy, so a test never
+     * sleeps (Issue 32). The pantry repository is rebuilt on it. Call it on the main thread before
+     * the screen under test is opened, and put the original back afterwards.
+     *
+     * @param replacement the executor every database write runs on from now on; one thread, so writes
+     *                    keep their order
+     * @return the executor used until now
+     */
+    @VisibleForTesting
+    @NonNull
+    public ExecutorService replaceIoExecutorForTesting(@NonNull ExecutorService replacement) {
+        ExecutorService previous = ioExecutor;
+        ioExecutor = replacement;
+        pantryRepository = new PantryRepository(database, replacement);
+        return previous;
+    }
+
+    /**
+     * Puts {@code replacement} in place of the matching thread, so an Espresso test waits for every
+     * match as it waits for the main thread (Issue 32). Screens opened afterwards match on it.
+     *
+     * @param replacement the executor the matcher runs on from now on; never the main thread
+     * @return the executor used until now
+     */
+    @VisibleForTesting
+    @NonNull
+    public ExecutorService replaceMatchExecutorForTesting(@NonNull ExecutorService replacement) {
+        ExecutorService previous = matchExecutor;
+        matchExecutor = replacement;
+        return previous;
+    }
+
+    /**
      * Returns the application object from any context, such as an Activity or a Fragment's
      * {@code requireContext()}.
      *

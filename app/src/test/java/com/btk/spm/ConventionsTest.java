@@ -36,6 +36,9 @@ import java.util.stream.Collectors;
  *   <li>shows an {@code error_*} message in a Toast or a Snackbar under {@code ui/}: a validation
  *       error belongs under its field, where it stays until fixed.</li>
  * </ul>
+ * It also reads {@code src/androidTest/java} and fails on a {@code Thread.sleep} or
+ * {@code SystemClock.sleep} there (Issue 32): a device test waits for the thing it needs, through an
+ * idling resource or a latch, so a slow emulator makes it slower, never flaky.
  *
  * <p>Comments and the contents of string literals are blanked before matching, keeping the quote
  * marks and the line breaks, so a Javadoc example or a log message can neither trigger nor hide an
@@ -46,6 +49,12 @@ public class ConventionsTest {
 
     /** Main sources, relative to the module directory Gradle runs unit tests from. */
     private static final Path MAIN_JAVA = Paths.get("src", "main", "java");
+
+    /** Instrumented tests, where nothing may sleep. */
+    private static final Path ANDROID_TEST_JAVA = Paths.get("src", "androidTest", "java");
+
+    /** A fixed wait: {@code Thread.sleep(…)} or {@code SystemClock.sleep(…)}. */
+    static final Pattern SLEEP = Pattern.compile("\\b(Thread|SystemClock)\\s*\\.\\s*sleep\\s*\\(");
 
     /** The one package that must stay free of Android (non-negotiable 5 and the JVM test strategy). */
     private static final Path DOMAIN = Paths.get("com", "btk", "spm", "domain");
@@ -158,6 +167,22 @@ public class ConventionsTest {
     }
 
     @Test
+    public void noDeviceTestSleeps() throws IOException {
+        List<SourceFile> deviceTests = SourceFile.readTree(ANDROID_TEST_JAVA);
+        assertTrue("No instrumented test found under " + ANDROID_TEST_JAVA.toAbsolutePath(), deviceTests.size() > 5);
+        List<String> offences = new ArrayList<>();
+        for (SourceFile file : deviceTests) {
+            for (int i = 0; i < file.code.size(); i++) {
+                if (SLEEP.matcher(file.code.get(i)).find()) {
+                    offences.add(ANDROID_TEST_JAVA.relativize(file.path) + ":" + (i + 1) + ": " + file.original.get(i).trim());
+                }
+            }
+        }
+        assertEquals("Wait with an idling resource, ListWait or a latch, never a sleep:\n" + String.join("\n", offences),
+                0, offences.size());
+    }
+
+    @Test
     public void rulesCatchTheKnownViolations() {
         assertMatches(LITERAL_EXTRA_KEY,
                 "intent.putExtra(\"recipe_id\", id);",
@@ -184,6 +209,7 @@ public class ConventionsTest {
         assertMatches(ERROR_IN_TOAST_OR_SNACKBAR,
                 "Toast.makeText(this, R.string.error_name_required, Toast.LENGTH_SHORT).show();",
                 "Snackbar.make(root, getString(R.string.error_unit_required), Snackbar.LENGTH_LONG).show();");
+        assertMatches(SLEEP, "Thread.sleep(500);", "SystemClock.sleep(200);", "Thread . sleep (1)");
         assertMatches(ANDROID_IMPORT,
                 "import android.content.Context;",
                 "import androidx.annotation.NonNull;",
@@ -207,11 +233,13 @@ public class ConventionsTest {
             "public static final String EXTRA_TAB = PREFIX + \"TAB\";",
             "layout.setError(getString(error.messageRes()));",
             "Toast.makeText(this, R.string.recipe_not_found, Toast.LENGTH_LONG).show();",
+            "uiController.loopMainThreadForAtLeast(STEP_MS);",
+            "// never Thread.sleep(500) here",
         };
         for (String line : legitimate) {
             String code = SourceFile.blank(line);
             for (Pattern rule : List.of(LITERAL_EXTRA_KEY, LITERAL_PREFERENCE_KEY, LITERAL_ENUM_VALUE, ANDROID_IMPORT,
-                    VALIDATION_ERROR, ERROR_IN_TOAST_OR_SNACKBAR)) {
+                    VALIDATION_ERROR, ERROR_IN_TOAST_OR_SNACKBAR, SLEEP)) {
                 assertFalse("A rule wrongly flags: " + line, rule.matcher(code).find());
             }
         }

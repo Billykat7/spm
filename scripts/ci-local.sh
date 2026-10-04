@@ -14,6 +14,10 @@
 #   6. schema       git status --porcelain -- app/schemas/ (the build left the committed Room schema as it was)
 #   7. device tests ./gradlew connectedDebugAndroidTest  (only with --with-device; needs an emulator)
 #
+# Before stage 7 runs, every target device has its three animation scales set to 0 (window,
+# transition, animator): AGP's animationsDisabled only covers the runner, and an animation still
+# running when Espresso looks is how a UI test turns flaky. Each device's line names its API level.
+#
 # Stage 7 does not trust Gradle's exit status alone. Gradle can print BUILD SUCCESSFUL when the APK
 # would not install on one of the devices, which then runs no test at all. So the stage uninstalls
 # the app and its test APK from every target device first, and afterwards fails when the Gradle
@@ -134,6 +138,11 @@ device_label() {
     printf '%s' "${label:-unknown}"
 }
 
+# api_level <serial>: the device's SDK level, such as 35.
+api_level() {
+    "$adb" -s "$1" shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r'
+}
+
 # The device stage needs at least one device in the "device" state: every attached one, or the ones
 # ANDROID_SERIAL names (Gradle reads the same variable and accepts a comma-separated list).
 device_tests() {
@@ -174,6 +183,15 @@ device_tests() {
         done
     done
 
+    # Espresso tests run with animations off; the scales stay at 0 on the device after the run
+    local scale
+    for serial in $devices; do
+        for scale in window_animation_scale transition_animation_scale animator_duration_scale; do
+            "$adb" -s "$serial" shell settings put global "$scale" 0 >/dev/null 2>&1
+        done
+        printf 'animations off on %s\n' "$serial"
+    done
+
     # A result left by an earlier run must not count for this one.
     rm -rf "$device_results"
     local log gradle_status
@@ -191,8 +209,8 @@ device_tests() {
         if [[ -n "$xml" ]]; then
             counts="$(sed -n 's/.*<testsuites tests="\([0-9]*\)" failures="\([0-9]*\)" errors="\([0-9]*\)".*/\1 \2 \3/p' "$xml" | head -1)"
             read -r tests failures errors <<< "${counts:-0 0 0}"
-            line="$(printf '%s %s: %d tests, %d failures, %d errors' "$serial" \
-                "$(basename "$xml" .xml | sed 's/^TEST-//')" "$tests" "$failures" "$errors")"
+            line="$(printf '%s %s (API %s): %d tests, %d failures, %d errors' "$serial" \
+                "$(basename "$xml" .xml | sed 's/^TEST-//')" "$(api_level "$serial")" "$tests" "$failures" "$errors")"
             if [[ $tests -eq 0 ]]; then
                 line="FAIL $line"
                 failed=1

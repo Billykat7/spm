@@ -186,9 +186,9 @@ issues and its order of work.
 | 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | [`v0.3.0`](https://github.com/Billykat7/spm/releases/tag/v0.3.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩🟩⬜ **80%** (4/5 issues) |
+| 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜ **82%** (31/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜ **84%** (32/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -278,8 +278,9 @@ The bars above are the status. What they cannot say:
 **Where the project is.** Milestones 1 to 4 done and released as `v0.1.0`, `v0.2.0`, `v0.3.0` and
 `v0.4.0` (with the patch `v0.4.1`): the full create, read, update and delete cycle on the pantry, and
 the strict-matching engine. Milestone 5, the Suggested Recipes tab on the live pantry with its detail
-screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6 is under way with
-the Settings screen, the expiring-soon alert, the UX pass and hardened validation. The brief has been broken into
+screen and the "Almost there" section, done and released as `v0.5.0`. Milestone 6, the Settings
+screen, the expiring-soon alert, the UX pass, hardened validation and the Espresso suite, done (M6,
+`v0.6.0` to cut). The brief has been broken into
 seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
@@ -453,8 +454,16 @@ quantity has at most two decimals; the Settings threshold is held to 1–14 days
 corrupted. The form shows every error at once with Save enabled. A damaged `recipes.json` seeds what it
 can and logs the rest, an empty one leaves the Recipes tab on "Recipes could not be loaded", and the
 detail screen says "Recipe not found" for an unknown id instead of closing.
+Issue 32, in pull request [#75](https://github.com/Billykat7/spm/pull/75), closes the milestone with
+the five flows the video shows, driven through the real screens by Espresso on every device gate: the
+create, read, update and delete cycle, a validation error, the five-of-five rule, persistence across a
+re-created Activity, and the Settings toggle that changes a match. Each test starts from an in-memory,
+seeded database with idling executors for the app's threads, so none of them sleeps, and the gate
+turns the emulator's animations off itself. It also writes the `v0.6.0` release note.
 
-**What is next.** The last of M6, the Espresso suite, then `v0.6.0`.
+**What is next.** Tagging `v0.6.0` once this pull request merges, then M7 in weeks 7 and 8: the
+report's screenshots and diagrams, the report itself, the video, and the submission package that
+becomes `v1.0.0`.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1),
@@ -463,7 +472,8 @@ detail screen says "Recipe not found" for an unknown id instead of closing.
 [`v0.4.0`](https://github.com/Billykat7/spm/releases/tag/v0.4.0) (M4) and its patch
 [`v0.4.1`](https://github.com/Billykat7/spm/releases/tag/v0.4.1), and
 [`v0.5.0`](https://github.com/Billykat7/spm/releases/tag/v0.5.0) (M5), each with its APK on its
-release; `v0.6.0` is cut when M6's last issue merges (M6, `v0.6.0` to cut). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
+release; `v0.6.0` is cut when Issue 32 merges (M6, `v0.6.0` to cut), with its note in
+[`RELEASE_v0_6_0.md`](docs/GITHUB/RELEASES/RELEASE_v0_6_0.md). Pushing a tag builds the APK and publishes it on the GitHub Release (Issue 5); the steps are
 in [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Licence
