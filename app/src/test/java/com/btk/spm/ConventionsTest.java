@@ -29,7 +29,12 @@ import java.util.stream.Collectors;
  *   <li>assigns, sets or compares a string literal as a unit, kind, status or extra:
  *       {@code item.unit = "kg"}, {@code status.equals("CAN_MAKE")}, use the enum;</li>
  *   <li>imports Android into {@code domain/}, other than {@code androidx.annotation.StringRes}, which
- *       would stop the engine and the validators running on the JVM.</li>
+ *       would stop the engine and the validators running on the JVM;</li>
+ *   <li>builds a {@code FieldError} or names an {@code R.string.error_*} message anywhere but
+ *       {@code domain/validation/}, so every validation rule stays in {@code Validators}
+ *       (non-negotiable 8, Issue 31);</li>
+ *   <li>shows an {@code error_*} message in a Toast or a Snackbar under {@code ui/}: a validation
+ *       error belongs under its field, where it stays until fixed.</li>
  * </ul>
  *
  * <p>Comments and the contents of string literals are blanked before matching, keeping the quote
@@ -77,6 +82,19 @@ public class ConventionsTest {
             // "kg".equals(item.getUnit())
             + "|\"\\.(equals|equalsIgnoreCase)\\s*\\(\\s*[\\w.]*(unit|kind|status)\\b");
 
+    /** Where the validation rules live: the one package that may build a FieldError or name an error message. */
+    private static final Path VALIDATION = DOMAIN.resolve("validation");
+
+    /** The screens, where no validation message may be shown in a Toast or a Snackbar. */
+    private static final Path UI = Paths.get("com", "btk", "spm", "ui");
+
+    /** A validation error built or named: {@code new FieldError(...)} or {@code R.string.error_...}. */
+    static final Pattern VALIDATION_ERROR = Pattern.compile("\\bnew\\s+FieldError\\s*\\(|\\bR\\.string\\.error_\\w+");
+
+    /** A Toast or a Snackbar given an error message, on the same line. */
+    static final Pattern ERROR_IN_TOAST_OR_SNACKBAR =
+            Pattern.compile("\\b(Toast\\.makeText|Snackbar\\.make)\\s*\\(.*\\berror_\\w+");
+
     /** An Android import other than the one annotation the domain may use. */
     static final Pattern ANDROID_IMPORT = Pattern.compile(
             "^\\s*import\\s+(static\\s+)?(android|androidx)\\.(?!annotation\\.StringRes;)");
@@ -121,6 +139,25 @@ public class ConventionsTest {
     }
 
     @Test
+    public void onlyValidatorsBuildsAFieldErrorOrNamesAnErrorMessage() {
+        List<SourceFile> outside = sources.stream()
+                .filter(s -> !MAIN_JAVA.relativize(s.path).startsWith(VALIDATION))
+                .collect(Collectors.toList());
+        assertNone("Build FieldErrors and name R.string.error_* only in domain/validation/Validators",
+                VALIDATION_ERROR, outside);
+    }
+
+    @Test
+    public void noScreenShowsAnErrorMessageInAToastOrASnackbar() {
+        List<SourceFile> screens = sources.stream()
+                .filter(s -> MAIN_JAVA.relativize(s.path).startsWith(UI))
+                .collect(Collectors.toList());
+        assertFalse("No source found under ui/", screens.isEmpty());
+        assertNone("Show a validation error under its field with TextInputLayout.setError, not in a Toast or Snackbar",
+                ERROR_IN_TOAST_OR_SNACKBAR, screens);
+    }
+
+    @Test
     public void rulesCatchTheKnownViolations() {
         assertMatches(LITERAL_EXTRA_KEY,
                 "intent.putExtra(\"recipe_id\", id);",
@@ -141,6 +178,12 @@ public class ConventionsTest {
                 "if (\"kg\".equals(item.getUnit())) {",
                 "if (\"kg\" == unit) {",
                 "boolean same = kind.equalsIgnoreCase(\"mass\");");
+        assertMatches(VALIDATION_ERROR,
+                "errors.add(new FieldError(Field.NAME, R.string.error_name_required));",
+                "layout.setError(getString(R.string.error_quantity_invalid));");
+        assertMatches(ERROR_IN_TOAST_OR_SNACKBAR,
+                "Toast.makeText(this, R.string.error_name_required, Toast.LENGTH_SHORT).show();",
+                "Snackbar.make(root, getString(R.string.error_unit_required), Snackbar.LENGTH_LONG).show();");
         assertMatches(ANDROID_IMPORT,
                 "import android.content.Context;",
                 "import androidx.annotation.NonNull;",
@@ -162,10 +205,13 @@ public class ConventionsTest {
             "/* item.unit = \"kg\"; */ int units = 3;",
             "import androidx.annotation.StringRes;",
             "public static final String EXTRA_TAB = PREFIX + \"TAB\";",
+            "layout.setError(getString(error.messageRes()));",
+            "Toast.makeText(this, R.string.recipe_not_found, Toast.LENGTH_LONG).show();",
         };
         for (String line : legitimate) {
             String code = SourceFile.blank(line);
-            for (Pattern rule : List.of(LITERAL_EXTRA_KEY, LITERAL_PREFERENCE_KEY, LITERAL_ENUM_VALUE, ANDROID_IMPORT)) {
+            for (Pattern rule : List.of(LITERAL_EXTRA_KEY, LITERAL_PREFERENCE_KEY, LITERAL_ENUM_VALUE, ANDROID_IMPORT,
+                    VALIDATION_ERROR, ERROR_IN_TOAST_OR_SNACKBAR)) {
                 assertFalse("A rule wrongly flags: " + line, rule.matcher(code).find());
             }
         }
