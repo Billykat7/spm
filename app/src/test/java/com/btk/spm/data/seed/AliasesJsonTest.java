@@ -59,6 +59,14 @@ public class AliasesJsonTest {
     }
 
     @Test
+    public void chilliInBothSpellings_singularOrPlural_isOneName() {
+        // The rules give chillies -> chilli and chilies -> chili; the table's "chili" entry joins the two
+        for (String spelling : List.of("chilli", "Chillies", "chili", "chilies")) {
+            assertEquals(spelling, "chilli", normaliser.normalise(spelling));
+        }
+    }
+
+    @Test
     public void everyTarget_isAFixedPointOfTheNormaliser() {
         List<String> notCanonical = new ArrayList<>();
         for (Map.Entry<String, String> alias : aliases.entrySet()) {
