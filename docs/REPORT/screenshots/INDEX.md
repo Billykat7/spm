@@ -104,3 +104,8 @@ the final set after the UI pass, so earlier rows are working copies.
 | 33 | 33_ux_undo_snackbar_dark.png | "Deleted milk" with Undo, above the FAB, dark theme | #30 |
 | 33 | 33_ux_undo_snackbar_fontscale2.png | "Deleted milk" with Undo, above the FAB, at font scale 2.0 | #30 |
 | 33 | 33_ux_undo_snackbar_light.png | "Deleted milk" with Undo, above the FAB | #30 |
+| 34 | 34_validation_all_errors.png | The validation error the brief asks for (5.1): Save on an empty name, a quantity of 0 and yesterday's date shows all three errors at once, "Name is required.", "Quantity must be more than 0." and "Expiry date cannot be in the past.", each from `Validators`, with Save still enabled and nothing written | #31 |
+| 34 | 34_validation_all_errors_dark.png | The same three errors in the dark theme | #31 |
+| 34 | 34_validation_name_fixed.png | One letter typed in the name: its error is gone, the other two stay | #31 |
+| 34 | 34_validation_comma_in_english.png | "1,5" under English: "Enter a number, such as 4 or 1.5."; under German the same text saves 1.5 kg | #31 |
+| 34 | 34_recipe_not_found.png | The detail screen started with an id no recipe has (`--el com.btk.spm.extra.RECIPE_ID 999999`): the shared error state, "Recipe not found", with a working up arrow, instead of a crash | #31 |
