@@ -16,6 +16,7 @@ import com.btk.spm.domain.MatchStatus;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.domain.matching.CanonicalQuantity;
 import com.btk.spm.domain.matching.MatchResult;
 import com.btk.spm.domain.matching.RequiredIngredient;
@@ -104,7 +105,7 @@ public class RecipeSectionsTest {
 
     @Test
     public void aMissingIngredient_hasNothingAvailable() {
-        RecipeSections.MissingLine line = RecipeSections.missingLine(OMELETTE_MISSING_EGGS);
+        RecipeSections.MissingLine line = RecipeSections.missingLine(OMELETTE_MISSING_EGGS, UnitsSystem.METRIC);
 
         assertEquals("egg", line.name());
         assertEquals(new DisplayQuantity(2, DisplayUnit.PCS), line.need());
@@ -113,7 +114,7 @@ public class RecipeSectionsTest {
 
     @Test
     public void aShortIngredient_saysWhatThereIs_inDisplayUnits() {
-        RecipeSections.MissingLine line = RecipeSections.missingLine(PANCAKES_SHORT_OF_FLOUR);
+        RecipeSections.MissingLine line = RecipeSections.missingLine(PANCAKES_SHORT_OF_FLOUR, UnitsSystem.METRIC);
 
         assertEquals("flour", line.name());
         assertEquals(new DisplayQuantity(250, DisplayUnit.G), line.need());
@@ -121,8 +122,17 @@ public class RecipeSectionsTest {
     }
 
     @Test
+    public void underImperial_theSameShortfall_readsInOunces() {
+        RecipeSections.MissingLine line = RecipeSections.missingLine(PANCAKES_SHORT_OF_FLOUR, UnitsSystem.IMPERIAL);
+
+        assertEquals("flour", line.name());
+        assertEquals(new DisplayQuantity(8.82, DisplayUnit.OZ), line.need());
+        assertEquals(new DisplayQuantity(7.05, DisplayUnit.OZ), line.have());
+    }
+
+    @Test
     public void aRecipeThatCanBeMade_hasNoMissingLine() {
-        assertThrows(IllegalArgumentException.class, () -> RecipeSections.missingLine(PASTA));
+        assertThrows(IllegalArgumentException.class, () -> RecipeSections.missingLine(PASTA, UnitsSystem.METRIC));
     }
 
     private static MatchedRecipe canMake(long id, String name) {

@@ -13,6 +13,7 @@ import com.btk.spm.data.mapping.PantryEntryMapper;
 import com.btk.spm.data.mapping.RecipeSpecMapper;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.model.RecipeWithIngredients;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.domain.matching.MatchOptions;
 import com.btk.spm.domain.matching.MatchResult;
 import com.btk.spm.domain.matching.MatchResults;
@@ -62,6 +63,7 @@ public class SuggestedRecipesViewModel extends ViewModel {
     private final Supplier<StrictMatcher> matcher;
     private final Supplier<LocalDate> today;
     private final Executor matchExecutor;
+    private final LiveData<UnitsSystem> unitsSystem;
 
     /** The number of the newest job; a job whose number is not this one throws its result away. */
     private final AtomicInteger generation = new AtomicInteger();
@@ -89,6 +91,8 @@ public class SuggestedRecipesViewModel extends ViewModel {
      * @param pantrySource      the pantry as Room emits it
      * @param recipeSource      every recipe with its ingredients, as Room emits them
      * @param countExpiredItems whether expired items count (decision 6), as the setting changes
+     * @param unitsSystem       the units the almost-there cards show amounts in; passed through to the
+     *                          screen, never to the matcher (decision 5)
      * @param matcher           gives the matcher; called on the executor, because building it the
      *                          first time reads an asset
      * @param today             the day to match on; read on the executor, once per job
@@ -97,12 +101,14 @@ public class SuggestedRecipesViewModel extends ViewModel {
     SuggestedRecipesViewModel(@NonNull LiveData<List<PantryItem>> pantrySource,
                               @NonNull LiveData<List<RecipeWithIngredients>> recipeSource,
                               @NonNull LiveData<Boolean> countExpiredItems,
+                              @NonNull LiveData<UnitsSystem> unitsSystem,
                               @NonNull Supplier<StrictMatcher> matcher,
                               @NonNull Supplier<LocalDate> today,
                               @NonNull Executor matchExecutor) {
         this.matcher = matcher;
         this.today = today;
         this.matchExecutor = matchExecutor;
+        this.unitsSystem = unitsSystem;
         state.addSource(pantrySource, items -> {
             pantry = items;
             recompute();
@@ -128,6 +134,17 @@ public class SuggestedRecipesViewModel extends ViewModel {
     @NonNull
     public LiveData<UiState> getState() {
         return state;
+    }
+
+    /**
+     * Returns the units preference, for the almost-there cards' amounts. It is not a source of
+     * {@link #getState()}: switching units changes how an amount reads, never which recipes match.
+     *
+     * @return the observed units system
+     */
+    @NonNull
+    public LiveData<UnitsSystem> getUnitsSystem() {
+        return unitsSystem;
     }
 
     /**

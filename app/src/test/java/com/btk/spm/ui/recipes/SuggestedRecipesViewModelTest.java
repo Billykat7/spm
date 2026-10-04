@@ -25,6 +25,7 @@ import com.btk.spm.domain.MatchStatus;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.domain.matching.CanonicalQuantity;
 import com.btk.spm.domain.matching.IngredientNormaliser;
 import com.btk.spm.domain.matching.MatchOptions;
@@ -92,7 +93,7 @@ public class SuggestedRecipesViewModelTest {
 
     @Before
     public void createTheViewModel() {
-        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, () -> MATCHER,
+        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, new MutableLiveData<>(UnitsSystem.METRIC), () -> MATCHER,
                 () -> today, jobs);
         viewModel.getState().observeForever(states::add);
     }
@@ -360,7 +361,7 @@ public class SuggestedRecipesViewModelTest {
         ThreadRecordingExecutor matchThread = new ThreadRecordingExecutor("spm-match-test");
         try {
             SuggestedRecipesViewModel threaded = new SuggestedRecipesViewModel(pantry, recipes,
-                    new MutableLiveData<>(false), () -> recordingMatcher, () -> TODAY, matchThread);
+                    new MutableLiveData<>(false), new MutableLiveData<>(UnitsSystem.METRIC), () -> recordingMatcher, () -> TODAY, matchThread);
             List<Thread> deliveredOn = new CopyOnWriteArrayList<>();
             List<UiState> seen = new CopyOnWriteArrayList<>();
             Observer<UiState> screen = state -> {

@@ -104,6 +104,8 @@ public class SuggestedRecipesFragment extends Fragment
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does
         viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, sections));
+        // Imperial on the Settings tab: the cards' amounts read in ounces; which recipes are listed does not change
+        viewModel.getUnitsSystem().observe(getViewLifecycleOwner(), sections.almostThere::setUnitsSystem);
     }
 
     @Override

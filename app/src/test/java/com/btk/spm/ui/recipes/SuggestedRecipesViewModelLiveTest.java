@@ -16,6 +16,7 @@ import com.btk.spm.data.seed.AliasLoader;
 import com.btk.spm.data.seed.RecipeJsonParser;
 import com.btk.spm.data.seed.RecipeSeeder;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.domain.matching.IngredientNormaliser;
 import com.btk.spm.domain.matching.StrictMatcher;
 import com.btk.spm.domain.matching.UnitConverter;
@@ -68,7 +69,7 @@ public class SuggestedRecipesViewModelLiveTest {
 
     @Before
     public void observeTheViewModel() {
-        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, () -> MATCHER, () -> TODAY,
+        viewModel = new SuggestedRecipesViewModel(pantry, recipes, countExpired, new MutableLiveData<>(UnitsSystem.METRIC), () -> MATCHER, () -> TODAY,
                 Runnable::run);
         viewModel.getState().observeForever(states::add);
         recipes.setValue(List.of(TOMATO_PASTA, GARLIC_BREAD));
