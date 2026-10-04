@@ -243,8 +243,17 @@ written by hand in the same pull request.
 ## Emulator settings for tests and screenshots
 
 Two AVDs, one at the floor and one at the target: an API 26 image and an API 35 image (*Device
-Manager* in Android Studio, or `sdkmanager` and `avdmanager`). Named `spm_api26` and `spm_api35`, they
-boot without a window on fixed ports, so `adb` serials stay the same from run to run:
+Manager* in Android Studio, or `sdkmanager` and `avdmanager`). Created once from the command line,
+on an Apple silicon Mac (use `x86_64` for the image on an Intel machine):
+
+```bash
+"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-35;google_apis;arm64-v8a" "system-images;android-26;google_apis;arm64-v8a"
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n spm_api35 -k "system-images;android-35;google_apis;arm64-v8a" -d medium_phone
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n spm_api26 -k "system-images;android-26;google_apis;arm64-v8a" -d medium_phone
+```
+
+Named `spm_api26` and `spm_api35`, they boot without a window on fixed ports, so `adb` serials stay
+the same from run to run:
 
 ```bash
 "$ANDROID_HOME/emulator/emulator" -avd spm_api26 -port 5560 -no-window -no-audio -no-boot-anim -no-snapshot-save &
@@ -253,12 +262,33 @@ adb -s emulator-5560 wait-for-device shell 'while [ "$(getprop sys.boot_complete
 adb devices                                                          # emulator-5556, emulator-5560
 ```
 
-Espresso tests run with animations off:
+Espresso tests run with animations off. `./scripts/ci-local.sh --with-device` sets these three on
+every target device before the device stage; run them by hand before a single class from Gradle or
+Android Studio (`testOptions.animationsDisabled` in `app/build.gradle` covers the runner only):
 
 ```bash
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
+```
+
+### The Espresso flows
+
+`app/src/androidTest/java/com/btk/spm/ui/` holds the five flows the video shows, driven through the
+real screens (Issue 32): `CrudCycleTest`, `ValidationErrorTest`, `MatchToggleTest`, `PersistenceTest`
+and `SettingsTest`. Each starts from `FreshAppRule`: an in-memory database with the twenty recipes,
+cleared preferences, and `IdlingThreadPoolExecutor`s in place of the write thread, the matching
+thread and Room's query thread, so Espresso waits for a save, a `LiveData` emission and a match on
+its own. `ListWait` covers the one thing no idling resource sees, `ListAdapter` working out a new
+list on its own background thread.
+
+- **Never sleep.** `ConventionsTest` fails the build on a `Thread.sleep` or `SystemClock.sleep`
+  anywhere under `androidTest/`.
+- **A flaky test is fixed, never re-run until green** (`docs/IDE/RULES/testing-strategy.mdc`). Run it
+  alone, find what it waited for wrongly, fix that. To check a fix, run the package ten times:
+
+```bash
+for i in $(seq 10); do ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.btk.spm.ui; done
 ```
 
 Screenshots use demo mode, for a clean status bar at 12:00 with a full battery:
