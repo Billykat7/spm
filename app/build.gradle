@@ -138,6 +138,9 @@ jacoco {
 tasks.withType(Test).configureEach {
     // The JDK's own classes are never ours to measure, and instrumenting them only produces warnings
     jacoco.excludes = ['jdk.internal.*']
+    // ConventionsTest also reads the instrumented tests as text (no sleeping, Issue 32). Declared as
+    // inputs, so a change there runs the unit tests again instead of finding them up to date.
+    inputs.dir('src/androidTest/java').withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName('androidTestSources')
 }
 
 def unitTestCoverageData = layout.buildDirectory.file('jacoco/testDebugUnitTest.exec')
