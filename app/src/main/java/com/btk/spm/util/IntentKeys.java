@@ -5,9 +5,9 @@ package com.btk.spm.util;
  *
  * <p>Screens that receive data are opened by explicit Intents (decision 3), and both sides of each
  * Intent use these constants: the {@code intentFor(...)} factory that puts the extra and the screen
- * that reads it. A typed key such as {@code putExtra("recipe_id", id)} would compile and then fail
- * silently at runtime when the two sides spell it differently, so {@code ConventionsTest} fails the
- * build on one.
+ * that reads it. A key typed into {@code putExtra} as a literal, such as {@code "recipe_id"}, would
+ * compile and then fail silently at runtime when the two sides spell it differently, so
+ * {@code ConventionsTest} fails the build on one.
  *
  * <p>Each value is prefixed with the package name, as Android recommends for extras, so it can never
  * clash with an extra another app or library adds to the same Intent.
