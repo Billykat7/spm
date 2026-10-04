@@ -67,6 +67,9 @@ android {
             // JVM tests can read strings.xml and other resources without an emulator
             includeAndroidResources = true
         }
+        // The instrumentation runner turns animations off for its own run (Issue 32). It does not
+        // change the emulator's three animation scales; scripts/ci-local.sh --with-device does that.
+        animationsDisabled = true
     }
     lint {
         // Every visible string lives in strings.xml (Issue 2): a typed android:text, android:hint or
@@ -118,6 +121,10 @@ dependencies {
     androidTestImplementation libs.espresso.core
     // The Accessibility Test Framework, the checks Accessibility Scanner runs, on every Espresso action (Issue 30)
     androidTestImplementation libs.espresso.accessibility
+    // The flows the video shows, through the real screens (Issue 32): RecyclerViewActions for the
+    // lists, and an IdlingThreadPoolExecutor so Espresso waits for Room and the matcher, never a sleep
+    androidTestImplementation libs.espresso.contrib
+    androidTestImplementation libs.espresso.idling.concurrent
     // WorkManagerTestInitHelper, TestWorkerBuilder and TestDriver: the worker runs in the test, now
     androidTestImplementation libs.work.testing
 }
