@@ -6,7 +6,10 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Room;
 
 import com.btk.spm.data.db.AppDatabase;
@@ -52,6 +55,12 @@ public class SpmApplication extends Application {
     private PantryRepository pantryRepository;
     private RecipeRepository recipeRepository;
 
+    /**
+     * Becomes {@code true} once the first-run seed has finished, so a screen can tell recipes that are
+     * still being inserted from recipes that never loaded (Issue 24).
+     */
+    private final MutableLiveData<Boolean> recipeSeedDone = new MutableLiveData<>(false);
+
     /** Built on first use, on the matching thread, because it reads the alias table from the APK. */
     @GuardedBy("this")
     private StrictMatcher strictMatcher;
@@ -74,11 +83,13 @@ public class SpmApplication extends Application {
         // the first task on the write thread, so it finishes before any pantry write the user makes.
         // A broken asset throws there and stops the app, which the JVM tests catch long before a
         // release; an empty recipe list would hide it.
+        AppDatabase seeded = database;
         ioExecutor.execute(() -> {
-            SeedResult result = new RecipeSeeder(this, database).seedIfEmpty();
+            SeedResult result = new RecipeSeeder(this, seeded).seedIfEmpty();
             if (BuildConfig.DEBUG) {
                 Log.d(SEED_LOG_TAG, "Recipe seed: " + result);
             }
+            recipeSeedDone.postValue(true);
         });
     }
 
@@ -155,6 +166,36 @@ public class SpmApplication extends Application {
     @NonNull
     public RecipeRepository getRecipeRepository() {
         return recipeRepository;
+    }
+
+    /**
+     * Says whether the first-run seed has finished. Until it has, an empty recipe table only means the
+     * recipes are on their way, and the Recipes tab waits instead of saying they did not load.
+     *
+     * @return {@code false} until the seed has run on the write thread, then {@code true} for good
+     */
+    @NonNull
+    public LiveData<Boolean> getRecipeSeedDone() {
+        return recipeSeedDone;
+    }
+
+    /**
+     * Points the repositories at {@code replacement}, for an instrumented test that needs a database
+     * the app's own data cannot reach, such as one with no recipes. Call it on the main thread before
+     * the screen under test is opened, and put the original back afterwards: screens already open keep
+     * the repositories they were given.
+     *
+     * @param replacement the database the repositories should use from now on
+     * @return the database they used until now
+     */
+    @VisibleForTesting
+    @NonNull
+    public AppDatabase replaceDatabaseForTesting(@NonNull AppDatabase replacement) {
+        AppDatabase previous = database;
+        database = replacement;
+        pantryRepository = new PantryRepository(replacement, ioExecutor);
+        recipeRepository = new RecipeRepository(replacement);
+        return previous;
     }
 
     /**
