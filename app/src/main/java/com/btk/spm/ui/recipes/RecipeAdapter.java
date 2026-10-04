@@ -120,9 +120,11 @@ public class RecipeAdapter extends ListAdapter<MatchedRecipe, RecipeAdapter.View
             Recipe newRecipe = newItem.recipe().getRecipe();
             MatchResult oldResult = oldItem.result();
             MatchResult newResult = newItem.result();
+            // equals on the status too: the same answer as == for an enum, and what Lint's
+            // DiffUtilEquals check asks for in this method
             return oldRecipe.getName().equals(newRecipe.getName())
                     && Objects.equals(oldRecipe.getServings(), newRecipe.getServings())
-                    && oldResult.status() == newResult.status()
+                    && oldResult.status().equals(newResult.status())
                     && oldResult.haveCount() == newResult.haveCount()
                     && oldResult.needCount() == newResult.needCount();
         }
