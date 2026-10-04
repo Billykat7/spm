@@ -35,6 +35,9 @@ public class PantryViewModel extends AndroidViewModel {
 
     private final LiveData<List<PantryItem>> items;
 
+    /** Where deletes and their undo go; the reads come from it too, through {@link #items}. */
+    private final PantryRepository repository;
+
     /**
      * Creates the ViewModel over the app's one {@link PantryRepository}. Called by the default
      * {@code ViewModelProvider} factory, which passes the application.
@@ -49,11 +52,12 @@ public class PantryViewModel extends AndroidViewModel {
      * Creates the ViewModel over {@code repository}; a test passes one built on an in-memory database.
      *
      * @param application the running app
-     * @param repository  where the pantry is read from
+     * @param repository  where the pantry is read from and deleted from
      */
     @VisibleForTesting
     PantryViewModel(@NonNull Application application, @NonNull PantryRepository repository) {
         super(application);
+        this.repository = repository;
         LiveData<List<PantryItem>> pantry = repository.observeAll();
         // switchMap: a new order swaps in a new mapping of the same Room query, so changing the order
         // never starts a second query. map: each emission of the table is sorted by the current order.
@@ -85,5 +89,29 @@ public class PantryViewModel extends AndroidViewModel {
         if (order != sortOrder.getValue()) {
             sortOrder.setValue(order);
         }
+    }
+
+    /**
+     * Deletes {@code item} on the write thread. The screen removes nothing itself: the row leaves the
+     * list when Room emits the shorter pantry. Keep {@code item} (the same object) for
+     * {@link #undoDelete(PantryItem)}.
+     *
+     * @param item the item the user confirmed deleting
+     */
+    public void delete(@NonNull PantryItem item) {
+        repository.delete(item);
+    }
+
+    /**
+     * Puts a deleted item back, with the <b>same primary key</b> it had. Room generates an id only
+     * when the field is {@code 0}, so inserting the very object {@link #delete(PantryItem)} was given,
+     * id and all, restores the original row, and it returns to its sorted place in the list. Never
+     * rebuild the item without its id: that would add a new row instead. The table's
+     * {@code AUTOINCREMENT} never reuses an id, so no other row can have taken it in the meantime.
+     *
+     * @param deleted the object that was deleted, unchanged
+     */
+    public void undoDelete(@NonNull PantryItem deleted) {
+        repository.insert(deleted);
     }
 }
