@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Whole-number limits the layouts need. Each one mirrors a constant in the domain, which is the rule;
+    Whole numbers the layouts need. A limit mirrors a constant in the domain, which is the rule;
     ValidatorsTest fails if the two ever disagree.
 -->
 <resources>
     <!-- The name field's counter: Validators.MAX_NAME_LENGTH (Issue 14) -->
     <integer name="pantry_name_max_length">60</integer>
+
+    <!--
+        A progress indicator (Issue 23) appears only if the work is still running after this long, so
+        a match that finishes quickly shows no spinner, and once shown it stays long enough to be read
+        rather than flicker. Milliseconds.
+    -->
+    <integer name="progress_show_delay_ms">300</integer>
+    <integer name="progress_min_hide_delay_ms">400</integer>
 </resources>

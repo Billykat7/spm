@@ -13,9 +13,7 @@
     <string name="tab_recipes">Recipes</string>
     <string name="tab_settings">Settings</string>
 
-    <!-- Tab placeholders, until Issues 23 and 28 fill each tab -->
-    <string name="placeholder_recipes_title">Suggested recipes</string>
-    <string name="placeholder_recipes_body">Recipes you can cook with what is in your pantry will appear here.</string>
+    <!-- Tab placeholders, until Issue 28 fills the Settings tab -->
     <string name="placeholder_settings_title">Your preferences</string>
     <string name="placeholder_settings_body">Expiring-soon alerts, units and matching options will be set here.</string>
 
@@ -47,6 +45,23 @@
         <item quantity="one">Expired %1$d day ago</item>
         <item quantity="other">Expired %1$d days ago</item>
     </plurals>
+
+    <!--
+        The Recipes tab (Issue 23). The title counts only the recipes that can be made now, never the
+        almost-there ones; a plurals resource, so a language whose count changes the words can say so.
+    -->
+    <plurals name="suggested_recipes_title">
+        <item quantity="one">Suggested recipes (%1$d)</item>
+        <item quantity="other">Suggested recipes (%1$d)</item>
+    </plurals>
+    <string name="recipe_serves">Serves %1$d</string>
+    <plurals name="recipe_have_all_ingredients">
+        <item quantity="one">You have the %1$d ingredient</item>
+        <item quantity="other">You have all %1$d ingredients</item>
+    </plurals>
+    <string name="recipes_loading">Matching recipes to your pantry</string>
+    <!-- Issue 24 gives the zero-match state its final words and a button to the pantry -->
+    <string name="suggested_empty_title">No recipes can be made with what is in your pantry yet.</string>
 
     <!-- Deleting an ingredient (Issue 16): the confirmation, then the Snackbar that can undo it -->
     <string name="delete_confirm_title">Delete %1$s?</string>
