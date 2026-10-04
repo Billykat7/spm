@@ -55,6 +55,11 @@
                     android:inputType="textCapSentences" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!--
+                Quantity: a number keypad. android:digits lets both a full stop and a comma through:
+                numberDecimal alone accepts only the locale's separator, so on an English device a
+                typed "1,5" silently became "15". Validators reads either and refuses anything else.
+            -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/quantity_layout"
                 style="?attr/textInputOutlinedStyle"
@@ -67,6 +72,7 @@
                     android:id="@+id/quantity_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:digits="@string/quantity_accepted_characters"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
                     android:inputType="numberDecimal" />

@@ -39,6 +39,8 @@
     <string name="cd_clear_expiry">Clear expiry date</string>
     <string name="expiry_picker_title">Expiry date</string>
     <string name="ingredient_saved">Ingredient saved</string>
+    <!-- Not text: the characters the quantity field lets through, both decimal separators included -->
+    <string name="quantity_accepted_characters" translatable="false">0123456789.,</string>
 
     <!--
         Why an ingredient cannot be saved (domain/validation/Validators, Issue 14). Each says what to
