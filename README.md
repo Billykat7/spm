@@ -334,7 +334,12 @@ a tap on a row starts the same form with `intentForEdit`, whose only extra is th
 `IntentKeys.EXTRA_PANTRY_ITEM_ID`. The form decides add or edit once from that extra, loads the row,
 prefills it (`4`, not `4.0`) and saves through the same validator, then updates the row with the same
 id. An id with no row behind it says "Ingredient not found" and closes. It also writes the `v0.3.0`
-release note.
+release note. Issue 18, in pull request [#60](https://github.com/Billykat7/spm/pull/60), opens
+Milestone 4 with the first piece of the engine: `IngredientNormaliser` turns `Tomatoes`, ` tomato `
+and `TOMATO.` into `tomato`, and `Cilantro` into `coriander`, so the matcher never compares a raw
+name. It is a fixed list of rules (case, spaces, punctuation, the plural of the last word) plus an
+alias table in `assets/aliases.json`, with no stemming and no fuzzy matching. A 61-row parameterised
+test, which went red on `olives` → `olif` before the rules were fixed, defines it.
 
 **What is next.** The rest of M4 in week 4: `UnitConverter` (Issue 19), then `StrictMatcher`
 (Issue 20), its scenario table (Issue 21) and "almost there" (Issue 22). The engine is the critical
