@@ -28,14 +28,14 @@ import java.util.regex.Pattern;
  *       than nothing, so {@code "salt,pepper"} does not become one word. A curly apostrophe counts as
  *       a straight one.</li>
  *   <li><b>Plurals.</b> The last word is made singular by suffix, longest suffix first:
- *       {@code -ies → -y} (berries, but pies is pie), {@code -oes → -o} (tomatoes), {@code -ches}, {@code -shes},
- *       {@code -sses}, {@code -xes} lose {@code es} (peaches, radishes), {@code -lves},
- *       {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves, loaves), and
- *       otherwise a final {@code s} goes (eggs, and olives, not "olif"). Words of three letters or fewer, and
- *       words ending in {@code ss} (watercress), are left alone, and so are the words in {@link #SINGULAR_WORDS_ENDING_IN_S}, which end in
- *       {@code s} but are not plurals (asparagus, hummus). Only the last word changes, because in
- *       an English ingredient name the last word is the thing itself: {@code "spring onions"} is
- *       {@code "spring onion"}.</li>
+ *       {@code -ies → -y} (berries, but pies is pie), {@code -oes → -o} (tomatoes); {@code -ches},
+ *       {@code -shes}, {@code -sses} and {@code -xes} lose {@code es} (peaches, radishes);
+ *       {@code -lves}, {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves,
+ *       loaves); otherwise a final {@code s} goes (eggs, and olives, not "olif"). Left alone: words
+ *       of three letters or fewer, words ending in {@code ss} (watercress), and the words in
+ *       {@link #SINGULAR_WORDS_ENDING_IN_S}, which end in {@code s} but are not plurals
+ *       (asparagus, hummus). Only the last word changes, because in an English ingredient name the
+ *       last word is the thing itself: {@code "spring onions"} is {@code "spring onion"}.</li>
  *   <li><b>Aliases.</b> The whole result is looked up in the alias table and replaced when found:
  *       {@code cilantro → coriander}, {@code courgette → zucchini}. The table's keys and targets go
  *       through steps 1 to 3 when the normaliser is built, so {@code "Scallions"} finds the
@@ -56,8 +56,8 @@ import java.util.regex.Pattern;
 public final class IngredientNormaliser {
 
     /** Words that end in {@code s} but are already singular, so the plural rules skip them. */
-    static final Set<String> SINGULAR_WORDS_ENDING_IN_S = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            "asparagus", "couscous", "hummus", "molasses", "oats")));
+    static final Set<String> SINGULAR_WORDS_ENDING_IN_S = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("asparagus", "couscous", "hummus", "molasses", "oats")));
 
     /** A word this short is never treated as a plural: {@code "gas"} is not the plural of {@code "ga"}. */
     private static final int SHORTEST_PLURAL = 4;
@@ -69,9 +69,10 @@ public final class IngredientNormaliser {
     private static final Pattern PUNCTUATION = Pattern.compile("[^\\p{L}\\p{N}\\s\\p{Z}'-]");
 
     /** A hyphen or an apostrophe that is not between two letters or digits. */
-    private static final Pattern LOOSE_JOINER = Pattern.compile("(?<![\\p{L}\\p{N}])['-]|['-](?![\\p{L}\\p{N}])");
+    private static final Pattern LOOSE_JOINER =
+            Pattern.compile("(?<![\\p{L}\\p{N}])['-]|['-](?![\\p{L}\\p{N}])");
 
-    private static final char CURLY_APOSTROPHE = '’';
+    private static final char CURLY_APOSTROPHE = '\u2019';
 
     private final Map<String, String> aliases;
 
@@ -89,9 +90,11 @@ public final class IngredientNormaliser {
         Map<String, String> normalised = new HashMap<>();
         for (Map.Entry<String, String> alias : aliases.entrySet()) {
             String from = withoutAliases(Objects.requireNonNull(alias.getKey(), "alias key"));
-            String to = withoutAliases(Objects.requireNonNull(alias.getValue(), "alias target of " + alias.getKey()));
+            String to = withoutAliases(
+                    Objects.requireNonNull(alias.getValue(), "alias target of " + alias.getKey()));
             if (from.isEmpty() || to.isEmpty()) {
-                throw new IllegalArgumentException("Blank alias: \"" + alias.getKey() + "\" -> \"" + alias.getValue() + "\"");
+                throw new IllegalArgumentException(
+                        "Blank alias: \"" + alias.getKey() + "\" -> \"" + alias.getValue() + "\"");
             }
             String earlier = normalised.put(from, to);
             if (earlier != null && !earlier.equals(to)) {

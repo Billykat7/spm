@@ -54,7 +54,7 @@ public class IngredientNormaliserTest {
             {"spaces either side", " tomato ", "tomato"},
             {"a run of spaces inside", "  Spring   Onions ", "spring onion"},
             {"a tab inside", "spring\tonion", "spring onion"},
-            {"a no-break space inside", "spring onion", "spring onion"},
+            {"a no-break space inside", "spring\u00A0onion", "spring onion"},
             // Step 2: punctuation
             {"a trailing full stop", "TOMATO.", "tomato"},
             {"repeated exclamation marks", "Rice!!!", "rice"},
@@ -63,7 +63,7 @@ public class IngredientNormaliserTest {
             {"hyphens at the edges", "-tomato-", "tomato"},
             {"an internal hyphen stays", "self-raising flour", "self-raising flour"},
             {"an internal apostrophe stays", "baker's yeast", "baker's yeast"},
-            {"a curly apostrophe is a straight one", "Baker’s yeast", "baker's yeast"},
+            {"a curly apostrophe is a straight one", "Baker\u2019s yeast", "baker's yeast"},
             {"nothing but punctuation", "...", ""},
             {"empty", "", ""},
             {"blank", "   ", ""},
