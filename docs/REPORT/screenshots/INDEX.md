@@ -22,3 +22,8 @@ the final set after the UI pass, so earlier rows are working copies.
 | 09 | 09_pantry_list_dark.png | The same list in the dark theme | #13 |
 | 10 | 10_pantry_empty.png | The Pantry tab on a fresh install: the shared `view_empty_state` (the empty-jar illustration, "Your pantry is empty" and an "Add ingredient" button) in place of the hidden list | #13 |
 | 10 | 10_pantry_empty_dark.png | The empty state in the dark theme: the illustration's colours are theme roles, so it re-colours with the screen | #13 |
+| 11 | 11_add_ingredient_form.png | The add ingredient form on API 35, opened from the Pantry FAB by an explicit Intent: name with its 0/60 counter, quantity, the unit dropdown and the optional expiry date with its calendar icon, Save in the toolbar and the up arrow to cancel | #14 |
+| 11 | 11_add_ingredient_form_dark.png | The same form in the dark theme | #14 |
+| 12 | 12_add_ingredient_errors.png | Save tapped on the empty form: "Name is required.", "Enter a quantity." and "Choose a unit." shown at once under their fields, the cursor in the name field, and no row written | #14 |
+| 12 | 12_add_ingredient_errors_dark.png | The same three errors in the dark theme | #14 |
+| 13 | 13_add_ingredient_expiry_error.png | Plain flour, 1,5 kg, with yesterday chosen in the date picker: "Expiry date cannot be in the past." under the date, whose clear icon stays visible beside the error | #14 |

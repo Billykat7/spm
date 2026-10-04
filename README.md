@@ -180,12 +180,12 @@ issues and its order of work.
 |---|-----------|--------|------|---------|----------|
 | 1 | [Foundation & Local CI](https://github.com/Billykat7/spm/milestone/1) | #1–#7 | 1 | [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) | 🟩🟩🟩🟩🟩🟩🟩 **100%** (7/7 issues) |
 | 2 | [Local Database (Room)](https://github.com/Billykat7/spm/milestone/2) | #8–#12 | 2 | `v0.2.0` (to cut) | 🟩🟩🟩🟩🟩 **100%** (5/5 issues) |
-| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩⬜⬜⬜⬜ **20%** (1/5 issues) |
+| 3 | [Pantry Management](https://github.com/Billykat7/spm/milestone/3) | #13–#17 | 3 | `v0.3.0` (to cut) | 🟩🟩⬜⬜⬜ **40%** (2/5 issues) |
 | 4 | [Strict-Matching Engine](https://github.com/Billykat7/spm/milestone/4) ⚠️ | #18–#22 | 4 | `v0.4.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 5 | [Suggested Recipes & Detail](https://github.com/Billykat7/spm/milestone/5) | #23–#27 | 5 | `v0.5.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 6 | [Settings, Alerts & UX](https://github.com/Billykat7/spm/milestone/6) | #28–#32 | 6 | `v0.6.0` (to cut) | ⬜⬜⬜⬜⬜ **0%** (0/5 issues) |
 | 7 | [Evidence, Report & Submission](https://github.com/Billykat7/spm/milestone/7) | #33–#38 | 7–8 | `v0.7.0` → **`v1.0.0`** | ⬜⬜⬜⬜⬜⬜ **0%** (0/6 issues) |
-| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **34%** (13/38 issues) |
+| ⭐ | **All milestones:** every tracked issue closed | #1–#38 | | | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ **37%** (14/38 issues) |
 
 ```mermaid
 flowchart LR
@@ -226,9 +226,10 @@ Android SDK*.
 Or open the folder in Android Studio, let Gradle sync, and press **Run** with an emulator selected.
 Today the app opens on its three tabs, Pantry, Recipes and Settings, in light or dark with the
 system setting. The Pantry tab lists what is in the database, live, and says so when it is empty
-(Issue 13); its add button opens the add ingredient screen, whose form arrives with Issue 14. Recipes
-and Settings still show a placeholder. Once the form and the matcher are in, add a few ingredients
-on the Pantry tab and open the Recipes tab.
+(Issue 13). Its add button opens the add ingredient form, which saves a name, a quantity, a unit
+and an optional expiry date, and refuses anything invalid with an error under the field (Issue 14).
+Recipes and Settings still show a placeholder. Once the matcher is in, add a few ingredients on the
+Pantry tab and open the Recipes tab.
 
 **Before every push**, the same gate CI runs:
 
@@ -255,7 +256,7 @@ rules: [`docs/guideline.md`](docs/guideline.md).
 
 The bars above are the status. What they cannot say:
 
-**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 1 of its 5 issues closed. The brief has been broken into seven milestones and
+**Where the project is.** Milestone 1 done and released as `v0.1.0`; Milestone 2 done (`v0.2.0` to cut); Milestone 3 in progress, 2 of its 5 issues closed. The brief has been broken into seven milestones and
 38 issues, each with a specification, acceptance criteria and a prompt; the seven decisions the brief
 leaves open (database, build language, navigation shape, SDK levels, units, expired items, recipe
 editing) are recorded. Issue 1, merged in pull request
@@ -308,11 +309,16 @@ the database: the Pantry tab is a `RecyclerView` whose `PantryAdapter` (a `ListA
 `DiffUtil` callback) shows the `LiveData` list `PantryViewModel` derives from the repository, so a row
 written anywhere appears with no refresh and an edit redraws only its own row. Amounts read `4 pcs`
 and `1.5 kg`, an empty pantry shows an empty state with an "Add ingredient" button, and that button
-and the FAB open the add ingredient screen by an explicit `Intent`.
+and the FAB open the add ingredient screen by an explicit `Intent`. Issue 14, in pull request
+[#53](https://github.com/Billykat7/spm/pull/53), makes that screen the first write the user makes:
+a form for name, quantity, unit and an optional expiry date, started for a result through an
+`ActivityResultLauncher`. One pure class, `Validators`, decides what may be saved (a name of at most
+60 characters, a quantity above 0 and at most 100000 with a full stop or a comma, a unit, no date in
+the past), a parameterised JVM test covers every rule and boundary, and the screen only shows the
+errors, all at once, and writes nothing until they are gone.
 
-**What is next.** Tagging `v0.2.0`, then the rest of M3 in week 3: the add and edit form with its
-validation (Issues 14 and 15), delete with undo (Issue 16) and expiry badges with the sort menu
-(Issue 17). In week 4 the matching engine, which is the critical path.
+**What is next.** Tagging `v0.2.0`, then the rest of M3 in week 3: editing an item through the
+same form (Issue 15), delete with undo (Issue 16) and expiry badges with the sort menu (Issue 17). In week 4 the matching engine, which is the critical path.
 **`v1.0.0`, the submitted build, follows M7.**
 
 **Tags.** [`v0.1.0`](https://github.com/Billykat7/spm/releases/tag/v0.1.0) (M1), with

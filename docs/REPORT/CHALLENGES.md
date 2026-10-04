@@ -29,3 +29,25 @@ or later would lift the limit, and lifecycle can move with it.
 so a library bump can break the build in code that does not change. "Newest stable" is not a reason
 on its own; I now upgrade a library only together with the tool that reads it, and run the full
 build, including a DAO with every kind of method, before calling it safe.
+
+## 2026-10-04 · Issue 14 · "1,5" kg was saved as 15 kg
+
+**Problem:** on the API 35 emulator I typed `1,5` into the add form's quantity and the field showed
+`15`. The validator was never wrong: it accepts a comma and reads `1,5` as 1.5, and `ValidatorsTest`
+has a row for it. But the comma never reached the validator. The form would have saved 15 kg of flour,
+ten times what was typed, with no error, because `15` is a valid quantity.
+
+**Cause:** `android:inputType="numberDecimal"` gives the field a `DigitsKeyListener` for the device's
+locale, and in English that listener accepts digits and a full stop only. A comma from the keyboard
+is dropped as the key is pressed, before any code of mine sees the text. On a device in a
+comma locale it would be the full stop that disappears. The JVM test could not catch it, because it
+tests the rule and not the field.
+
+**Fix:** `android:digits="@string/quantity_accepted_characters"` (`0123456789.,`, not translatable) on
+the quantity field. The keypad stays numeric, both separators reach the validator, and anything
+malformed such as `1.2.3` now gets "Enter a number, such as 4 or 1.5." instead of being changed
+silently (commit `78650da`, `Issue 14: let the quantity field accept a comma, which numberDecimal
+silently dropped (1,5 became 15)`).
+
+**Learned:** a rule tested on the JVM is only half the proof; the field can change the input before
+the rule runs. I now type the boundary cases into the running form as well as into the test table.

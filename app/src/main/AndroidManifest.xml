@@ -23,12 +23,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- Opened only by AddEditIngredientActivity.intentForAdd, an explicit Intent, so not exported -->
+        <!--
+            Opened only by AddEditIngredientActivity.intentForAdd, an explicit Intent, so not exported.
+            adjustResize: the keyboard's inset reaches the form, which pads itself clear of it
+        -->
         <activity
             android:name=".ui.pantry.AddEditIngredientActivity"
             android:exported="false"
             android:label="@string/title_add_ingredient"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

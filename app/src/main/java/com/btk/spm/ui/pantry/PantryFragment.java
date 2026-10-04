@@ -1,10 +1,14 @@
 package com.btk.spm.ui.pantry;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -17,6 +21,7 @@ import com.btk.spm.databinding.FragmentPantryBinding;
 import com.btk.spm.ui.LifecycleLoggingFragment;
 import com.btk.spm.ui.ListChangeLog;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -28,7 +33,9 @@ import java.util.List;
  * to {@link PantryAdapter#submitList}; the Fragment keeps no copy, so an item inserted or changed
  * anywhere, even from the Database Inspector, appears here with no refresh. An empty pantry shows
  * the shared empty state instead of the list. The FAB and the empty state's button open
- * {@link AddEditIngredientActivity} through its explicit {@code Intent}.
+ * {@link AddEditIngredientActivity} through its explicit {@code Intent}, for a result: when it comes
+ * back {@link Activity#RESULT_OK} a Snackbar says the ingredient was saved. Nothing is passed back;
+ * the new row reaches the list the way every row does, through Room.
  *
  * <p>Its lifecycle callbacks are logged in debug builds ({@link LifecycleLoggingFragment}), and so
  * is every change the adapter makes to the list ({@link ListChangeLog}).
@@ -40,6 +47,17 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
 
     @Nullable
     private FragmentPantryBinding binding;
+
+    /**
+     * Starts the add screen and hears how it ended. Registered when the Fragment is created, as the
+     * Activity Result API requires, so a result that arrives after a rotation still finds it.
+     */
+    private final ActivityResultLauncher<Intent> addIngredient =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    showSaved();
+                }
+            });
 
     @Nullable
     @Override
@@ -113,9 +131,19 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         views.emptyState.getRoot().setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
-    /** Opens the add ingredient screen. Issue 14 starts it through an {@code ActivityResultLauncher}. */
+    /** Opens the add ingredient screen for a result. */
     private void openAddIngredient() {
-        startActivity(AddEditIngredientActivity.intentForAdd(requireContext()));
+        addIngredient.launch(AddEditIngredientActivity.intentForAdd(requireContext()));
+    }
+
+    /** Confirms a save above the FAB. The row itself is already on its way through {@code LiveData}. */
+    private void showSaved() {
+        if (binding == null) {
+            return; // the result outlived the view; the list shows the row when one is created
+        }
+        Snackbar.make(binding.getRoot(), R.string.ingredient_saved, Snackbar.LENGTH_SHORT)
+                .setAnchorView(binding.addIngredient)
+                .show();
     }
 
     /** Returns the binding, which exists between {@code onCreateView} and {@code onDestroyView}. */
