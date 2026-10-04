@@ -83,6 +83,7 @@ public class SeedRecipesMatchTest {
             MatchResult result = SeedFixture.MATCHER.match(pantry, RECIPE_ONE, TODAY);
 
             assertFalse("without " + gone.name(), result.canMake());
+            assertSame("without " + gone.name(), MatchStatus.ALMOST_THERE, result.status());
             assertEquals("without " + gone.name(), 1, result.shortfalls().size());
             assertEquals(gone.name(), result.shortfalls().get(0).required().name());
         }

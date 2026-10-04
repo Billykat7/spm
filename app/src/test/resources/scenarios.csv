@@ -7,25 +7,26 @@
 #                      no "@" means the row never expires. Empty for an empty pantry.
 #   recipe             lines separated by ";", each "name:amount unit"
 #   includeExpired     true or false
-#   expectedStatus     CAN_MAKE or CANNOT_MAKE
+#   expectedStatus     CAN_MAKE with no shortfall, ALMOST_THERE with exactly one, CANNOT_MAKE with two or
+#                      more (Issue 22: a recipe one ingredient away is almost there, never suggested)
 #   expectedShortfalls the recipe lines not covered, by their names as the recipe writes them,
 #                      separated by ";" in the recipe's order; empty when there are none
 #
 # The five-ingredient recipe used throughout: egg 3 pcs, milk 100 ml, cheese 50 g, butter 10 g, salt 1 g.
 name,pantry,recipe,includeExpired,expectedStatus,expectedShortfalls
 every ingredient in exactly the required amount,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CAN_MAKE,
-four of five present is not a match,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CANNOT_MAKE,salt
-four of five with the first one missing,milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CANNOT_MAKE,egg
+four of five present is not a match,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,ALMOST_THERE,salt
+four of five with the first one missing,milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,ALMOST_THERE,egg
 three of five names both missing ones,egg:3 pcs;milk:100 ml;butter:10 g,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CANNOT_MAKE,cheese;salt
 a pantry of other things covers nothing,rice:1 kg;onion:3 pcs,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CANNOT_MAKE,egg;milk;cheese;butter;salt
 an empty pantry covers nothing,,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CANNOT_MAKE,egg;milk;cheese;butter;salt
 extra pantry items change nothing,rice:1 kg;egg:6 pcs;onion:3 pcs;milk:1 l;cheese:200 g;butter:250 g;salt:500 g;sugar:1 kg,egg:3 pcs;milk:100 ml;cheese:50 g;butter:10 g;salt:1 g,false,CAN_MAKE,
-short by one gram,flour:249 g,flour:250 g,false,CANNOT_MAKE,flour
-short by a tenth of a gram,flour:249.9 g,flour:250 g,false,CANNOT_MAKE,flour
-short by a lot,flour:10 g,flour:250 g,false,CANNOT_MAKE,flour
+short by one gram,flour:249 g,flour:250 g,false,ALMOST_THERE,flour
+short by a tenth of a gram,flour:249.9 g,flour:250 g,false,ALMOST_THERE,flour
+short by a lot,flour:10 g,flour:250 g,false,ALMOST_THERE,flour
 exactly the required amount,flour:250 g,flour:250 g,false,CAN_MAKE,
 far more than the required amount,flour:5 kg,flour:250 g,false,CAN_MAKE,
-one egg short,egg:2 pcs,egg:3 pcs,false,CANNOT_MAKE,egg
+one egg short,egg:2 pcs,egg:3 pcs,false,ALMOST_THERE,egg
 plural in the pantry and singular in the recipe,tomatoes:4 pcs,tomato:4 pcs,false,CAN_MAKE,
 singular in the pantry and plural in the recipe,tomato:4 pcs,tomatoes:4 pcs,false,CAN_MAKE,
 plural ending in ies against y,berries:200 g,berry:150 g,false,CAN_MAKE,
@@ -37,35 +38,35 @@ a full stop after the name,TOMATO.:4 pcs,tomato:4 pcs,false,CAN_MAKE,
 alias in the pantry,cilantro:20 g,coriander:10 g,false,CAN_MAKE,
 alias in the recipe,coriander:20 g,cilantro:10 g,false,CAN_MAKE,
 alias in the plural,Scallions:3 pcs,spring onion:2 pcs,false,CAN_MAKE,
-a longer name is a different ingredient,tomato paste:400 g,tomato:1 pcs,false,CANNOT_MAKE,tomato
+a longer name is a different ingredient,tomato paste:400 g,tomato:1 pcs,false,ALMOST_THERE,tomato
 a kilogram covers 250 grams,flour:1 kg,flour:250 g,false,CAN_MAKE,
 250 grams covers a quarter kilogram,flour:250 g,flour:0.25 kg,false,CAN_MAKE,
-200 grams does not cover a quarter kilogram,flour:200 g,flour:0.25 kg,false,CANNOT_MAKE,flour
+200 grams does not cover a quarter kilogram,flour:200 g,flour:0.25 kg,false,ALMOST_THERE,flour
 a litre covers two cups,milk:1 l,milk:2 cup,false,CAN_MAKE,
-400 millilitres does not cover two cups,milk:400 ml,milk:2 cup,false,CANNOT_MAKE,milk
+400 millilitres does not cover two cups,milk:400 ml,milk:2 cup,false,ALMOST_THERE,milk
 300 millilitres covers one cup,milk:300 ml,milk:1 cup,false,CAN_MAKE,
 a tablespoon covers 10 millilitres,soy sauce:1 tbsp,soy sauce:10 ml,false,CAN_MAKE,
-a teaspoon does not cover 10 millilitres,soy sauce:1 tsp,soy sauce:10 ml,false,CANNOT_MAKE,soy sauce
+a teaspoon does not cover 10 millilitres,soy sauce:1 tsp,soy sauce:10 ml,false,ALMOST_THERE,soy sauce
 three teaspoons cover a tablespoon,soy sauce:3 tsp,soy sauce:1 tbsp,false,CAN_MAKE,
-500 grams does not cover two cups,flour:500 g,flour:2 cup,false,CANNOT_MAKE,flour
-a litre does not cover 500 grams,milk:1 l,milk:500 g,false,CANNOT_MAKE,milk
-six pieces do not cover 300 grams,egg:6 pcs,egg:300 g,false,CANNOT_MAKE,egg
+500 grams does not cover two cups,flour:500 g,flour:2 cup,false,ALMOST_THERE,flour
+a litre does not cover 500 grams,milk:1 l,milk:500 g,false,ALMOST_THERE,milk
+six pieces do not cover 300 grams,egg:6 pcs,egg:300 g,false,ALMOST_THERE,egg
 two rows of one ingredient are summed,flour:150 g;flour:100 g,flour:250 g,false,CAN_MAKE,
 two rows in different units are summed,flour:0.1 kg;flour:150 g,flour:250 g,false,CAN_MAKE,
-two rows that are still short together,flour:100 g;flour:100 g,flour:250 g,false,CANNOT_MAKE,flour
-rows of two kinds are not added together,rice:200 g;rice:1 cup,rice:250 g,false,CANNOT_MAKE,rice
+two rows that are still short together,flour:100 g;flour:100 g,flour:250 g,false,ALMOST_THERE,flour
+rows of two kinds are not added together,rice:200 g;rice:1 cup,rice:250 g,false,ALMOST_THERE,rice
 the same ingredient in two spellings is summed,Tomatoes:2 pcs;tomato:2 pcs,tomato:4 pcs,false,CAN_MAKE,
 rounding error in a sum is forgiven,salt:0.1 g;salt:0.2 g,salt:0.3 g,false,CAN_MAKE,
-an expired item is left out by default,milk:1 l@-1,milk:300 ml,false,CANNOT_MAKE,milk
+an expired item is left out by default,milk:1 l@-1,milk:300 ml,false,ALMOST_THERE,milk
 an expired item counts when expired items are included,milk:1 l@-1,milk:300 ml,true,CAN_MAKE,
 an item expiring today is not expired,milk:1 l@0,milk:300 ml,false,CAN_MAKE,
 an item expiring tomorrow counts,milk:1 l@+1,milk:300 ml,false,CAN_MAKE,
 an item with no expiry never expires,milk:1 l,milk:300 ml,false,CAN_MAKE,
-only the fresh row counts when the other expired,flour:500 g@-2;flour:100 g,flour:250 g,false,CANNOT_MAKE,flour
+only the fresh row counts when the other expired,flour:500 g@-2;flour:100 g,flour:250 g,false,ALMOST_THERE,flour
 the fresh row alone is enough,flour:500 g@-2;flour:300 g,flour:250 g,false,CAN_MAKE,
 expired and fresh rows are summed when expired items are included,flour:200 g@-2;flour:100 g,flour:250 g,true,CAN_MAKE,
 a one-ingredient recipe that is covered,rice:1 kg,rice:250 g,false,CAN_MAKE,
-a one-ingredient recipe that is not,onion:2 pcs,rice:250 g,false,CANNOT_MAKE,rice
+a one-ingredient recipe that is not,onion:2 pcs,rice:250 g,false,ALMOST_THERE,rice
 a ten-ingredient recipe that is covered,flour:500 g;sugar:200 g;butter:250 g;egg:6 pcs;milk:1 l;salt:10 g;baking soda:1 tsp;vanilla:2 tsp;lemon:2 pcs;honey:2 tbsp,flour:250 g;sugar:100 g;butter:125 g;egg:2 pcs;milk:1 cup;salt:1 g;baking soda:1 tsp;vanilla:1 tsp;lemon:1 pcs;honey:1 tbsp,false,CAN_MAKE,
-a ten-ingredient recipe short on the last one,flour:500 g;sugar:200 g;butter:250 g;egg:6 pcs;milk:1 l;salt:10 g;baking soda:1 tsp;vanilla:2 tsp;lemon:2 pcs;honey:1 tsp,flour:250 g;sugar:100 g;butter:125 g;egg:2 pcs;milk:1 cup;salt:1 g;baking soda:1 tsp;vanilla:1 tsp;lemon:1 pcs;honey:1 tbsp,false,CANNOT_MAKE,honey
+a ten-ingredient recipe short on the last one,flour:500 g;sugar:200 g;butter:250 g;egg:6 pcs;milk:1 l;salt:10 g;baking soda:1 tsp;vanilla:2 tsp;lemon:2 pcs;honey:1 tsp,flour:250 g;sugar:100 g;butter:125 g;egg:2 pcs;milk:1 cup;salt:1 g;baking soda:1 tsp;vanilla:1 tsp;lemon:1 pcs;honey:1 tbsp,false,ALMOST_THERE,honey
 a recipe listing one ingredient twice needs both amounts,egg:2 pcs,egg:2 pcs;eggs:1 pcs,false,CANNOT_MAKE,egg;eggs

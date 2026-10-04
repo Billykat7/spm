@@ -2,8 +2,10 @@ package com.btk.spm.domain.matching;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import com.btk.spm.domain.MatchStatus;
 import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
@@ -23,7 +25,8 @@ import java.util.List;
  * Two properties of the strict rule, checked for every one of the twenty seed recipes (Issue 21).
  * From a pantry that holds exactly what a recipe needs:
  * <ul>
- *   <li>taking away any one ingredient, or a little of it, or letting it expire, breaks the match;</li>
+ *   <li>taking away any one ingredient, or a little of it, or letting it expire, breaks the match,
+ *       and the recipe is {@code ALMOST_THERE}, one away (Issue 22);</li>
  *   <li>adding anything at all keeps it: more of an ingredient, other ingredients, the same
  *       ingredient in another kind, expired rows.</li>
  * </ul>
@@ -63,6 +66,7 @@ public class MatcherPropertiesTest {
             MatchResult result = match(pantry);
 
             assertFalse("without " + gone.name(), result.canMake());
+            assertSame("without " + gone.name(), MatchStatus.ALMOST_THERE, result.status());
             assertEquals("without " + gone.name(), gone.name(), onlyShortfall(result));
         }
     }

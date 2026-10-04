@@ -42,7 +42,8 @@ public final class StrictMatcher {
      *
      * <p>Brief §2.3: a recipe is suggested only if every single ingredient it requires is present in
      * the pantry in at least the required quantity. If it needs five and the pantry has four, it is
-     * not suggested: the result is {@code CANNOT_MAKE}, with a {@link Shortfall} naming the fifth.
+     * not suggested: the result is {@code ALMOST_THERE}, never {@code CAN_MAKE}, with a
+     * {@link Shortfall} naming the fifth.
      *
      * <p>Three invariants hold. Names are compared only after
      * {@link IngredientNormaliser#normalise}, so {@code "Tomatoes"} covers {@code "tomato"}. Amounts
@@ -53,7 +54,8 @@ public final class StrictMatcher {
      * @param pantry  every pantry row, expired ones included; the options decide whether they count
      * @param recipe  the recipe to judge
      * @param options the day of the match and whether expired rows count
-     * @return {@code CAN_MAKE} with no shortfalls, or {@code CANNOT_MAKE} with one per line not covered
+     * @return {@code CAN_MAKE} with no shortfalls, {@code ALMOST_THERE} with exactly one, or
+     *     {@code CANNOT_MAKE} with one per line not covered
      * @throws NullPointerException if an argument is {@code null}
      */
     public MatchResult match(List<PantryEntry> pantry, RecipeSpec recipe, MatchOptions options) {
@@ -97,7 +99,7 @@ public final class StrictMatcher {
             }
         }
         int needCount = recipe.ingredients().size();
-        MatchStatus status = shortfalls.isEmpty() ? MatchStatus.CAN_MAKE : MatchStatus.CANNOT_MAKE;
+        MatchStatus status = MatchStatus.forShortfalls(shortfalls.size());
         return new MatchResult(recipe.id(), status, shortfalls, needCount - shortfalls.size(), needCount);
     }
 
