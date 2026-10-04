@@ -361,6 +361,11 @@ cups against litres, kinds that never cross, duplicate rows, expiry), the twenty
 and properties that hold for every one of them: take away or expire any ingredient and the match
 breaks, add anything and it holds. JaCoCo measures the unit tests, and the gate now fails when any
 line of the engine is run by no test; `domain/matching/` is at 100% of lines and branches.
+Issue 22, in pull request [#64](https://github.com/Billykat7/spm/pull/64), closes the milestone with
+the brief's bonus, kept apart by type: a recipe with exactly one ingredient missing or short is
+`MatchStatus.ALMOST_THERE`, never `CAN_MAKE`, and `MatchResults.partition` hands the screens the
+suggestions and the almost-there recipes as separate lists. A property test over the twenty recipes
+and 200 random pantries checks that the two never meet. It also writes the `v0.4.0` release note.
 
 **What is next.** Tagging `v0.4.0` once this pull request merges, then M5 in week 5: the Suggested
 Recipes tab on the live pantry, built on `MatchResults.partition`, the recipe detail screen and the
