@@ -10,7 +10,7 @@
     <dimen name="spacing_m">16dp</dimen>
     <dimen name="spacing_l">24dp</dimen>
 
-    <!-- The illustration at the top of an empty state (view_empty_state.xml) -->
+    <!-- The illustration at the top of an empty or error state (view_state_message.xml) -->
     <dimen name="empty_state_illustration_size">160dp</dimen>
 
     <!-- A list row with a title and a supporting line, as Material 3's two-line list item -->

@@ -19,6 +19,7 @@ import com.btk.spm.databinding.FragmentSuggestedRecipesBinding;
 import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
 import com.btk.spm.ui.MainActivity;
+import com.btk.spm.ui.StateMessage;
 import com.btk.spm.ui.Tab;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 
@@ -94,13 +95,9 @@ public class SuggestedRecipesFragment extends Fragment
         views.recipeList.setAdapter(all);
         views.recipeList.addItemDecoration(new SuggestedRowDividers(requireContext(), all, sections.suggested));
 
-        // The included empty state has no words of its own: the message follows the reason, and the
-        // button always says the same thing and goes to the pantry
-        views.emptyState.emptyStateAction.setText(R.string.recipes_empty_action);
-        views.emptyState.emptyStateAction.setOnClickListener(v -> openPantry());
         // TalkBack reads the new message when the reason changes, without the user moving focus
         // (a platform call since API 19, so no ViewCompat at minSdk 26)
-        views.emptyState.emptyStateTitle.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        views.stateMessage.stateHeadline.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does
         viewModel.getState().observe(getViewLifecycleOwner(), state -> render(state, sections));
@@ -132,21 +129,22 @@ public class SuggestedRecipesFragment extends Fragment
     private void render(@NonNull UiState state, @NonNull Sections sections) {
         FragmentSuggestedRecipesBinding views = requireBinding();
         RecipesRender render = RecipesRender.of(state);
-        // show() and hide() rather than visibility: the indicator waits before it appears, so a first
-        // match that finishes quickly shows no spinner at all
+        // The indicator waits before it appears, so a first match that finishes quickly shows no
+        // spinner at all
         if (render.progress()) {
-            views.loading.show();
+            StateMessage.showLoading(views.stateMessage, R.string.recipes_loading);
         } else {
-            views.loading.hide();
             sections.show(state instanceof UiState.Content content ? RecipeSections.split(content) : null);
             // Only the suggestions are counted, never the almost-there recipes
             showCount(render.count());
         }
         views.recipeList.setVisibility(render.list() ? View.VISIBLE : View.GONE);
-        views.emptyState.getRoot().setVisibility(render.empty() ? View.VISIBLE : View.GONE);
         if (render.empty()) {
-            views.emptyState.emptyStateTitle.setText(render.emptyMessage());
-            views.emptyState.emptyStateAction.setVisibility(render.addIngredients() ? View.VISIBLE : View.GONE);
+            // The message follows the reason; the button always says the same thing and goes to the pantry
+            StateMessage.showMessage(views.stateMessage, render.emptyMessage(), StateMessage.NONE,
+                    render.addIngredients() ? R.string.recipes_empty_action : StateMessage.NONE, v -> openPantry());
+        } else if (render.list()) {
+            StateMessage.hide(views.stateMessage);
         }
     }
 

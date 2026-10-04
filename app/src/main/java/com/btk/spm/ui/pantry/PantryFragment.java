@@ -29,6 +29,7 @@ import com.btk.spm.databinding.FragmentPantryBinding;
 import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
+import com.btk.spm.ui.StateMessage;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link PantryViewModel#getItems()} and forwards events. Each list the database emits goes straight
  * to {@link PantryAdapter#submitList}; the Fragment keeps no copy, so an item inserted or changed
  * anywhere, even from the Database Inspector, appears here with no refresh. An empty pantry shows
- * the shared empty state instead of the list. The FAB and the empty state's button open
+ * the shared state layout ({@link StateMessage}) instead of the list. The FAB and the empty state's button open
  * {@link AddEditIngredientActivity} to add; a tap on a row, or its overflow Edit, opens it to edit
  * that row, with the row's id in the Intent. Both are started for a result: when it comes back
  * {@link Activity#RESULT_OK} a Snackbar says the ingredient was saved. Nothing is passed back; the new
@@ -115,10 +116,6 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
         divider.setLastItemDecorated(false);
         views.pantryList.addItemDecoration(divider);
 
-        // The included empty state has no words of its own; this screen gives it the pantry's
-        views.emptyState.emptyStateTitle.setText(R.string.pantry_empty_title);
-        views.emptyState.emptyStateAction.setText(R.string.action_add_ingredient);
-        views.emptyState.emptyStateAction.setOnClickListener(v -> openAddIngredient());
         views.addIngredient.setOnClickListener(v -> openAddIngredient());
 
         addSortMenu();
@@ -216,7 +213,13 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
         FragmentPantryBinding views = requireBinding();
         boolean empty = items.isEmpty();
         views.pantryList.setVisibility(empty ? View.GONE : View.VISIBLE);
-        views.emptyState.getRoot().setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (empty) {
+            // The shared state layout has no words of its own; this screen gives it the pantry's
+            StateMessage.showMessage(views.stateMessage, R.string.pantry_empty_title, StateMessage.NONE,
+                    R.string.action_add_ingredient, v -> openAddIngredient());
+        } else {
+            StateMessage.hide(views.stateMessage);
+        }
     }
 
     /** Opens the add ingredient screen for a result. */

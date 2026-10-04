@@ -87,7 +87,7 @@ public class PantryListLiveUpdateTest {
         events = new AdapterEvents();
         scenario.onActivity(activity -> {
             list = activity.findViewById(R.id.pantry_list);
-            emptyState = activity.findViewById(R.id.empty_state);
+            emptyState = activity.findViewById(R.id.state_message);
             list.getAdapter().registerAdapterDataObserver(events);
         });
         baseline = dao.getAllSync().size();
