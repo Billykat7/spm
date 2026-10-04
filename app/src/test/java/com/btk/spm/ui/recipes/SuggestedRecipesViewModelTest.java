@@ -23,6 +23,7 @@ import com.btk.spm.data.seed.RecipeJsonParser;
 import com.btk.spm.data.seed.RecipeSeeder;
 import com.btk.spm.domain.MatchStatus;
 import com.btk.spm.domain.Quantity;
+import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
 import com.btk.spm.domain.matching.CanonicalQuantity;
 import com.btk.spm.domain.matching.IngredientNormaliser;
@@ -138,7 +139,7 @@ public class SuggestedRecipesViewModelTest {
 
         deliver(noGarlic, SEED);
 
-        assertSame(UiState.Empty.INSTANCE, viewModel.getState().getValue());
+        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
     }
 
     @Test
@@ -185,7 +186,7 @@ public class SuggestedRecipesViewModelTest {
     public void anExpiredIngredient_isLeftOut_byDefault() {
         deliver(expired(pantryFor("Tomato pasta"), "tomato"), SEED);
 
-        assertSame(UiState.Empty.INSTANCE, viewModel.getState().getValue());
+        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
     }
 
     @Test
@@ -209,7 +210,7 @@ public class SuggestedRecipesViewModelTest {
         today = TODAY.plusDays(1);
         pantry.setValue(items);
         jobs.runAll();
-        assertSame(UiState.Empty.INSTANCE, viewModel.getState().getValue());
+        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
     }
 
     @Test
@@ -228,7 +229,7 @@ public class SuggestedRecipesViewModelTest {
     @Test
     public void aRecipeChange_runsTheMatchAgain() {
         deliver(pantryFor("Tomato pasta"), List.of());
-        assertSame(UiState.Empty.INSTANCE, viewModel.getState().getValue());
+        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
 
         recipes.setValue(SEED);
         jobs.runAll();
@@ -246,7 +247,7 @@ public class SuggestedRecipesViewModelTest {
         jobs.runNewestFirst(); // job 2 finishes, then the stale job 1
 
         assertEquals(List.of("Tomato pasta"), names(content().canMake()));
-        assertFalse("The stale result was posted", states.contains(UiState.Empty.INSTANCE));
+        assertFalse("The stale result was posted", states.contains(new UiState.Empty(EmptyReason.NO_MATCH)));
     }
 
     @Test
@@ -258,6 +259,69 @@ public class SuggestedRecipesViewModelTest {
         jobs.runAll();
 
         assertEquals(List.of(UiState.Loading.INSTANCE), states);
+    }
+
+    @Test
+    public void anEmptyPantry_isPantryEmpty() {
+        deliver(List.of(), SEED);
+
+        assertEquals(new UiState.Empty(EmptyReason.PANTRY_EMPTY), viewModel.getState().getValue());
+    }
+
+    @Test
+    public void noRecipes_isNoRecipes_evenWhenThePantryIsEmptyToo() {
+        deliver(List.of(), List.of());
+
+        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
+    }
+
+    @Test
+    public void noRecipes_isNoRecipes_withAFullPantry() {
+        deliver(pantryFor("Tomato pasta"), List.of());
+
+        assertEquals(new UiState.Empty(EmptyReason.NO_RECIPES), viewModel.getState().getValue());
+    }
+
+    @Test
+    public void aFifthUnrelatedIngredient_keepsNoMatch() {
+        List<PantryItem> fourOfFive = without(pantryFor("Tomato pasta"), "garlic");
+        deliver(fourOfFive, SEED);
+
+        List<PantryItem> plusRice = new ArrayList<>(fourOfFive);
+        plusRice.add(new PantryItem(0, "rice", 1, Unit.KG, null, CREATED));
+        pantry.setValue(plusRice);
+        jobs.runAll();
+
+        assertEquals(new UiState.Empty(EmptyReason.NO_MATCH), viewModel.getState().getValue());
+    }
+
+    @Test
+    public void loading_isEmittedOnce_acrossThreePantryPushes() {
+        recipes.setValue(SEED);
+        pantry.setValue(without(pantryFor("Tomato pasta"), "garlic"));
+        jobs.runAll();
+        pantry.setValue(pantryFor("Tomato pasta"));
+        jobs.runAll();
+        pantry.setValue(List.of());
+        jobs.runAll();
+
+        assertEquals(1, states.stream().filter(s -> s instanceof UiState.Loading).count());
+        assertSame("Loading is first", UiState.Loading.INSTANCE, states.get(0));
+        assertEquals(List.of(UiState.Loading.INSTANCE,
+                new UiState.Empty(EmptyReason.NO_MATCH),
+                states.get(2),
+                new UiState.Empty(EmptyReason.PANTRY_EMPTY)), states);
+        assertTrue(states.get(2) instanceof UiState.Content);
+    }
+
+    @Test
+    public void whileAMatchRuns_thePreviousStateStaysOnScreen() {
+        deliver(pantryFor("Tomato pasta"), SEED);
+        UiState shown = viewModel.getState().getValue();
+
+        pantry.setValue(List.of()); // the job is queued, not run
+
+        assertSame(shown, viewModel.getState().getValue());
     }
 
     /**

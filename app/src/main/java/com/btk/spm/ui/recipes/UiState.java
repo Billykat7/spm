@@ -12,7 +12,7 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>{@link Loading}: the pantry or the recipes have not been read yet, so nothing can be said;</li>
- *   <li>{@link Empty}: both have been read and no recipe can be made now;</li>
+ *   <li>{@link Empty}: both have been read and no recipe can be made now, with the reason;</li>
  *   <li>{@link Content}: at least one recipe can be made.</li>
  * </ul>
  *
@@ -27,7 +27,11 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
         // Only the three states below
     }
 
-    /** The first state, kept until both the pantry and the recipes have been read. */
+    /**
+     * The first state, kept until both the pantry and the recipes have been read. It is emitted once
+     * and never again: a later match keeps the previous state on screen until its result lands, so
+     * the list never flashes to a spinner (Issue 24).
+     */
     public static final class Loading extends UiState {
 
         /** The one instance; the state carries nothing. */
@@ -44,21 +48,48 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
     }
 
     /**
-     * Both sources have been read and nothing can be made now. The almost-there recipes are not
-     * carried, because the zero-match state (Issue 24) is about the suggestions only.
+     * Both sources have been read and nothing can be made now, for the {@link EmptyReason} it
+     * carries. The almost-there recipes are not carried, because the empty state is about the
+     * suggestions only.
      */
     public static final class Empty extends UiState {
 
-        /** The one instance; the state carries nothing. */
-        public static final Empty INSTANCE = new Empty();
+        private final EmptyReason reason;
 
-        private Empty() {
+        /**
+         * Creates the state.
+         *
+         * @param reason why nothing can be suggested, which picks the message and the button
+         * @throws NullPointerException if {@code reason} is {@code null}
+         */
+        public Empty(@NonNull EmptyReason reason) {
+            this.reason = Objects.requireNonNull(reason, "reason");
+        }
+
+        /**
+         * Returns why nothing can be suggested.
+         *
+         * @return the reason, never {@code null}
+         */
+        @NonNull
+        public EmptyReason reason() {
+            return reason;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Empty other && reason == other.reason;
+        }
+
+        @Override
+        public int hashCode() {
+            return reason.hashCode();
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "Empty";
+            return "Empty(" + reason + ")";
         }
     }
 

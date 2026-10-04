@@ -37,7 +37,8 @@ import java.util.function.Supplier;
  * again, so a change made on the Pantry tab is already in the list when the user comes back to
  * Recipes (non-negotiable 6). Nothing is computed once on open, and there is no refresh button. Until
  * both queries have delivered, the state stays {@link UiState.Loading}: a pantry with no recipes yet
- * is not "nothing matches".
+ * is not "nothing matches". {@code Loading} is the first state only: once a result has been posted,
+ * the next match leaves it on screen until its own result replaces it.
  *
  * <p><b>The executor.</b> Matching never runs on the main thread. Each change submits one job to the
  * executor it was given (in the app, {@code SpmApplication}'s single matching thread). The job maps
@@ -107,8 +108,9 @@ public class SuggestedRecipesViewModel extends ViewModel {
     }
 
     /**
-     * Returns what the Recipes tab shows: {@link UiState.Loading} first, then a new
-     * {@link UiState.Content} or {@link UiState.Empty} after every change to the pantry or the recipes.
+     * Returns what the Recipes tab shows: {@link UiState.Loading} once, first, then a new
+     * {@link UiState.Content} or {@link UiState.Empty} with its {@link EmptyReason} after every change
+     * to the pantry or the recipes.
      * Observe it with the view's lifecycle owner.
      *
      * @return the observed state; it always has a value
@@ -145,7 +147,8 @@ public class SuggestedRecipesViewModel extends ViewModel {
                 RecipeSpecMapper.toSpecs(recipesNow), options);
         MatchResults.Partition groups = MatchResults.partition(results);
         if (groups.canMake().isEmpty()) {
-            return UiState.Empty.INSTANCE;
+            // The engine has already said no; the reason only chooses the words and the button
+            return new UiState.Empty(EmptyReason.of(recipesNow.isEmpty(), pantryNow.isEmpty()));
         }
         Map<Long, RecipeWithIngredients> byId = new HashMap<>();
         for (RecipeWithIngredients recipe : recipesNow) {
