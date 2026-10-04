@@ -29,8 +29,9 @@ import java.util.regex.Pattern;
  *       a straight one.</li>
  *   <li><b>Plurals.</b> The last word is made singular by suffix, longest suffix first:
  *       {@code -ies → -y} (berries), {@code -oes → -o} (tomatoes), {@code -ches}, {@code -shes},
- *       {@code -sses}, {@code -xes} lose {@code es} (peaches, radishes), {@code -ves → -f}
- *       (loaves), and otherwise a final {@code s} goes (eggs). Words of three letters or fewer are
+ *       {@code -sses}, {@code -xes} lose {@code es} (peaches, radishes), {@code -lves},
+ *       {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves, loaves), and
+ *       otherwise a final {@code s} goes (eggs, and olives, not "olif"). Words of three letters or fewer are
  *       left alone, and so are the words in {@link #SINGULAR_WORDS_ENDING_IN_S}, which end in
  *       {@code s} but are not plurals (asparagus, hummus). Only the last word changes, because in
  *       an English ingredient name the last word is the thing itself: {@code "spring onions"} is
@@ -147,7 +148,9 @@ public final class IngredientNormaliser {
         if (word.endsWith("ches") || word.endsWith("shes") || word.endsWith("sses") || word.endsWith("xes")) {
             return drop(word, 2);
         }
-        if (word.endsWith("ves")) {
+        // Only -lves, -eaves and -oaves come from an -f word (halves, leaves, loaves). Every other
+        // -ves in a kitchen is an -ve word plus s, and "-ves to -f" turned olives into "olif"
+        if (word.endsWith("lves") || word.endsWith("eaves") || word.endsWith("oaves")) {
             return drop(word, 3) + "f";
         }
         if (word.endsWith("s")) {
