@@ -4,7 +4,9 @@ import com.btk.spm.domain.MatchStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,17 +33,15 @@ public final class MatchResults {
      * @throws NullPointerException if {@code results} or a result in it is {@code null}
      */
     public static Partition partition(List<MatchResult> results) {
-        List<MatchResult> canMake = new ArrayList<>();
-        List<MatchResult> almostThere = new ArrayList<>();
-        List<MatchResult> cannotMake = new ArrayList<>();
-        for (MatchResult result : Objects.requireNonNull(results, "results")) {
-            switch (Objects.requireNonNull(result, "result").status()) {
-                case CAN_MAKE -> canMake.add(result);
-                case ALMOST_THERE -> almostThere.add(result);
-                case CANNOT_MAKE -> cannotMake.add(result);
-            }
+        Map<MatchStatus, List<MatchResult>> groups = new EnumMap<>(MatchStatus.class);
+        for (MatchStatus status : MatchStatus.values()) {
+            groups.put(status, new ArrayList<>());
         }
-        return new Partition(canMake, almostThere, cannotMake);
+        for (MatchResult result : Objects.requireNonNull(results, "results")) {
+            groups.get(Objects.requireNonNull(result, "result").status()).add(result);
+        }
+        return new Partition(groups.get(MatchStatus.CAN_MAKE), groups.get(MatchStatus.ALMOST_THERE),
+                groups.get(MatchStatus.CANNOT_MAKE));
     }
 
     /**
