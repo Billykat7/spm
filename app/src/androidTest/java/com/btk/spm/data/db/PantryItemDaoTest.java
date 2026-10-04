@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The pantry's create, read, update and delete on a real SQLite database in memory (Issue 9): each
@@ -244,6 +245,21 @@ public class PantryItemDaoTest {
     }
 
     // The list updates itself
+
+    @Test
+    public void findWithExpiryOnOrBefore_returnsExpiredAndDueRows_soonestFirst_andNoUndatedOnes() {
+        LocalDate today = LocalDate.of(2026, 10, 4);
+        dao.insert(new PantryItem("milk", 1, Unit.L, today.plusDays(3), CREATED));
+        dao.insert(new PantryItem("tomato", 4, Unit.PCS, today.plusDays(1), CREATED));
+        dao.insert(new PantryItem("yoghurt", 500, Unit.G, today.minusDays(2), CREATED));
+        dao.insert(new PantryItem("cheddar", 200, Unit.G, today.plusDays(4), CREATED));
+        dao.insert(new PantryItem("rice", 1, Unit.KG, null, CREATED));
+
+        List<PantryItem> due = dao.findWithExpiryOnOrBefore(today.plusDays(3));
+
+        assertEquals(List.of("yoghurt", "tomato", "milk"),
+                due.stream().map(PantryItem::getName).collect(Collectors.toList()));
+    }
 
     @Test
     public void observeAll_emitsAgainAfterAnInsertAnUpdateAndADelete() {

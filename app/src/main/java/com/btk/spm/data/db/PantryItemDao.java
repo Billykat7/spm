@@ -12,6 +12,7 @@ import androidx.room.Update;
 
 import com.btk.spm.data.model.PantryItem;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -89,6 +90,21 @@ public interface PantryItemDao {
     @Query("SELECT * FROM pantry_items ORDER BY name COLLATE NOCASE ASC, created_at ASC, id ASC")
     @NonNull
     List<PantryItem> getAllSync();
+
+    /**
+     * <b>R</b>, synchronously: every item that has an expiry date on or before {@code limit}, soonest
+     * first. With {@code limit} at today plus the expiring-soon threshold, one call returns both the
+     * expired items and the ones expiring soon, for the daily check (Issue 29); an item with no date
+     * never expires and is never returned.
+     *
+     * @param limit the last expiry date to include, stored as its epoch day by {@link Converters}
+     * @return the matching items, by expiry date and then name; empty, never {@code null}
+     */
+    @WorkerThread
+    @Query("SELECT * FROM pantry_items WHERE expiry_date IS NOT NULL AND expiry_date <= :limit "
+            + "ORDER BY expiry_date ASC, name COLLATE NOCASE ASC, id ASC")
+    @NonNull
+    List<PantryItem> findWithExpiryOnOrBefore(@NonNull LocalDate limit);
 
     /**
      * Counts the rows, synchronously.
