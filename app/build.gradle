@@ -88,6 +88,9 @@ dependencies {
     implementation libs.fragment
     implementation libs.constraintlayout
     implementation libs.recyclerview
+    // The Settings screen (Issue 28): PreferenceFragmentCompat persists, summarises and themes each
+    // preference, so the Java left to write is the keys and the typed wrapper around them
+    implementation libs.preference
 
     // Room over SQLite (decision 1). The app is Java, so the compiler runs through annotationProcessor:
     // never kapt or ksp, which would need the Kotlin plugin (decision 2)
