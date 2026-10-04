@@ -304,6 +304,13 @@ public class StrictMatcherTest {
     }
 
     @Test
+    public void aRecipeSpec_acceptsAnImmutableList_andRefusesAMissingLine() {
+        assertEquals(1, new RecipeSpec(1, List.of(need("salt", 1, Unit.G))).ingredients().size());
+        assertThrows(IllegalArgumentException.class,
+                () -> new RecipeSpec(1, Arrays.asList(need("salt", 1, Unit.G), null)));
+    }
+
+    @Test
     public void aResultWhoseStatusDisagreesWithItsShortfalls_isRefused() {
         Shortfall salt = new Shortfall(need("salt", 1, Unit.G), null);
         assertThrows(IllegalArgumentException.class,

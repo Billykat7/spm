@@ -26,9 +26,13 @@ public record RecipeSpec(long id, List<RequiredIngredient> ingredients) {
         if (ingredients == null || ingredients.isEmpty()) {
             throw new IllegalArgumentException("Recipe " + id + " requires no ingredients");
         }
-        if (ingredients.contains(null)) {
-            throw new IllegalArgumentException("Recipe " + id + " has a missing ingredient");
+        List<RequiredIngredient> copy = new ArrayList<>(ingredients);
+        // Checked on the copy: List.of(...).contains(null) throws instead of answering
+        for (RequiredIngredient ingredient : copy) {
+            if (ingredient == null) {
+                throw new IllegalArgumentException("Recipe " + id + " has a missing ingredient");
+            }
         }
-        ingredients = Collections.unmodifiableList(new ArrayList<>(ingredients));
+        ingredients = Collections.unmodifiableList(copy);
     }
 }
