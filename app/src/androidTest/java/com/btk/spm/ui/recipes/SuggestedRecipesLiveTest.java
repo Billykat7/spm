@@ -123,8 +123,8 @@ public class SuggestedRecipesLiveTest {
                 insert(line);
             }
             // Four of five: almost there, not suggested
-            awaitState(viewModel, state -> state instanceof UiState.Empty empty
-                    && empty.almostThere().stream().anyMatch(this::isTomatoPasta));
+            awaitState(viewModel, state -> state instanceof UiState.Content content
+                    && content.canMake().isEmpty() && content.almostThere().stream().anyMatch(this::isTomatoPasta));
             onView(allOf(withText(RECIPE), isDisplayed())).check(doesNotExist());
 
             CountDownLatch rowIn = onNextListChange(scenario);
@@ -136,8 +136,8 @@ public class SuggestedRecipesLiveTest {
 
             CountDownLatch rowOut = onNextListChange(scenario);
             deleteTheTestRow(fifth);
-            awaitState(viewModel, state -> state instanceof UiState.Empty empty
-                    && empty.almostThere().stream().anyMatch(this::isTomatoPasta));
+            awaitState(viewModel, state -> state instanceof UiState.Content content
+                    && content.canMake().isEmpty() && content.almostThere().stream().anyMatch(this::isTomatoPasta));
             assertTrue("The row was not removed from the list", rowOut.await(TIMEOUT_S, TimeUnit.SECONDS));
             onView(allOf(withText(RECIPE), isDisplayed())).check(doesNotExist());
 

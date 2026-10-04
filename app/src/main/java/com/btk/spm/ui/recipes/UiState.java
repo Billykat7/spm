@@ -12,14 +12,15 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>{@link Loading}: the pantry or the recipes have not been read yet, so nothing can be said;</li>
- *   <li>{@link Empty}: both have been read and no recipe can be made now, with the reason;</li>
- *   <li>{@link Content}: at least one recipe can be made.</li>
+ *   <li>{@link Empty}: both have been read and there is nothing to show, neither a recipe that can
+ *       be made nor one that is one ingredient short; it carries the reason;</li>
+ *   <li>{@link Content}: at least one recipe can be made, or is one ingredient short (Issue 27).</li>
  * </ul>
  *
  * <p>A sealed class, so the three are the only kinds there can be and each is a separate type: a
  * screen cannot show a list while it says it is loading. {@link Content} carries the almost-there
- * recipes as well as the suggestions, in a separate list, so the "Almost there" section (Issue 27) can
- * render them without the {@code ViewModel} changing; this issue shows only {@link Content#canMake()}.
+ * recipes beside the suggestions, in a separate list, never mixed with them: the tab shows them only
+ * in their own section under their own heading (Issue 27).
  */
 public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiState.Content {
 
@@ -48,41 +49,25 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
     }
 
     /**
-     * Both sources have been read and nothing can be made now, for the {@link EmptyReason} it
-     * carries. It also carries the almost-there recipes, kept apart as in {@link Content}: a pantry
-     * four ingredients into a five-ingredient recipe has no suggestion, but the "Almost there" section
-     * (Issue 27) still has that recipe to show, and the live proof (Issue 26) watches it move from
-     * there into the suggestions and back.
+     * Both sources have been read and there is nothing to show: no recipe can be made and none is one
+     * ingredient short. It carries the {@link EmptyReason}, which picks the full-screen message.
      */
     public static final class Empty extends UiState {
 
         private final EmptyReason reason;
-        private final List<MatchedRecipe> almostThere;
 
         /**
-         * Creates the state with no almost-there recipes.
+         * Creates the state.
          *
-         * @param reason why nothing can be suggested, which picks the message and the button
+         * @param reason why nothing can be shown, which picks the message and the button
          * @throws NullPointerException if {@code reason} is {@code null}
          */
         public Empty(@NonNull EmptyReason reason) {
-            this(reason, List.of());
-        }
-
-        /**
-         * Creates the state, keeping an unmodifiable copy of the almost-there recipes.
-         *
-         * @param reason      why nothing can be suggested, which picks the message and the button
-         * @param almostThere the recipes one ingredient short, for Issue 27; may be empty
-         * @throws NullPointerException if {@code reason} or {@code almostThere} is {@code null}
-         */
-        public Empty(@NonNull EmptyReason reason, @NonNull List<MatchedRecipe> almostThere) {
             this.reason = Objects.requireNonNull(reason, "reason");
-            this.almostThere = Collections.unmodifiableList(new ArrayList<>(almostThere));
         }
 
         /**
-         * Returns why nothing can be suggested.
+         * Returns why nothing can be shown.
          *
          * @return the reason, never {@code null}
          */
@@ -91,38 +76,29 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
             return reason;
         }
 
-        /**
-         * Returns the recipes one ingredient short. Never shown as suggestions; Issue 27 gives them
-         * their own heading.
-         *
-         * @return the almost-there recipes, unmodifiable, possibly empty
-         */
-        @NonNull
-        public List<MatchedRecipe> almostThere() {
-            return almostThere;
-        }
-
         @Override
         public boolean equals(Object o) {
-            return o instanceof Empty other && reason == other.reason && almostThere.equals(other.almostThere);
+            return o instanceof Empty other && reason == other.reason;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(reason, almostThere);
+            return reason.hashCode();
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "Empty(" + reason + ", almostThere=" + almostThere.size() + ")";
+            return "Empty(" + reason + ")";
         }
     }
 
     /**
-     * At least one recipe can be made. Both lists come straight from {@code MatchResults.partition}:
-     * {@link #canMake()} is its {@code canMake} list and {@link #almostThere()} its {@code almostThere}
-     * list, each in the recipes' order. The two never share a recipe.
+     * Something to show: at least one recipe that can be made, or at least one that is one ingredient
+     * short. Both lists come straight from {@code MatchResults.partition}: {@link #canMake()} is its
+     * {@code canMake} list and {@link #almostThere()} its {@code almostThere} list, each in the recipes'
+     * order. The two never share a recipe. With {@code canMake} empty the tab shows the brief's
+     * zero-match sentence as its first row, above the "Almost there" section (Issue 27).
      */
     public static final class Content extends UiState {
 
@@ -132,13 +108,13 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
         /**
          * Creates the state, keeping unmodifiable copies of both lists.
          *
-         * @param canMake     the suggestions; at least one
-         * @param almostThere the recipes one ingredient short, for Issue 27; may be empty
-         * @throws IllegalArgumentException if {@code canMake} is empty, which is {@link Empty}
+         * @param canMake     the suggestions; may be empty when {@code almostThere} is not
+         * @param almostThere the recipes one ingredient short; may be empty when {@code canMake} is not
+         * @throws IllegalArgumentException if both are empty, which is {@link Empty}
          */
         public Content(@NonNull List<MatchedRecipe> canMake, @NonNull List<MatchedRecipe> almostThere) {
-            if (canMake.isEmpty()) {
-                throw new IllegalArgumentException("Content needs a recipe that can be made; use Empty");
+            if (canMake.isEmpty() && almostThere.isEmpty()) {
+                throw new IllegalArgumentException("Content needs a recipe to show; use Empty");
             }
             this.canMake = Collections.unmodifiableList(new ArrayList<>(canMake));
             this.almostThere = Collections.unmodifiableList(new ArrayList<>(almostThere));
@@ -148,7 +124,7 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
          * Returns the recipes that can be made now: the only list the tab shows as suggested, and the
          * only one counted in its title.
          *
-         * @return the suggestions, unmodifiable, never empty
+         * @return the suggestions, unmodifiable, possibly empty
          */
         @NonNull
         public List<MatchedRecipe> canMake() {
@@ -156,8 +132,8 @@ public abstract sealed class UiState permits UiState.Loading, UiState.Empty, UiS
         }
 
         /**
-         * Returns the recipes one ingredient short. Kept apart from {@link #canMake()} and not shown
-         * until Issue 27 gives them their own heading.
+         * Returns the recipes one ingredient short, shown only under their own heading and never
+         * counted with {@link #canMake()} (Issue 27).
          *
          * @return the almost-there recipes, unmodifiable, possibly empty
          */

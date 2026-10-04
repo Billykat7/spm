@@ -10,8 +10,11 @@ import com.btk.spm.data.model.Recipe;
 import com.btk.spm.data.model.RecipeIngredient;
 import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.domain.MatchStatus;
+import com.btk.spm.domain.Quantity;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.matching.MatchResult;
+import com.btk.spm.domain.matching.RequiredIngredient;
+import com.btk.spm.domain.matching.Shortfall;
 
 import org.junit.Test;
 
@@ -38,6 +41,7 @@ public class RecipesRenderTest {
             states.add(new UiState.Empty(reason));
         }
         states.add(new UiState.Content(List.of(GARLIC_BREAD), List.of()));
+        states.add(new UiState.Content(List.of(), List.of(almostThere())));
 
         for (UiState state : states) {
             RecipesRender render = RecipesRender.of(state);
@@ -61,6 +65,14 @@ public class RecipesRenderTest {
         assertTrue(render.list());
         assertEquals(List.of(GARLIC_BREAD), render.rows());
         assertEquals(1, render.count());
+    }
+
+    @Test
+    public void nothingSuggested_butOneAlmostThere_showsTheList_andCountsNothing() {
+        RecipesRender render = RecipesRender.of(new UiState.Content(List.of(), List.of(almostThere())));
+
+        assertTrue("the section is a list, not the full-screen empty state", render.list());
+        assertEquals(0, render.count());
     }
 
     @Test
@@ -100,5 +112,11 @@ public class RecipesRenderTest {
     @Test
     public void noState_isRefused() {
         assertThrows(NullPointerException.class, () -> RecipesRender.of(null));
+    }
+
+    /** Garlic bread one loaf short: an almost-there row. */
+    private static MatchedRecipe almostThere() {
+        return new MatchedRecipe(GARLIC_BREAD.recipe(), new MatchResult(17, MatchStatus.ALMOST_THERE,
+                List.of(new Shortfall(new RequiredIngredient("bread", new Quantity(4, Unit.PCS)), null)), 0, 1));
     }
 }

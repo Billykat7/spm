@@ -104,9 +104,8 @@ public class SuggestedRecipesViewModelLiveTest {
         push(four);
         assertEquals(4, states.size());
 
-        assertTrue(states.get(1) instanceof UiState.Empty);
-        assertTrue(states.get(2) instanceof UiState.Content);
-        assertTrue(states.get(3) instanceof UiState.Empty);
+        // Since Issue 27 four of five is Content too: nothing suggested, Tomato pasta almost there
+        assertTrue(states.subList(1, 4).stream().allMatch(s -> s instanceof UiState.Content));
     }
 
     @Test
@@ -142,10 +141,7 @@ public class SuggestedRecipesViewModelLiveTest {
 
     private List<String> almostThere() {
         UiState state = states.get(states.size() - 1);
-        if (state instanceof UiState.Content content) {
-            return names(content.almostThere());
-        }
-        return names(((UiState.Empty) state).almostThere());
+        return state instanceof UiState.Content content ? names(content.almostThere()) : List.of();
     }
 
     private static List<String> names(List<MatchedRecipe> rows) {
