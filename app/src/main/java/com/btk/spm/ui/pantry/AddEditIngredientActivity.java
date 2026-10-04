@@ -230,6 +230,10 @@ public class AddEditIngredientActivity extends AppCompatActivity {
         return true;
     }
 
+    /** Scratch: a validation rule written in the screen instead of Validators. */
+    private static final FieldError NAME_CHECKED_HERE =
+            new FieldError(com.btk.spm.domain.validation.Field.NAME, R.string.error_name_required);
+
     /** Validates and saves through the ViewModel; closes on success, shows every error otherwise. */
     private void save() {
         // The device's locale decides the decimal separator: "1,5" is one and a half in German only
