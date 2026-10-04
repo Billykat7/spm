@@ -89,18 +89,22 @@ public final class StrictMatcher {
     private MatchResult decide(Map<String, Map<UnitKind, CanonicalQuantity>> stock, RecipeSpec recipe) {
         Map<String, Map<UnitKind, CanonicalQuantity>> needs = needs(recipe);
         List<Shortfall> shortfalls = new ArrayList<>();
+        List<IngredientCheck> checks = new ArrayList<>();
         for (RequiredIngredient required : recipe.ingredients()) {
             String name = normaliser.normalise(required.name());
             UnitKind kind = required.quantity().unit().kind();
             Map<UnitKind, CanonicalQuantity> held = stock.get(name);
             CanonicalQuantity have = held == null ? null : held.get(kind);
-            if (have == null || !have.isAtLeast(needs.get(name).get(kind))) {
+            boolean covered = have != null && have.isAtLeast(needs.get(name).get(kind));
+            // Every line gets a check, so the detail screen can show "have" rows without comparing again
+            checks.add(new IngredientCheck(required, have, covered));
+            if (!covered) {
                 shortfalls.add(new Shortfall(required, have));
             }
         }
         int needCount = recipe.ingredients().size();
         MatchStatus status = MatchStatus.forShortfalls(shortfalls.size());
-        return new MatchResult(recipe.id(), status, shortfalls, needCount - shortfalls.size(), needCount);
+        return new MatchResult(recipe.id(), status, shortfalls, needCount - shortfalls.size(), needCount, checks);
     }
 
     /** What the pantry holds: canonical totals by normalised name and kind, expired rows left out. */
