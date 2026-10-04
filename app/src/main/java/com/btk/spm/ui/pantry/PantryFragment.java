@@ -42,9 +42,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * to {@link PantryAdapter#submitList}; the Fragment keeps no copy, so an item inserted or changed
  * anywhere, even from the Database Inspector, appears here with no refresh. An empty pantry shows
  * the shared empty state instead of the list. The FAB and the empty state's button open
- * {@link AddEditIngredientActivity} through its explicit {@code Intent}, for a result: when it comes
- * back {@link Activity#RESULT_OK} a Snackbar says the ingredient was saved. Nothing is passed back;
- * the new row reaches the list the way every row does, through Room.
+ * {@link AddEditIngredientActivity} to add; a tap on a row, or its overflow Edit, opens it to edit
+ * that row, with the row's id in the Intent. Both are started for a result: when it comes back
+ * {@link Activity#RESULT_OK} a Snackbar says the ingredient was saved. Nothing is passed back; the new
+ * or changed row reaches the list the way every row does, through Room.
  *
  * <p>Delete works the same way. The row's overflow Delete asks for confirmation, then
  * {@link PantryViewModel#delete} removes the row from the database and the list follows. A Snackbar
@@ -74,10 +75,11 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
     private AlertDialog deleteConfirmation;
 
     /**
-     * Starts the add screen and hears how it ended. Registered when the Fragment is created, as the
-     * Activity Result API requires, so a result that arrives after a rotation still finds it.
+     * Starts the add and edit screen and hears how it ended, for both modes. Registered when the
+     * Fragment is created, as the Activity Result API requires, so a result that arrives after a
+     * rotation still finds it.
      */
-    private final ActivityResultLauncher<Intent> addIngredient =
+    private final ActivityResultLauncher<Intent> ingredientEditor =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     showSaved();
@@ -138,16 +140,16 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
         binding = null;
     }
 
-    /** Opening an item for editing is Issue 15. */
+    /** A tap on a row opens it for editing. */
     @Override
     public void onItemClick(@NonNull PantryItem item) {
-        // Issue 15: open AddEditIngredientActivity.intentFor(context, item.getId())
+        openEditIngredient(item);
     }
 
-    /** Editing from the row's overflow menu is Issue 15. */
+    /** The overflow's Edit does what a tap on the row does. */
     @Override
     public void onEdit(@NonNull PantryItem item) {
-        // Issue 15: the same as onItemClick
+        openEditIngredient(item);
     }
 
     /**
@@ -213,7 +215,12 @@ public class PantryFragment extends LifecycleLoggingFragment implements PantryAd
 
     /** Opens the add ingredient screen for a result. */
     private void openAddIngredient() {
-        addIngredient.launch(AddEditIngredientActivity.intentForAdd(requireContext()));
+        ingredientEditor.launch(AddEditIngredientActivity.intentForAdd(requireContext()));
+    }
+
+    /** Opens the edit screen for {@code item}, by its id, for a result. */
+    private void openEditIngredient(@NonNull PantryItem item) {
+        ingredientEditor.launch(AddEditIngredientActivity.intentForEdit(requireContext(), item.getId()));
     }
 
     /** Confirms a save above the FAB. The row itself is already on its way through {@code LiveData}. */

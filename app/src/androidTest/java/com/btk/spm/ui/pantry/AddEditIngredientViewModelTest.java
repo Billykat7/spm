@@ -40,7 +40,8 @@ import java.util.Map;
 /**
  * {@link AddEditIngredientViewModel} over an in-memory database (Issue 14): an invalid form writes
  * nothing, a valid one inserts exactly what was checked, and the chosen unit and date outlive the
- * ViewModel through its saved state.
+ * ViewModel through its saved state. In edit mode (Issue 15) the row is read once and prefilled, an
+ * unknown id is reported, and a save updates the same row, also after a rotation or a process death.
  */
 @RunWith(AndroidJUnit4.class)
 public class AddEditIngredientViewModelTest {
@@ -151,6 +152,101 @@ public class AddEditIngredientViewModelTest {
 
         assertEquals(Unit.TBSP, getOrAwaitValue(restored.getUnit()));
         assertEquals(TODAY.plusDays(10), getOrAwaitValue(restored.getExpiry()));
+    }
+
+    // Edit mode (Issue 15)
+
+    @Test
+    public void startEditing_prefillsFromTheRow_andBecomesReady() throws InterruptedException {
+        PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, TODAY.plusDays(2));
+
+        viewModel.startEditing(tomatoes.getId());
+
+        assertEquals(tomatoes, getOrAwaitValue(viewModel.getPrefill()));
+        assertEquals(Unit.PCS, getOrAwaitValue(viewModel.getUnit()));
+        assertEquals(TODAY.plusDays(2), getOrAwaitValue(viewModel.getExpiry()));
+        assertTrue(getOrAwaitValue(viewModel.isReady()));
+        assertFalse(getOrAwaitValue(viewModel.isNotFound()));
+    }
+
+    @Test
+    public void savingAnEdit_updatesTheSameRow_andAddsNone() throws InterruptedException {
+        PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, null);
+        viewModel.startEditing(tomatoes.getId());
+        viewModel.onPrefillShown();
+
+        assertTrue(viewModel.save("tomatoes", "6").isOk());
+
+        List<PantryItem> pantry = getOrAwaitValue(repository.observeAll());
+        assertEquals(1, pantry.size());
+        PantryItem edited = pantry.get(0);
+        assertEquals(tomatoes.getId(), edited.getId());
+        assertEquals(6, edited.getQuantity(), 0);
+        assertEquals("the creation time is kept", tomatoes.getCreatedAt(), edited.getCreatedAt());
+    }
+
+    @Test
+    public void anInvalidEdit_writesNothing() throws InterruptedException {
+        PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, null);
+        viewModel.startEditing(tomatoes.getId());
+
+        ValidationResult result = viewModel.save("   ", "6");
+
+        assertEquals(ValidationResult.error(new FieldError(Field.NAME, R.string.error_name_required)), result);
+        assertEquals(List.of(tomatoes), getOrAwaitValue(repository.observeAll()));
+    }
+
+    @Test
+    public void anUnknownId_isReportedNotFound_andNothingIsPrefilled() throws InterruptedException {
+        viewModel.startEditing(999_999L);
+
+        assertTrue(getOrAwaitValue(viewModel.isNotFound()));
+        assertFalse(getOrAwaitValue(viewModel.isReady()));
+        assertNull(getOrAwaitValue(viewModel.getPrefill()));
+    }
+
+    @Test
+    public void startEditingAgain_afterARotation_keepsWhatTheUserChose() throws InterruptedException {
+        PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, null);
+        viewModel.startEditing(tomatoes.getId());
+        viewModel.onPrefillShown();
+        viewModel.setUnit(Unit.KG);
+
+        // The re-created screen calls it again with the same id
+        viewModel.startEditing(tomatoes.getId());
+
+        assertEquals(Unit.KG, getOrAwaitValue(viewModel.getUnit()));
+        assertNull("not prefilled a second time", getOrAwaitValue(viewModel.getPrefill()));
+        assertTrue(getOrAwaitValue(viewModel.isReady()));
+    }
+
+    @Test
+    public void anEditRestoredAfterProcessDeath_isReady_andStillUpdatesTheSameRow() throws InterruptedException {
+        PantryItem tomatoes = stored("tomatoes", 4, Unit.PCS, null);
+        viewModel.startEditing(tomatoes.getId());
+        viewModel.onPrefillShown();
+        Map<String, Object> saved = new HashMap<>();
+        for (String key : state.keys()) {
+            saved.put(key, state.get(key));
+        }
+        AddEditIngredientViewModel restored =
+                new AddEditIngredientViewModel(application, new SavedStateHandle(saved), repository, clock);
+
+        restored.startEditing(tomatoes.getId());
+
+        assertTrue(getOrAwaitValue(restored.isReady()));
+        assertNull(getOrAwaitValue(restored.getPrefill()));
+        assertTrue(restored.save("tomatoes", "5").isOk());
+        PantryItem edited = getOrAwaitValue(repository.observeAll()).get(0);
+        assertEquals(tomatoes.getId(), edited.getId());
+        assertEquals(5, edited.getQuantity(), 0);
+        assertEquals(tomatoes.getCreatedAt(), edited.getCreatedAt());
+    }
+
+    /** Inserts an item and returns it as stored, with its generated id. */
+    private PantryItem stored(String name, double quantity, Unit unit, LocalDate expiry) throws InterruptedException {
+        repository.insert(new PantryItem(name, quantity, unit, expiry, NOW.toEpochMilli() - 86_400_000L));
+        return getOrAwaitValue(repository.observeAll()).get(0);
     }
 
     @Test
