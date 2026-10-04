@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    One row of the pantry list (PantryAdapter): the name, the amount with its unit symbol, the expiry
-    badge and the overflow button. A simple row, so a LinearLayout. The whole row is the touch target
-    for opening the item (Issue 15), with its ripple drawn as a foreground so the row paints no
-    background of its own over the list's; the overflow button opens Edit and Delete
-    (menu/item_pantry_overflow.xml). Every text is set by the adapter from the item.
+    One row of the pantry list (PantryAdapter): the name, the amount with its unit symbol and the
+    expiry badge under each other, and the overflow button. A simple row, so a LinearLayout. The whole
+    row is the touch target for opening the item (Issue 15), with its ripple drawn as a foreground so
+    the row paints no background of its own over the list's; the overflow button opens Edit and
+    Delete (menu/item_pantry_overflow.xml). Every text is set by the adapter from the item.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -41,26 +41,28 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Spm.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
-    </LinearLayout>
 
-    <!--
-        The expiry badge (Issue 17): its words and its fill come from the adapter, through
-        ExpiryBadgeFormatter, and it is gone for an item with no date. A label, not a control: it
-        takes no touch, has no outline and no 48 dp touch padding, so the row stays one target.
-    -->
-    <com.google.android.material.chip.Chip
-        android:id="@+id/expiry_badge"
-        style="@style/Widget.Material3.Chip.Assist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_s"
-        android:clickable="false"
-        android:focusable="false"
-        android:textAppearance="@style/TextAppearance.Spm.LabelMedium"
-        android:visibility="gone"
-        app:chipStrokeWidth="0dp"
-        app:ensureMinTouchTargetSize="false"
-        tools:visibility="visible" />
+        <!--
+            The expiry badge (Issue 17): its words and its fill come from the adapter, through
+            ExpiryBadgeFormatter, and it is gone for an item with no date. Under the amount, not beside
+            the name (Issue 30): at font scale 2.0 a badge beside it left the name too narrow and
+            "tomatoes" broke in the middle of the word. A label, not a control: it takes no touch, has
+            no outline and no 48 dp touch padding, so the row stays one target.
+        -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/expiry_badge"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:clickable="false"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.Spm.LabelMedium"
+            android:visibility="gone"
+            app:chipStrokeWidth="0dp"
+            app:ensureMinTouchTargetSize="false"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <!-- The adapter replaces the description with one that names the item: "More options for Eggs" -->
     <ImageButton
