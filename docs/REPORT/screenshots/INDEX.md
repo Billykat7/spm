@@ -27,3 +27,8 @@ the final set after the UI pass, so earlier rows are working copies.
 | 12 | 12_add_ingredient_errors.png | Save tapped on the empty form: "Name is required.", "Enter a quantity." and "Choose a unit." shown at once under their fields, the cursor in the name field, and no row written | #14 |
 | 12 | 12_add_ingredient_errors_dark.png | The same three errors in the dark theme | #14 |
 | 13 | 13_add_ingredient_expiry_error.png | Plain flour, 1,5 kg, with yesterday chosen in the date picker: "Expiry date cannot be in the past." under the date, whose clear icon stays visible beside the error | #14 |
+| 14 | 14_delete_confirm.png | The overflow's Delete on "tomatoes": a Material dialog naming the item, "Delete tomatoes?", with Cancel and Delete; nothing is removed until Delete is tapped | #16 |
+| 14 | 14_delete_confirm_dark.png | The same confirmation in the dark theme | #16 |
+| 15 | 15_delete_undo.png | Delete confirmed: the row gone from the list with no refresh, and "Deleted tomatoes" with Undo in a Snackbar anchored above the FAB, not over it | #16 |
+| 15 | 15_delete_undo_dark.png | The same Snackbar in the dark theme | #16 |
+| 16 | 16_delete_last_undo.png | The last item deleted: the empty state in place of the list, with "Deleted Plain flour" and Undo still on offer, which brings the row back with its id | #16 |
