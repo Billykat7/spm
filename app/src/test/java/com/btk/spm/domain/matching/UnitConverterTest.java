@@ -21,6 +21,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,9 @@ import java.util.Map;
 public class UnitConverterTest {
 
     private static final UnitConverter CONVERTER = new UnitConverter();
+
+    private static final StrictMatcher MATCHER =
+            new StrictMatcher(new IngredientNormaliser(Collections.emptyMap()), CONVERTER);
 
     static Quantity q(double amount, Unit unit) {
         return new Quantity(amount, unit);
@@ -214,9 +218,8 @@ public class UnitConverterTest {
     }
 
     /**
-     * The units preference never changes a match. The comparison below is the one {@link StrictMatcher}
-     * makes: the pantry rows summed by kind, then {@code isAtLeast} the requirement. Each case
-     * is decided once per preference, after every quantity has been displayed in it, and the
+     * The units preference never changes a match. Each case goes through {@link StrictMatcher} itself,
+     * once per preference, after every quantity has been displayed in it, and the
      * decision must be the same and right every time.
      */
     public static class DisplayNeverChangesMatching {
@@ -285,9 +288,12 @@ public class UnitConverterTest {
                 CONVERTER.toPreferredDisplay(row, system);
             }
             CONVERTER.toPreferredDisplay(required, system);
-            CanonicalQuantity need = CONVERTER.toCanonical(required);
-            CanonicalQuantity have = CONVERTER.sumByKind(pantry).get(need.kind());
-            return have != null && have.isAtLeast(need);
+            List<PantryEntry> entries = new ArrayList<>();
+            for (Quantity row : pantry) {
+                entries.add(new PantryEntry("flour", row, null));
+            }
+            RecipeSpec recipe = new RecipeSpec(1, List.of(new RequiredIngredient("flour", required)));
+            return MATCHER.match(entries, recipe, MatchOptions.on(LocalDate.of(2026, 10, 4))).canMake();
         }
     }
 }
