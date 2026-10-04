@@ -45,7 +45,7 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
      * Shows {@code list} under the "Almost there" heading.
      *
      * @param list recipes one ingredient short, or {@code null} to clear the section
-     * @throws IllegalArgumentException if any recipe in it is not {@code ALMOST_THERE}
+     * @throws IllegalArgumentException if any recipe in it is not exactly one ingredient short
      */
     @Override
     public void submitList(@Nullable List<MatchedRecipe> list) {
@@ -55,7 +55,7 @@ public class AlmostThereAdapter extends ListAdapter<MatchedRecipe, AlmostThereAd
     /**
      * Shows {@code list} under the "Almost there" heading, then runs {@code commitCallback}.
      *
-     * @throws IllegalArgumentException if any recipe in {@code list} is not {@code ALMOST_THERE}
+     * @throws IllegalArgumentException if any recipe in {@code list} is not exactly one ingredient short
      */
     @Override
     public void submitList(@Nullable List<MatchedRecipe> list, @Nullable Runnable commitCallback) {
