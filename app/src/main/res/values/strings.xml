@@ -188,17 +188,22 @@
     <string name="quantity_accepted_characters" translatable="false">0123456789.,</string>
 
     <!--
-        Why an ingredient cannot be saved (domain/validation/Validators, Issue 14). Each says what to
-        do. The numbers repeat Validators.MAX_NAME_LENGTH and MAX_QUANTITY; ValidatorsTest checks them.
+        Why an ingredient cannot be saved, or a setting is refused (domain/validation/Validators, the
+        only class that names them: ConventionsTest). Each says what to do. The numbers repeat
+        Validators.MAX_NAME_LENGTH, MAX_DECIMALS, MAX_QUANTITY and the threshold's 1 and 14;
+        ValidatorsTest checks them.
     -->
     <string name="error_name_required">Name is required.</string>
+    <string name="error_name_invalid">Enter a name with letters, such as tomato.</string>
     <string name="error_name_too_long">Name must be 60 characters or fewer.</string>
     <string name="error_quantity_required">Enter a quantity.</string>
-    <string name="error_quantity_not_a_number">Enter a number, such as 4 or 1.5.</string>
-    <string name="error_quantity_not_positive">Quantity must be more than 0.</string>
+    <string name="error_quantity_invalid">Enter a number, such as 4 or 1.5.</string>
+    <string name="error_quantity_positive">Quantity must be more than 0.</string>
+    <string name="error_quantity_precision">Use at most 2 decimal places.</string>
     <string name="error_quantity_too_large">Quantity must be 100000 or less.</string>
     <string name="error_unit_required">Choose a unit.</string>
-    <string name="error_expiry_in_past">Expiry date cannot be in the past.</string>
+    <string name="error_expiry_past">Expiry date cannot be in the past.</string>
+    <string name="error_threshold_range">Choose between 1 and 14 days.</string>
 
     <!--
         Unit symbols as shown on screen, after a number and a non-breaking space (250 g). One per

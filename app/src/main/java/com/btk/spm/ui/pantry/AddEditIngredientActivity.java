@@ -232,7 +232,9 @@ public class AddEditIngredientActivity extends AppCompatActivity {
 
     /** Validates and saves through the ViewModel; closes on success, shows every error otherwise. */
     private void save() {
-        ValidationResult result = viewModel.save(textOf(binding.nameLayout), textOf(binding.quantityLayout));
+        // The device's locale decides the decimal separator: "1,5" is one and a half in German only
+        ValidationResult result = viewModel.save(textOf(binding.nameLayout), textOf(binding.quantityLayout),
+                getResources().getConfiguration().getLocales().get(0));
         if (result.isOk()) {
             setResult(Activity.RESULT_OK);
             finish();

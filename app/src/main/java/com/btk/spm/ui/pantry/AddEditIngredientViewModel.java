@@ -17,11 +17,13 @@ import com.btk.spm.SpmApplication;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.repo.PantryRepository;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.domain.validation.PantryItemInput;
 import com.btk.spm.domain.validation.ValidationResult;
 import com.btk.spm.domain.validation.Validators;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Locale;
 
 /**
  * The state and the save behind the add and edit ingredient form.
@@ -252,6 +254,7 @@ public class AddEditIngredientViewModel extends AndroidViewModel {
      *
      * @param name         the name field's text
      * @param quantityText the quantity field's text
+     * @param locale       the device's locale, whose decimal separator the quantity is read with
      * @return the validation result: ok when the item was handed to the repository (or already had
      *     been), otherwise every field error, in field order, with nothing written
      * @throws IllegalStateException if called in edit mode before the row has loaded; the screen
@@ -259,17 +262,18 @@ public class AddEditIngredientViewModel extends AndroidViewModel {
      */
     @MainThread
     @NonNull
-    public ValidationResult save(@Nullable String name, @Nullable String quantityText) {
+    public ValidationResult save(@Nullable String name, @Nullable String quantityText, @NonNull Locale locale) {
         Unit chosenUnit = unitNamed(state.get(STATE_UNIT_NAME));
         Long epochDay = state.get(STATE_EXPIRY_EPOCH_DAY);
         LocalDate chosenExpiry = epochDay == null ? null : LocalDate.ofEpochDay(epochDay);
 
         ValidationResult result = Validators.validatePantryItem(
-                name, quantityText, chosenUnit, chosenExpiry, LocalDate.now(clock));
+                new PantryItemInput(name, quantityText, chosenUnit, chosenExpiry), LocalDate.now(clock), locale);
         if (result.isOk() && !saved) {
-            // Valid means both are present and the quantity parses, so neither can fail here
-            String trimmedName = name.trim();
-            double quantity = Validators.parseQuantity(quantityText).getAsDouble();
+            // Valid means the name has letters and the quantity parses in this locale, so neither
+            // can fail here; the name is saved as it was checked, trimmed and with single spaces
+            String trimmedName = Validators.cleanName(name);
+            double quantity = Validators.parseQuantity(quantityText, locale).orElseThrow().doubleValue();
             Long editId = state.get(STATE_EDIT_ID);
             if (editId == null) {
                 repository.insert(new PantryItem(trimmedName, quantity, chosenUnit, chosenExpiry, clock.millis()));
