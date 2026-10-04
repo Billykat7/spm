@@ -9,6 +9,7 @@ import com.btk.spm.data.model.RecipeIngredient;
 import com.btk.spm.data.model.RecipeWithIngredients;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.UnitKind;
+import com.btk.spm.domain.matching.IngredientNormaliser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,15 +17,12 @@ import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,9 +42,9 @@ import java.util.TreeMap;
  *   <li>poured, {@code ml}, {@code l}, {@code tsp}, {@code tbsp} or {@code cup} (all volume): milk,
  *       olive oil, oil, soy sauce, honey, chicken stock, vegetable stock.</li>
  * </ul>
- * Names are written in the form {@code IngredientNormaliser} (Issue 18) will produce: trimmed, lower
- * case, singular. Until it exists this test checks trimmed and lower case; Issue 18 tightens it to
- * {@code normalise(name).equals(name)}. Water is never listed: a pantry does not stock it.
+ * Names are written in the form {@link IngredientNormaliser} produces with the shipped alias table
+ * (Issue 18): trimmed, lower case, singular, and never an alias, so {@code normalise(name)} gives the
+ * name back. Water is never listed: a pantry does not stock it.
  */
 public class RecipesJsonTest {
 
@@ -68,12 +66,7 @@ public class RecipesJsonTest {
     public static void readTheRealAsset() throws IOException {
         try (InputStream in = RecipesJsonTest.class.getResourceAsStream(ASSET)) {
             assertNotNull(ASSET + " is not on the test classpath; see sourceSets in app/build.gradle", in);
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            byte[] buffer = new byte[8192];
-            for (int read; (read = in.read(buffer)) != -1; ) {
-                bytes.write(buffer, 0, read);
-            }
-            json = new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+            json = AssetText.readUtf8(in);
         }
         recipes = RecipeJsonParser.parse(json);
     }
@@ -120,13 +113,18 @@ public class RecipesJsonTest {
     }
 
     @Test
-    public void ingredientNamesAreTrimmedLowerCaseAndSingleSpaced() {
+    public void ingredientNamesAreAlreadyNormalised() throws IOException {
+        // A seed name the normaliser would change could never equal a normalised pantry name
+        IngredientNormaliser normaliser;
+        try (InputStream in = RecipesJsonTest.class.getResourceAsStream("/" + AliasLoader.ASSET_NAME)) {
+            assertNotNull(in);
+            normaliser = new IngredientNormaliser(AliasLoader.parse(AssetText.readUtf8(in)));
+        }
         for (RecipeWithIngredients recipe : recipes) {
             for (RecipeIngredient ingredient : recipe.getIngredients()) {
                 String name = ingredient.getName();
-                String where = recipe.getRecipe().getName() + ": \"" + name + "\"";
-                assertEquals(where + " is not canonical", name.trim().toLowerCase(Locale.ROOT), name);
-                assertFalse(where + " has a double space", name.contains("  "));
+                assertEquals(recipe.getRecipe().getName() + ": \"" + name + "\" is not canonical",
+                        normaliser.normalise(name), name);
             }
         }
     }
