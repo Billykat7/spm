@@ -8,6 +8,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,12 +22,15 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.btk.spm.R;
+import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.databinding.ActivityAddEditIngredientBinding;
 import com.btk.spm.domain.Unit;
 import com.btk.spm.domain.validation.Field;
 import com.btk.spm.domain.validation.FieldError;
 import com.btk.spm.domain.validation.ValidationResult;
+import com.btk.spm.util.IntentKeys;
 import com.btk.spm.util.PickerDates;
+import com.btk.spm.util.QuantityFormatter;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -37,13 +42,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The screen that adds an ingredient to the pantry, and later edits one (decision 3).
+ * The screen that adds an ingredient to the pantry or edits one (decision 3).
  *
  * <p>It is a separate {@code Activity}, opened by an explicit {@link Intent} that only this class
- * builds: {@link #intentForAdd(Context)} carries no extra, which means "add"; Issue 15 adds
- * {@code intentFor(Context, long)}, whose {@code IntentKeys.EXTRA_PANTRY_ITEM_ID} means "edit". The
+ * builds. {@link #intentForAdd(Context)} carries no extra, which means "add";
+ * {@link #intentForEdit(Context, long)} carries the row's id in
+ * {@link IntentKeys#EXTRA_PANTRY_ITEM_ID}, which means "edit". {@code onCreate} decides which once,
+ * from whether that extra is there, and the title says it: "Add ingredient" or "Edit ingredient". The
  * caller starts it for a result: {@link Activity#RESULT_OK} when an item was saved, nothing passed
- * back, because the list sees the new row through Room.
+ * back, because the list sees the new or changed row through Room.
+ *
+ * <p>When editing, the form is prefilled from the row and stays hidden, with Save off, until the row
+ * has loaded; an id with no row behind it says "Ingredient not found" and closes. Add and edit share
+ * this one screen and one validator, so a rule added once applies to both.
  *
  * <p>The form is name, quantity, unit and an optional expiry date. The screen holds no rule: Save
  * hands the typed text to {@link AddEditIngredientViewModel#save}, which validates and writes only a
@@ -52,6 +63,14 @@ import java.util.Map;
  * cancel without writing.
  */
 public class AddEditIngredientActivity extends AppCompatActivity {
+
+    /** What this screen was opened to do, decided once from its Intent. */
+    private enum Mode {
+        /** No id extra: a new row. */
+        ADD,
+        /** An id extra: change that row. */
+        EDIT
+    }
 
     /** Tag of the date picker in the fragment manager, so a rotation can find it again. */
     private static final String EXPIRY_PICKER_TAG = "com.btk.spm.tag.EXPIRY_PICKER";
@@ -74,6 +93,19 @@ public class AddEditIngredientActivity extends AppCompatActivity {
         return new Intent(context, AddEditIngredientActivity.class);
     }
 
+    /**
+     * Returns the Intent that opens this screen to edit an ingredient: the row's id travels in
+     * {@link IntentKeys#EXTRA_PANTRY_ITEM_ID}, the one place its name is written.
+     *
+     * @param context the screen starting the Intent
+     * @param id      the id of the pantry row to edit
+     * @return an explicit Intent for {@code AddEditIngredientActivity} carrying the id
+     */
+    @NonNull
+    public static Intent intentForEdit(@NonNull Context context, long id) {
+        return new Intent(context, AddEditIngredientActivity.class).putExtra(IntentKeys.EXTRA_PANTRY_ITEM_ID, id);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,8 +122,8 @@ public class AddEditIngredientActivity extends AppCompatActivity {
             return insets;
         });
 
-        // The toolbar is the action bar, so it takes the title from the manifest's android:label
-        // and shows the up arrow, with "Navigate up" read by TalkBack
+        // The toolbar is the action bar: it shows the title this screen sets for its mode and the up
+        // arrow, with "Navigate up" read by TalkBack
         setSupportActionBar(binding.toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -105,6 +137,50 @@ public class AddEditIngredientActivity extends AppCompatActivity {
 
         setUpUnitDropdown();
         setUpExpiryField();
+
+        // The mode is decided here, once, by whether the extra is present; never by comparing an id
+        // with a made-up "no id" value
+        Mode mode = getIntent().hasExtra(IntentKeys.EXTRA_PANTRY_ITEM_ID) ? Mode.EDIT : Mode.ADD;
+        setTitle(mode == Mode.EDIT ? R.string.title_edit_ingredient : R.string.title_add_ingredient);
+        if (mode == Mode.EDIT) {
+            setUpEditing(getIntent().getLongExtra(IntentKeys.EXTRA_PANTRY_ITEM_ID, 0L));
+        }
+    }
+
+    /**
+     * Loads the row to edit through the ViewModel and fills the name and quantity from it once (the
+     * unit and the date are the ViewModel's, shown by their own observers). The form is hidden and
+     * Save is off until then; an id with no row says so and closes.
+     */
+    private void setUpEditing(long id) {
+        viewModel.startEditing(id);
+        viewModel.isReady().observe(this, ready -> {
+            binding.formContainer.setVisibility(ready ? View.VISIBLE : View.INVISIBLE);
+            invalidateOptionsMenu();
+        });
+        viewModel.getPrefill().observe(this, item -> {
+            if (item != null) {
+                prefill(item);
+            }
+        });
+        viewModel.isNotFound().observe(this, notFound -> {
+            if (notFound) {
+                Toast.makeText(this, R.string.ingredient_not_found, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
+
+    /** Puts the loaded row's name and quantity in the fields, the quantity as {@code 4}, not {@code 4.0}. */
+    private void prefill(@NonNull PantryItem item) {
+        if (binding.nameLayout.getEditText() != null) {
+            binding.nameLayout.getEditText().setText(item.getName());
+        }
+        if (binding.quantityLayout.getEditText() != null) {
+            binding.quantityLayout.getEditText().setText(QuantityFormatter.formatAmount(item.getQuantity(),
+                    getResources().getConfiguration().getLocales().get(0)));
+        }
+        viewModel.onPrefillShown();
     }
 
     /**
@@ -123,6 +199,16 @@ public class AddEditIngredientActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.add_edit_ingredient, menu);
         return true;
+    }
+
+    /** Save is off while an edited row is still loading, so nothing can be saved before it is shown. */
+    @Override
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+        MenuItem saveItem = menu.findItem(R.id.action_save);
+        if (saveItem != null) {
+            saveItem.setEnabled(Boolean.TRUE.equals(viewModel.isReady().getValue()));
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
