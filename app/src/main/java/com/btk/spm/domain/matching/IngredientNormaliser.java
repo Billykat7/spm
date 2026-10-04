@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  *       than nothing, so {@code "salt,pepper"} does not become one word. A curly apostrophe counts as
  *       a straight one.</li>
  *   <li><b>Plurals.</b> The last word is made singular by suffix, longest suffix first:
- *       {@code -ies → -y} (berries), {@code -oes → -o} (tomatoes), {@code -ches}, {@code -shes},
+ *       {@code -ies → -y} (berries, but pies is pie), {@code -oes → -o} (tomatoes), {@code -ches}, {@code -shes},
  *       {@code -sses}, {@code -xes} lose {@code es} (peaches, radishes), {@code -lves},
  *       {@code -eaves} and {@code -oaves} end in {@code -f} (halves, leaves, loaves), and
  *       otherwise a final {@code s} goes (eggs, and olives, not "olif"). Words of three letters or fewer, and
@@ -143,7 +143,8 @@ public final class IngredientNormaliser {
         if (word.endsWith("ss")) {
             return word;
         }
-        if (word.endsWith("ies")) {
+        // With one letter before it, -ies is -ie plus s: "pies" is pie, not "py"
+        if (word.endsWith("ies") && word.length() > SHORTEST_PLURAL) {
             return drop(word, 3) + "y";
         }
         if (word.endsWith("oes")) {
