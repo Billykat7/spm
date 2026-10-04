@@ -40,8 +40,10 @@ sleep.
   - `ConventionsTest` fails on any `Thread.sleep` under `androidTest/`.
   - `./scripts/ci-local.sh --with-device` sets the emulator's animation scales to 0 and names each device's API level.
 
-At this tag: 852 JVM unit tests and 143 instrumented tests, all passing on an API 26 and an API 35
-emulator; the `com.btk.spm.ui` package ran ten times in a row green on API 35. `domain/matching/` is
+At this tag: 853 JVM unit tests and 143 instrumented tests, all passing on an API 26 and an API 35
+emulator. The 58 tests of the `com.btk.spm.ui` package ran ten times in a row green on API 35, after
+one fix: in the first ten runs, `SuggestedRecipesLiveTest` failed once, because its two-second wait
+for a removed row was too short on a loaded emulator. `domain/matching/` is
 covered at 100% of lines, and Lint reports no error.
 
 ## Database
@@ -74,7 +76,8 @@ covered at 100% of lines, and Lint reports no error.
 - **The undo Snackbar does not survive a rotation.** The delete has happened, so after a rotation the
   item has to be added again. Recorded with its reason in the checklist.
 - **One unexplained device failure.** While gating Issue 31, one API 35 run failed one test of 138 and
-  its result file was overwritten before it was read. It did not come back in five full runs
-  afterwards or in the ten-run loop of the UI flows; it is named here rather than called fixed.
+  its result file was overwritten before it was read. It did not come back in four full runs after
+  it. The one failure in Issue 32's first ten-run loop was `SuggestedRecipesLiveTest`, and it may have
+  been the same; that test is fixed, but the earlier one is named here rather than called fixed.
 - **The alert's timing is WorkManager's.** It runs about once a day at a time the system picks, as
   the brief needs; there is no exact time setting.
