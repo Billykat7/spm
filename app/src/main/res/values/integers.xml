@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Whole-number limits the layouts need. Each one mirrors a constant in the domain, which is the rule;
+    ValidatorsTest fails if the two ever disagree.
+-->
+<resources>
+    <!-- The name field's counter: Validators.MAX_NAME_LENGTH (Issue 14) -->
+    <integer name="pantry_name_max_length">60</integer>
+</resources>
