@@ -69,7 +69,6 @@
     <string name="recipes_empty_pantry_empty">Your pantry is empty, add some ingredients to see what you can cook</string>
     <string name="recipes_empty_no_recipes">The recipe collection did not load, reinstall the app to restore it</string>
     <string name="recipes_empty_action">Add ingredients</string>
-    <string name="suggested_empty_title">No recipes can be made with what is in your pantry yet.</string>
 
     <!-- Deleting an ingredient (Issue 16): the confirmation, then the Snackbar that can undo it -->
     <string name="delete_confirm_title">Delete %1$s?</string>
