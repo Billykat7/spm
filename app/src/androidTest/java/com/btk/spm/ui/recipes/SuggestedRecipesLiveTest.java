@@ -5,8 +5,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -143,7 +145,10 @@ public class SuggestedRecipesLiveTest {
             awaitState(viewModel, state -> state instanceof UiState.Content content
                     && content.canMake().isEmpty() && content.almostThere().stream().anyMatch(this::isTomatoPasta));
             assertTrue("The almost-there card was not added", cardIn.await(TIMEOUT_S, TimeUnit.SECONDS));
-            onView(withText(sentence)).check(matches(isDisplayed()));
+            // The sentence as the list's first row, not the full-screen state layout: that one is
+            // hidden here, and may still hold the same words from a moment when nothing was close
+            onView(allOf(withId(R.id.message), withText(sentence))).check(matches(isDisplayed()));
+            onView(withId(R.id.state_message)).check(matches(not(isDisplayed())));
             onView(withText(heading)).check(matches(isDisplayed()));
             onView(withText(RECIPE)).check(matches(isDisplayed()));
             onView(withText(missingFifth)).check(matches(isDisplayed()));
