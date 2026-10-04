@@ -32,3 +32,7 @@ the final set after the UI pass, so earlier rows are working copies.
 | 15 | 15_delete_undo.png | Delete confirmed: the row gone from the list with no refresh, and "Deleted tomatoes" with Undo in a Snackbar anchored above the FAB, not over it | #16 |
 | 15 | 15_delete_undo_dark.png | The same Snackbar in the dark theme | #16 |
 | 16 | 16_delete_last_undo.png | The last item deleted: the empty state in place of the list, with "Deleted Plain flour" and Undo still on offer, which brings the row back with its id | #16 |
+| 17 | 17_expiry_badges.png | Five items in the default order, soonest expiry first: "Expired 1 day ago" on the error colours, "Expires today" and "Expires in 2 days" on the tertiary container, "Expires in 10 days" neutral, and no badge for the undated rice, last; each badge from `ExpiryRules` with the 3-day threshold | #17 |
+| 17 | 17_expiry_badges_dark.png | The same badges in the dark theme: every colour is a theme role, so each pair stays legible | #17 |
+| 18 | 18_sort_menu.png | The sort action in the Pantry toolbar opened: "Expiry (soonest first)" checked, the default, and "Name (A–Z)" | #17 |
+| 18 | 18_sort_menu_dark.png | The sort menu in the dark theme | #17 |
