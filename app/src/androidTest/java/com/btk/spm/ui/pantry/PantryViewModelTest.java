@@ -11,12 +11,14 @@ import android.content.SharedPreferences;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.btk.spm.data.db.AppDatabase;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.repo.PantryRepository;
 import com.btk.spm.domain.Unit;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.settings.PrefKey;
 
@@ -28,6 +30,7 @@ import org.junit.runner.RunWith;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -120,12 +123,22 @@ public class PantryViewModelTest {
     }
 
     @Test
-    public void theThreshold_isTheStoredOne_orThreeDays() {
-        assertEquals(3, viewModel.getExpiryThresholdDays());
+    public void theDisplay_isThreeDaysAndMetric_thenFollowsTheSettings() {
+        List<PantryDisplay> seen = new CopyOnWriteArrayList<>();
+        // Observed for the whole test, as the Fragment does, so each change is seen as it happens
+        onMain(() -> viewModel.getDisplay().observeForever(seen::add));
+        assertEquals(List.of(new PantryDisplay(3, UnitsSystem.METRIC)), seen);
 
-        stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), 10).commit();
+        // Written on the main thread, where SharedPreferences calls its change listeners
+        onMain(() -> stored.edit().putInt(PrefKey.EXPIRY_THRESHOLD_DAYS.key(), 10).commit());
+        onMain(() -> stored.edit().putString(PrefKey.UNITS_SYSTEM.key(), UnitsSystem.IMPERIAL.name()).commit());
 
-        assertEquals(10, viewModel.getExpiryThresholdDays());
+        assertEquals(List.of(new PantryDisplay(3, UnitsSystem.METRIC), new PantryDisplay(10, UnitsSystem.METRIC),
+                new PantryDisplay(10, UnitsSystem.IMPERIAL)), seen);
+    }
+
+    private static void onMain(Runnable action) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(action);
     }
 
     @Test

@@ -17,6 +17,8 @@ import com.btk.spm.R;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.databinding.ItemPantryBinding;
 import com.btk.spm.domain.ExpiryRules;
+import com.btk.spm.domain.Quantity;
+import com.btk.spm.domain.matching.UnitConverter;
 import com.btk.spm.util.ExpiryStatus;
 import com.btk.spm.util.QuantityFormatter;
 import com.google.android.material.chip.Chip;
@@ -39,6 +41,11 @@ import java.util.function.Consumer;
  * badge comes from {@link ExpiryRules} for today's date and the threshold it was given, shown through
  * {@link ExpiryBadgeFormatter}. The badge is worked out when a row is bound, so a list left open
  * across midnight shows yesterday's badges until its rows are bound again.
+ *
+ * <p>The threshold and the units come from the Settings tab as a {@link PantryDisplay}
+ * ({@link #setDisplay}); a new one redraws every row, so {@code 1500 g} reads {@code 52.9 oz} as soon as
+ * imperial is chosen. The amount goes through {@link UnitConverter#toPreferredDisplay}, the same
+ * display rule as the recipe detail screen; the stored row is never changed by it (decision 5).
  */
 public class PantryAdapter extends ListAdapter<PantryItem, PantryAdapter.ViewHolder> {
 
@@ -67,21 +74,38 @@ public class PantryAdapter extends ListAdapter<PantryItem, PantryAdapter.ViewHol
         void onDelete(@NonNull PantryItem item);
     }
 
+    /** Turns a stored amount into the one shown; holds no state, so one serves every row. */
+    private static final UnitConverter DISPLAY = new UnitConverter();
+
     private final Listener listener;
 
-    /** Days ahead that still count as expiring soon (decision 6), from the user's settings. */
-    private final int expiryThresholdDays;
+    /** The threshold and units the rows are drawn with, from the user's settings. */
+    @NonNull
+    private PantryDisplay display;
 
     /**
      * Creates an empty adapter; rows appear when the first list is submitted.
      *
-     * @param listener            receives the row taps and the overflow menu choices
-     * @param expiryThresholdDays how many days ahead a badge reads as expiring soon
+     * @param listener receives the row taps and the overflow menu choices
+     * @param display  the threshold and units to draw the rows with until {@link #setDisplay} changes them
      */
-    public PantryAdapter(@NonNull Listener listener, int expiryThresholdDays) {
+    public PantryAdapter(@NonNull Listener listener, @NonNull PantryDisplay display) {
         super(new ItemDiff());
         this.listener = listener;
-        this.expiryThresholdDays = expiryThresholdDays;
+        this.display = display;
+    }
+
+    /**
+     * Draws every row again with {@code newDisplay}, when it differs from the one in use: the items
+     * are the same, only how their badges and amounts read has changed.
+     *
+     * @param newDisplay the threshold and units the user has now chosen
+     */
+    public void setDisplay(@NonNull PantryDisplay newDisplay) {
+        if (!newDisplay.equals(display)) {
+            display = newDisplay;
+            notifyItemRangeChanged(0, getItemCount());
+        }
     }
 
     @NonNull
@@ -98,7 +122,7 @@ public class PantryAdapter extends ListAdapter<PantryItem, PantryAdapter.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(getItem(position), LocalDate.now(), expiryThresholdDays);
+        holder.bind(getItem(position), LocalDate.now(), display);
     }
 
     /** Runs {@code action} on the item the row shows now, unless the row is on its way out. */
@@ -139,19 +163,20 @@ public class PantryAdapter extends ListAdapter<PantryItem, PantryAdapter.ViewHol
         }
 
         /**
-         * Shows {@code item}: its name, its amount with the unit's symbol ({@code 4 pcs}) and its
-         * expiry badge as of {@code today}.
+         * Shows {@code item}: its name, its amount in the chosen units with the unit's symbol
+         * ({@code 4 pcs}, {@code 1.5 kg}, {@code 52.9 oz}) and its expiry badge as of {@code today}.
          */
-        void bind(@NonNull PantryItem item, @NonNull LocalDate today, int expiryThresholdDays) {
+        void bind(@NonNull PantryItem item, @NonNull LocalDate today, @NonNull PantryDisplay display) {
             Context context = binding.getRoot().getContext();
             binding.name.setText(item.getName());
-            binding.quantity.setText(QuantityFormatter.format(context, item.getQuantity(), item.getUnit()));
+            binding.quantity.setText(QuantityFormatter.format(context, DISPLAY.toPreferredDisplay(
+                    new Quantity(item.getQuantity(), item.getUnit()), display.unitsSystem())));
             // Spoken by TalkBack, so it names the row it belongs to
             binding.overflow.setContentDescription(
                     context.getString(R.string.pantry_item_options_for, item.getName()));
 
             LocalDate expiry = item.getExpiryDate();
-            ExpiryStatus status = ExpiryRules.statusOf(expiry, today, expiryThresholdDays);
+            ExpiryStatus status = ExpiryRules.statusOf(expiry, today, display.expiryThresholdDays());
             showBadge(ExpiryBadgeFormatter.format(context.getResources(), status,
                     expiry == null ? 0 : ExpiryRules.daysUntil(expiry, today)));
         }

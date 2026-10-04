@@ -7,13 +7,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.btk.spm.SpmApplication;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.data.repo.PantryRepository;
+import com.btk.spm.domain.UnitsSystem;
 import com.btk.spm.settings.AppPreferences;
+import com.btk.spm.settings.PrefKey;
 
 import java.util.List;
 
@@ -30,6 +33,10 @@ import java.util.List;
  * position, which the adapter keeps because the same items come back) survives it without a query.
  * The order is a setting: it is read from {@link AppPreferences} when the ViewModel is created and
  * written there when the user picks another, so it survives the app being closed.
+ *
+ * <p>{@link #getDisplay()} carries the two Settings-tab choices a row is drawn with, the expiring-soon
+ * threshold and the units system, observed live (Issue 28): the badges and amounts follow a change
+ * made on the Settings tab without the Pantry tab being opened again.
  */
 public class PantryViewModel extends AndroidViewModel {
 
@@ -37,6 +44,13 @@ public class PantryViewModel extends AndroidViewModel {
     private final MutableLiveData<SortOrder> sortOrder;
 
     private final LiveData<List<PantryItem>> items;
+
+    /** The threshold and the units the rows are drawn with, from the two settings' {@code LiveData}. */
+    private final MediatorLiveData<PantryDisplay> display = new MediatorLiveData<>();
+
+    /** The latest of each setting; both are sent as soon as the display is observed. */
+    private Integer thresholdDays;
+    private UnitsSystem unitsSystem;
 
     /** Where deletes and their undo go; the reads come from it too, through {@link #items}. */
     private final PantryRepository repository;
@@ -75,6 +89,21 @@ public class PantryViewModel extends AndroidViewModel {
         // Sorting runs on the main thread, which is fine for a household pantry of tens of rows.
         items = Transformations.switchMap(sortOrder,
                 order -> Transformations.map(pantry, order::sort));
+        display.addSource(preferences.observeInt(PrefKey.EXPIRY_THRESHOLD_DAYS), days -> {
+            thresholdDays = days;
+            publishDisplay();
+        });
+        display.addSource(preferences.observeUnitsSystem(), units -> {
+            unitsSystem = units;
+            publishDisplay();
+        });
+    }
+
+    /** Sends the display once both settings have arrived, and again after each change. */
+    private void publishDisplay() {
+        if (thresholdDays != null && unitsSystem != null) {
+            display.setValue(new PantryDisplay(thresholdDays, unitsSystem));
+        }
     }
 
     /**
@@ -114,13 +143,15 @@ public class PantryViewModel extends AndroidViewModel {
     }
 
     /**
-     * Returns how many days ahead an item's badge reads as expiring soon, for the adapter to pass to
-     * {@code ExpiryRules} when it binds a row.
+     * Returns what the rows are drawn with: the expiring-soon threshold the adapter passes to
+     * {@code ExpiryRules}, and the units system it shows amounts in. A new value arrives whenever
+     * either setting changes, from the Settings tab or anywhere else.
      *
-     * @return the stored threshold, or the default of 3 days
+     * @return the observed display settings; the stored ones, or 3 days and metric
      */
-    public int getExpiryThresholdDays() {
-        return preferences.getExpiryThresholdDays();
+    @NonNull
+    public LiveData<PantryDisplay> getDisplay() {
+        return display;
     }
 
     /**

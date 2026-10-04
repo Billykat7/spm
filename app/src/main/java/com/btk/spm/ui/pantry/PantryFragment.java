@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.btk.spm.R;
 import com.btk.spm.data.model.PantryItem;
 import com.btk.spm.databinding.FragmentPantryBinding;
+import com.btk.spm.settings.AppPreferences;
 import com.btk.spm.ui.FragmentLifecycleLog;
 import com.btk.spm.ui.ListChangeLog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -101,7 +102,9 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
         FragmentPantryBinding views = requireBinding();
 
         viewModel = new ViewModelProvider(this).get(PantryViewModel.class);
-        PantryAdapter adapter = new PantryAdapter(this, viewModel.getExpiryThresholdDays());
+        // Drawn with the defaults until the settings arrive, which is at once: they are read on observe
+        PantryAdapter adapter = new PantryAdapter(this, new PantryDisplay(
+                AppPreferences.DEFAULT_EXPIRY_THRESHOLD_DAYS, AppPreferences.DEFAULT_UNITS_SYSTEM));
         // Hold the saved scroll position until the first list arrives, so a rotation lands on the
         // same rows instead of the top of an adapter that is still empty
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
@@ -121,7 +124,9 @@ public class PantryFragment extends Fragment implements PantryAdapter.Listener {
         addSortMenu();
 
         // The view's lifecycle, not the Fragment's: the observer goes when the view does, so a list
-        // can never be delivered to a destroyed RecyclerView
+        // can never be delivered to a destroyed RecyclerView. The settings first, so the first rows
+        // are bound with the threshold and units the user chose.
+        viewModel.getDisplay().observe(getViewLifecycleOwner(), adapter::setDisplay);
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             adapter.submitList(items);
             showEmptyState(items);
